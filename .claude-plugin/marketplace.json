@@ -1,9 +1,14 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "korean-job-hunter",
+  "description": "한국 채용 공고 검색, 이력서 매칭 분석, 통근 시간 및 원격 근무 선호도 추적을 위한 AI 기반 취업 지원 도구 모음",
+  "owner": {
+    "name": "jeongsk"
+  },
   "plugins": [
     {
-      "name": "job-hunter",
+      "name": "korean-job-hunter",
+      "source": "./",
       "description": "AI job hunting plugin: search, match resumes, track commute & remote work",
       "version": "1.0.0",
       "category": "productivity",
@@ -11,11 +16,12 @@
     },
     {
       "name": "agent-browser",
-      "description": "Headless browser automation for AI agents",
+      "category": "development",
       "source": {
-        "source": "url",
-        "url": "https://github.com/vercel-labs/agent-browser.git"
+        "source": "github",
+        "repo": "vercel-labs/agent-browser"
       },
+      "description": "Headless browser automation for AI agents",
       "homepage": "https://github.com/vercel-labs/agent-browser"
     }
   ]
