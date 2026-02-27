@@ -1,7 +1,10 @@
 ---
 name: job-scraping
 description: "Web scraping workflow for collecting job postings from multiple Korean and international job sites"
-allowed-tools: Bash(playwright-cli:*)
+allowed-tools:
+  - Bash(playwright-cli:*)
+  - Bash(sleep)
+  - Bash(curl)
 ---
 
 # Job Scraping Skill
@@ -224,11 +227,163 @@ sleep 2
 playwright-cli goto "https://www.wanted.co.kr/page/2"
 ```
 
+## Error Handling
+
+### 요소 대기 및 타임아웃
+```bash
+# 요소가 나타날 때까지 대기 (최대 5초)
+playwright-cli wait-for ".JobCard_container" --timeout=5000
+
+# 페이지 로드 대기
+playwright-cli wait-for-load-state networkidle
+```
+
+### 실패 시 재시도 패턴
+```bash
+# 클릭 재시도 (최대 3회)
+for i in 1 2 3; do
+  playwright-cli click e15 && break
+  sleep 1
+done
+
+# 강제 클릭 (일반 클릭 실패 시)
+playwright-cli click e15 --force
+```
+
+### 네트워크 오류 대응
+```bash
+# 페이지 로드 실패 시 재시도
+playwright-cli goto "https://www.wanted.co.kr" --retry=3 --retry-delay=2000
+```
+
+### 빈 결과 처리
+```bash
+# 결과 확인 후 처리
+result=$(playwright-cli eval "[...document.querySelectorAll('.job-card')].length")
+if [ "$result" -eq 0 ]; then
+  echo "No results found, trying alternative selectors..."
+  playwright-cli eval "[...document.querySelectorAll('[data-testid=\"job-card\"]')].length"
+fi
+```
+
+## Selector Fallback Patterns
+
+사이트 구조 변경에 대비한 다중 셀렉터 전략:
+
+### Wanted
+```javascript
+// Fallback 셀렉터 사용
+[...document.querySelectorAll('.JobCard_container, [data-testid="job-card"], .job-card')].map(card => ({
+  title: card.querySelector('.JobCard_title, [data-testid="job-title"], h2')?.textContent?.trim(),
+  company: card.querySelector('.JobCard_company, [data-testid="company-name"], .company')?.textContent?.trim(),
+  location: card.querySelector('.JobCard_location, [data-testid="location"], .location')?.textContent?.trim(),
+  link: card.querySelector('a')?.href
+}))
+```
+
+### Jobkorea
+```javascript
+[...document.querySelectorAll('.list-item, .recruit-item, [data-recruit-id]')].map(item => ({
+  title: item.querySelector('.title, .link, h2')?.textContent?.trim(),
+  company: item.querySelector('.name, .company, .corp')?.textContent?.trim(),
+  link: item.querySelector('a')?.href
+}))
+```
+
+## Data Output Format
+
+### JSON 저장 (권장)
+```bash
+# 타임스탬프와 함께 저장
+playwright-cli eval "JSON.stringify([...document.querySelectorAll('.JobCard_container')].map(...))" \
+  | jq '.' > "jobs_$(date +%Y%m%d_%H%M%S).json"
+
+# 예쁜 포맷팅
+playwright-cli eval "..." | jq '.' > jobs.json
+```
+
+### CSV 변환
+```bash
+# JSON을 CSV로 변환
+playwright-cli eval "..." | jq -r '(.[0] | keys_unsorted) as $keys | $keys, map([.[ $keys[] ]])[] | @csv' > jobs.csv
+```
+
+### 중복 제거
+```bash
+# 링크 기준 중복 제거
+playwright-cli eval "..." | jq 'unique_by(.link)' > jobs_unique.json
+
+# 회사+제목 기준 중복 제거
+playwright-cli eval "..." | jq 'unique_by(.company + .title)' > jobs_unique.json
+```
+
+## Date Parsing
+
+### 한국어 날짜 형식
+```javascript
+// 등록일/마감일 파싱
+const parseKoreanDate = (text) => {
+  if (!text) return null;
+
+  // "2월 27일" 형식
+  const monthDay = text.match(/(\d+)월\s*(\d+)일/);
+  if (monthDay) {
+    const now = new Date();
+    return new Date(now.getFullYear(), parseInt(monthDay[1]) - 1, parseInt(monthDay[2]));
+  }
+
+  // "D-3", "D-7" 형식 (마감일)
+  const dDay = text.match(/D-(\d+)/);
+  if (dDay) {
+    const deadline = new Date();
+    deadline.setDate(deadline.getDate() + parseInt(dDay[1]));
+    return deadline;
+  }
+
+  // "3일 전", "1주 전" 형식
+  const ago = text.match(/(\d+)(일|주)\s*전/);
+  if (ago) {
+    const date = new Date();
+    const unit = ago[2] === '주' ? 7 : 1;
+    date.setDate(date.getDate() - parseInt(ago[1]) * unit);
+    return date;
+  }
+
+  return null;
+};
+```
+
+### 스크래핑에 적용
+```bash
+playwright-cli eval "
+[...document.querySelectorAll('.JobCard_container')].map(card => {
+  const dateText = card.querySelector('.date, .posted-date')?.textContent;
+  return {
+    title: card.querySelector('.JobCard_title')?.textContent?.trim(),
+    posted_date: dateText,
+    // 파싱은 후처리에서 수행
+  };
+})
+"
+```
+
 ## Kakao Map Commute Calculation
 
 ### API Setup
 - Kakao Developers: https://developers.kakao.com/
 - REST API key required (set as KAKAO_REST_API_KEY env var)
+
+### 환경변수 설정
+```bash
+# .env 파일 생성
+echo "KAKAO_REST_API_KEY=your_api_key_here" > .env
+
+# 또는 export
+export KAKAO_REST_API_KEY="your_api_key_here"
+
+# 확인
+echo $KAKAO_REST_API_KEY
+```
 
 ### Geocoding (Address to Coordinates)
 ```bash
@@ -252,39 +407,57 @@ curl -s "https://apis-navi.kakaomobility.com/v1/directions?origin={lon},{lat}&de
 # 1. 브라우저 열기
 playwright-cli open "https://www.wanted.co.kr/search?query=프론트엔드&tab=position"
 
-# 2. 초기 스냅샷
+# 2. 페이지 로드 대기
+playwright-cli wait-for ".JobCard_container" --timeout=5000
+
+# 3. 초기 스냅샷
 playwright-cli snapshot
 
-# 3. 모든 채용공고 추출
+# 4. 채용공고 추출 (fallback 셀렉터 포함)
 playwright-cli eval "
-[...document.querySelectorAll('.JobCard_container')].map(card => ({
-  title: card.querySelector('.JobCard_title')?.textContent?.trim(),
-  company: card.querySelector('.JobCard_company')?.textContent?.trim(),
-  location: card.querySelector('.JobCard_location')?.textContent?.trim(),
-  link: card.querySelector('a')?.href
+[...document.querySelectorAll('.JobCard_container, [data-testid=\"job-card\"]')].map(card => ({
+  title: card.querySelector('.JobCard_title, [data-testid=\"job-title\"]')?.textContent?.trim(),
+  company: card.querySelector('.JobCard_company, [data-testid=\"company-name\"]')?.textContent?.trim(),
+  location: card.querySelector('.JobCard_location, [data-testid=\"location\"]')?.textContent?.trim(),
+  link: card.querySelector('a')?.href,
+  scraped_at: new Date().toISOString()
 }))
-" > jobs.json
+" | jq '.' > "jobs_$(date +%Y%m%d_%H%M%S).json"
 
-# 4. 스크롤하여 더 많은 결과 로드
+# 5. 스크롤하여 더 많은 결과 로드
 playwright-cli eval "window.scrollTo(0, document.body.scrollHeight)"
 sleep 2
 
-# 5. 추가 결과 추출
+# 6. 추가 결과 추출 및 병합
 playwright-cli snapshot
-playwright-cli eval "[...document.querySelectorAll('.JobCard_container')].length"
+playwright-cli eval "
+[...document.querySelectorAll('.JobCard_container, [data-testid=\"job-card\"]')].map(card => ({
+  title: card.querySelector('.JobCard_title, [data-testid=\"job-title\"]')?.textContent?.trim(),
+  company: card.querySelector('.JobCard_company, [data-testid=\"company-name\"]')?.textContent?.trim(),
+  location: card.querySelector('.JobCard_location, [data-testid=\"location\"]')?.textContent?.trim(),
+  link: card.querySelector('a')?.href,
+  scraped_at: new Date().toISOString()
+}))
+" | jq -s 'add | unique_by(.link)' > jobs_merged.json
 
-# 6. 상세 페이지 순회
+# 7. 상세 페이지 순회 (에러 핸들링 포함)
 for i in e15 e16 e17; do
-  playwright-cli click $i
-  sleep 1
-  playwright-cli snapshot
-  playwright-cli eval "document.querySelector('.job-description')?.textContent"
-  playwright-cli go-back
-  sleep 2
+  if playwright-cli click $i 2>/dev/null; then
+    sleep 1
+    playwright-cli snapshot
+    playwright-cli eval "document.querySelector('.job-description, [data-testid=\"description\"]')?.textContent" >> details.txt
+    playwright-cli go-back
+    sleep 2
+  else
+    echo "Failed to click $i, skipping..."
+  fi
 done
 
-# 7. 브라우저 종료
+# 8. 브라우저 종료
 playwright-cli close
+
+# 9. 결과 요약
+echo "Scraped $(jq 'length' jobs_merged.json) unique jobs"
 ```
 
 ## Debugging & Troubleshooting
