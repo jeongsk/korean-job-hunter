@@ -1,0 +1,9 @@
+{
+  "name": "korean-job-hunter",
+  "description": "AI-powered job hunting assistant for Claude Code — search jobs, match resumes, track applications",
+  "version": "1.0.0",
+  "author": {
+    "name": "jeongsk"
+  },
+  "skills": "./.claude/skills/"
+}

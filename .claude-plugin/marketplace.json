@@ -1,0 +1,22 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "korean-job-hunter",
+  "plugins": [
+    {
+      "name": "job-hunter",
+      "description": "AI job hunting plugin: search, match resumes, track commute & remote work",
+      "version": "1.0.0",
+      "category": "productivity",
+      "tags": ["job-search", "resume", "career", "remote-work", "commute"]
+    },
+    {
+      "name": "agent-browser",
+      "description": "Headless browser automation for AI agents",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/vercel-labs/agent-browser.git"
+      },
+      "homepage": "https://github.com/vercel-labs/agent-browser"
+    }
+  ]
+}
