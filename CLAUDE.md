@@ -541,6 +541,67 @@ claude --plugin-dir ./my-plugin
 
 ---
 
+## 18. Dual-Platform Plugin Support (Claude Code + OpenClaw)
+
+이 프로젝트는 Claude Code와 OpenClaw 두 플랫폼을 모두 지원합니다.
+
+### 플랫폼별 구조
+
+| Component | Claude Code | OpenClaw |
+| :--------- | :---------- | :------- |
+| Manifest | `.claude-plugin/plugin.json` | `openclaw.plugin.json` |
+| Entry Point | commands/ + agents/ | `extensions/index.ts` |
+| Skills | `skills/*/SKILL.md` | `skills/*/SKILL.md` (공유) |
+| CLI Commands | `/korean-job-hunter:*` | `openclaw job-*` |
+| Config | 플랫폼 기본 설정 | `plugins.entries.korean-job-hunter.config` |
+
+### 파일 구조
+
+```
+korean-job-hunter/
+├── .claude-plugin/
+│   ├── plugin.json           # Claude Code 매니페스트
+│   └── marketplace.json      # 마켓플레이스 메타데이터
+├── extensions/
+│   └── index.ts              # OpenClaw 진입점 (CLI 커맨드 등록)
+├── skills/                   # 공유 Skills
+│   ├── job-matching/
+│   ├── job-scraping/
+│   └── job-tracking/
+├── commands/                 # Claude Code 커맨드
+├── agents/                   # Claude Code 에이전트
+├── openclaw.plugin.json      # OpenClaw 매니페스트
+└── package.json              # openclaw.extensions 포함
+```
+
+### OpenClaw 설정 예시
+
+```yaml
+plugins:
+  entries:
+    korean-job-hunter:
+      enabled: true
+      config:
+        kakaoApiKey: "${KAKAO_REST_API_KEY}"
+        defaultMaxCommute: 60
+        dataPath: "data"
+```
+
+### OpenClaw CLI 명령어
+
+```bash
+openclaw job-search --keyword "백엔드" --source wanted
+openclaw job-match --job-id abc123
+openclaw job-track --stats
+openclaw job-resume --view
+```
+
+### 참고 문서
+
+- [OpenClaw Plugins](https://docs.openclaw.ai/tools/plugin): OpenClaw 플러그인 개발 가이드
+
+---
+
 Version: 13.3.0
 Last Updated: 2026-02-28
 Language: English

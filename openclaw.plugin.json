@@ -1,0 +1,46 @@
+{
+  "$schema": "https://openclaw.ai/schemas/plugin.json",
+  "id": "korean-job-hunter",
+  "name": "Korean Job Hunter",
+  "version": "1.0.0",
+  "description": "AI-powered job hunting assistant for Korean job markets - search jobs, match resumes, track applications",
+  "author": {
+    "name": "jeongsk"
+  },
+  "skills": ["./skills/job-matching", "./skills/job-scraping", "./skills/job-tracking"],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "kakaoApiKey": {
+        "type": "string",
+        "description": "Kakao REST API key for commute time calculation"
+      },
+      "defaultMaxCommute": {
+        "type": "number",
+        "default": 60,
+        "description": "Default maximum commute time in minutes"
+      },
+      "dataPath": {
+        "type": "string",
+        "default": "data",
+        "description": "Path to store job database and resumes"
+      }
+    }
+  },
+  "uiHints": {
+    "kakaoApiKey": {
+      "label": "Kakao API Key",
+      "sensitive": true,
+      "placeholder": "Enter your Kakao REST API key"
+    },
+    "defaultMaxCommute": {
+      "label": "Max Commute (minutes)",
+      "placeholder": "60"
+    },
+    "dataPath": {
+      "label": "Data Directory",
+      "placeholder": "data"
+    }
+  }
+}

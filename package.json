@@ -1,4 +1,12 @@
 {
+  "name": "korean-job-hunter",
+  "version": "1.0.0",
+  "description": "AI-powered job hunting assistant for Korean job markets - search jobs, match resumes, track applications",
+  "author": "jeongsk",
+  "license": "MIT",
+  "openclaw": {
+    "extensions": ["./extensions/index.ts"]
+  },
   "dependencies": {
     "playwright": "^1.58.2"
   }
