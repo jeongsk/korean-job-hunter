@@ -8,11 +8,8 @@
   "plugins": [
     {
       "name": "korean-job-hunter",
-      "source": "./",
       "description": "AI job hunting plugin: search, match resumes, track commute & remote work",
-      "version": "1.0.0",
-      "category": "productivity",
-      "tags": ["job-search", "resume", "career", "remote-work", "commute"]
+      "source": "./"
     }
   ]
 }

@@ -504,8 +504,45 @@ Large PDFs (>10 pages) return a lightweight reference when @-mentioned. Always s
 
 ---
 
-Version: 13.2.0 (Usage Data Driven Improvements)
-Last Updated: 2026-02-22
+## 17. Plugin Development Reference
+
+Claude Code 플러그인 개발에 대한 공식 문서를 참고하세요:
+
+**공식 문서**: https://code.claude.com/docs/en/plugins.md
+
+### 플러그인 구조
+
+| Directory | Purpose |
+| :--------- | :------- |
+| `.claude-plugin/` | `plugin.json` 매니페스트 파일 포함 |
+| `commands/` | 스킬 Markdown 파일 |
+| `agents/` | 커스텀 에이전트 정의 |
+| `skills/` | `SKILL.md` 파일이 포함된 Agent Skills |
+| `hooks/` | `hooks.json` 이벤트 핸들러 |
+| `.mcp.json` | MCP 서버 설정 |
+| `.lsp.json` | LSP 서버 설정 |
+
+### 플러그인 vs 독립형 구성
+
+- **독립형 (`.claude/`)**: 개인 워크플로우, 프로젝트별 커스터마이징
+- **플러그인**: 팀 공유, 커뮤니티 배포, 버전 관리
+
+### 로컬 테스트
+
+```bash
+claude --plugin-dir ./my-plugin
+```
+
+### 참고 문서
+
+- [Plugins Reference](https://code.claude.com/docs/en/plugins-reference): 전체 기술 사양
+- [Plugin Marketplaces](https://code.claude.com/docs/en/plugin-marketplaces): 마켓플레이스 생성 및 배포
+- [Discover and Install Plugins](https://code.claude.com/docs/en/discover-plugins): 플러그인 탐색 및 설치
+
+---
+
+Version: 13.3.0
+Last Updated: 2026-02-28
 Language: English
 Core Rule: MoAI is an orchestrator; direct implementation is prohibited
 
