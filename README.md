@@ -13,17 +13,18 @@
 
 ## 설치
 
-### GitHub에서 직접 설치 (마켓플레이스 출시 이후)
+### GitHub에서 직접 설치
 
 ```bash
-claude plugin install owner/job-hunter
+claude plugin install jeongsk/korean-job-hunter
 ```
 
-### 수동 설치
+### 로컬 개발용 설치
 
 ```bash
-git clone https://github.com/owner/job-hunter.git
-cd job-hunter
+git clone https://github.com/jeongsk/korean-job-hunter.git
+cd korean-job-hunter
+claude --plugin-dir .
 ```
 
 ### Playwright 설치 (스크래핑용)
@@ -40,60 +41,62 @@ cd mcp-server && npm install && npm run build
 
 ## 사용법
 
+모든 명령어는 `/korean-job-hunter:` 접두사를 사용합니다.
+
 ### 1. 이력서 등록
 
 ```bash
 # PDF 이력서 등록
-/job-resume add ./my-resume.pdf
+/korean-job-hunter:job-resume add ./my-resume.pdf
 
 # YAML 이력서 직접 편집
-/job-resume add ./resume.yaml
+/korean-job-hunter:job-resume add ./resume.yaml
 
 # 현재 이력서 확인
-/job-resume show
+/korean-job-hunter:job-resume show
 
 # 집 주소 등록 (통근 시간 계산용)
-/job-resume set-home "서울시 마포구 합정동"
+/korean-job-hunter:job-resume set-home "서울시 마포구 합정동"
 ```
 
 ### 2. 채용공고 검색
 
 ```bash
 # 키워드로 검색
-/job-search --keyword "백엔드" --location "서울"
+/korean-job-hunter:job-search --keyword "백엔드" --location "서울"
 
 # 재택/하이브리드 공고만
-/job-search --keyword "Node.js" --remote remote,hybrid
+/korean-job-hunter:job-search --keyword "Node.js" --remote remote,hybrid
 
 # 통근 60분 이내, 매칭 70점 이상
-/job-search --keyword "백엔드" --max-commute 60 --min-match 70
+/korean-job-hunter:job-search --keyword "백엔드" --max-commute 60 --min-match 70
 
 # 특정 소스만
-/job-search --keyword "백엔드" --sources wanted,linkedin
+/korean-job-hunter:job-search --keyword "백엔드" --sources wanted,linkedin
 ```
 
 ### 3. 매칭 분석
 
 ```bash
 # 상위 10개 매칭 결과
-/job-match --top 10
+/korean-job-hunter:job-match --top 10
 
 # 특정 공고 상세 분석
-/job-match --job-id abc123
+/korean-job-hunter:job-match --job-id abc123
 
 # 재택 공고만 매칭
-/job-match --top 10 --remote-only
+/korean-job-hunter:job-match --top 10 --remote-only
 ```
 
 ### 4. 지원 현황 관리
 
 ```bash
 # 지원 목록 확인
-/job-track list
+/korean-job-hunter:job-track list
 
 # 상태 업데이트
-/job-track set abc123 --status applied --memo "1차 서류 제출"
-/job-track set abc123 --status interview --memo "면접일: 3/20"
+/korean-job-hunter:job-track set abc123 --status applied --memo "1차 서류 제출"
+/korean-job-hunter:job-track set abc123 --status interview --memo "면접일: 3/20"
 ```
 
 ## 매칭 점수 기준
@@ -109,7 +112,7 @@ cd mcp-server && npm install && npm run build
 ## 아키텍처
 
 ```
-/job-search (슬래시 명령어)
+/korean-job-hunter:job-search (슬래시 명령어)
       │
       ▼
 Claude Code (내장 오케스트레이션)

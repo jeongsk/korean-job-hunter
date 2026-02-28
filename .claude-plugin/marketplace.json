@@ -13,16 +13,6 @@
       "version": "1.0.0",
       "category": "productivity",
       "tags": ["job-search", "resume", "career", "remote-work", "commute"]
-    },
-    {
-      "name": "agent-browser",
-      "category": "development",
-      "source": {
-        "source": "github",
-        "repo": "vercel-labs/agent-browser"
-      },
-      "description": "Headless browser automation for AI agents",
-      "homepage": "https://github.com/vercel-labs/agent-browser"
     }
   ]
 }
