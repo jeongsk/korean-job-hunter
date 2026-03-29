@@ -1,0 +1,81 @@
+{
+  "id": "EXP-007",
+  "name": "Expanded Similarity Map",
+  "weights": {
+    "skill": 0.5,
+    "experience": 0.15,
+    "preferred": 0.1,
+    "work_type": 0.15,
+    "commute": 0.1
+  },
+  "expanded_similarity": true,
+  "metrics": {
+    "discrimination": 52.53,
+    "positive_avg": 79.2,
+    "negative_avg": 26.67
+  },
+  "delta": 0,
+  "verdict": "revert",
+  "results": [
+    {
+      "id": "TC-001",
+      "label": "positive",
+      "score": 82,
+      "verdict": "✅"
+    },
+    {
+      "id": "TC-002",
+      "label": "positive",
+      "score": 81,
+      "verdict": "✅"
+    },
+    {
+      "id": "TC-003",
+      "label": "negative",
+      "score": 28,
+      "verdict": "✅"
+    },
+    {
+      "id": "TC-004",
+      "label": "negative",
+      "score": 26,
+      "verdict": "✅"
+    },
+    {
+      "id": "TC-005",
+      "label": "positive",
+      "score": 94,
+      "verdict": "✅"
+    },
+    {
+      "id": "TC-006",
+      "label": "borderline",
+      "score": 38,
+      "verdict": "✅"
+    },
+    {
+      "id": "TC-007",
+      "label": "positive",
+      "score": 69,
+      "verdict": "✅"
+    },
+    {
+      "id": "TC-008",
+      "label": "positive",
+      "score": 70,
+      "verdict": "✅"
+    },
+    {
+      "id": "TC-009",
+      "label": "negative",
+      "score": 26,
+      "verdict": "⚠️"
+    },
+    {
+      "id": "TC-010",
+      "label": "borderline",
+      "score": 58,
+      "verdict": "✅"
+    }
+  ]
+}

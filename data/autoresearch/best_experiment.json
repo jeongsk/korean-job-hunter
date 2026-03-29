@@ -1,0 +1,115 @@
+{
+  "id": "EXP-002",
+  "name": "skill↑↑ commute↓",
+  "hypothesis": "기술 스킬 50%, 경력 15%로 조정하면 더 큰 discrimination",
+  "weights": {
+    "skill": 0.5,
+    "experience": 0.15,
+    "preferred": 0.1,
+    "work_type": 0.15,
+    "commute": 0.1
+  },
+  "metrics": {
+    "discrimination": 52.53,
+    "positive_avg": 79.2,
+    "negative_avg": 26.67,
+    "borderline_avg": 48,
+    "accuracy": 90
+  },
+  "results": [
+    {
+      "id": "TC-001",
+      "label": "positive",
+      "score": 82,
+      "expected": {
+        "min_score": 70,
+        "reason": "필수 스킬 2/3 일치, 우대 1/2 일치, 경력 충족, 재택 선호 일치"
+      }
+    },
+    {
+      "id": "TC-002",
+      "label": "positive",
+      "score": 81,
+      "expected": {
+        "min_score": 75,
+        "reason": "필수 스킬 3/3 일치, 우대 2/2 일치, 경력 충족, 하이브리드 선호"
+      }
+    },
+    {
+      "id": "TC-003",
+      "label": "negative",
+      "score": 28,
+      "expected": {
+        "max_score": 40,
+        "reason": "필수 스킬 0/4 일치, 경력 부족, 출근 필수, 원격 불가"
+      }
+    },
+    {
+      "id": "TC-004",
+      "label": "negative",
+      "score": 26,
+      "expected": {
+        "max_score": 30,
+        "reason": "스킬 전혀 불일치, 부산 근무, 출근 필수"
+      }
+    },
+    {
+      "id": "TC-005",
+      "label": "positive",
+      "score": 94,
+      "expected": {
+        "min_score": 85,
+        "reason": "필수 3/3, 우대 3/3, 경력 충족, 하이브리드 선호, 통근 짧음"
+      }
+    },
+    {
+      "id": "TC-006",
+      "label": "borderline",
+      "score": 38,
+      "expected": {
+        "min_score": 20,
+        "max_score": 55,
+        "reason": "스킬 불일치, 출근 필수, 경력 약간 부족. Spring≈Spring Boot 유사도로 약간의 점수"
+      }
+    },
+    {
+      "id": "TC-007",
+      "label": "positive",
+      "score": 69,
+      "expected": {
+        "min_score": 65,
+        "reason": "필수 2/3, 재택, 경력 충족"
+      }
+    },
+    {
+      "id": "TC-008",
+      "label": "positive",
+      "score": 70,
+      "expected": {
+        "min_score": 70,
+        "reason": "Express≈Node.js 유사도, MySQL≈PostgreSQL 유사도, TypeScript 우대 일치"
+      }
+    },
+    {
+      "id": "TC-009",
+      "label": "negative",
+      "score": 26,
+      "expected": {
+        "max_score": 25,
+        "reason": "스킬 전혀 불일치, 대전 근무, 출근 필수"
+      }
+    },
+    {
+      "id": "TC-010",
+      "label": "borderline",
+      "score": 58,
+      "expected": {
+        "min_score": 40,
+        "max_score": 65,
+        "reason": "PostgreSQL 일치, Docker 우대 일치, FastAPI≈Python 유사도, 통근 매우 짧음"
+      }
+    }
+  ],
+  "delta": 3.73,
+  "verdict": "keep"
+}

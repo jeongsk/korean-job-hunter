@@ -17,11 +17,11 @@ const SKILL = getArg('--skill', 'job-matching');
 const OUTPUT = getArg('--output', 'data/autoresearch/baseline.json');
 
 let weights = {
-  skill: 0.40,
-  experience: 0.20,
+  skill: 0.50,
+  experience: 0.15,
   preferred: 0.10,
   work_type: 0.15,
-  commute: 0.15
+  commute: 0.10
 };
 
 const SIMILARITY_MAP = {

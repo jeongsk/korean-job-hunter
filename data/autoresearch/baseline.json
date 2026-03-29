@@ -1,35 +1,35 @@
 {
-  "timestamp": "2026-03-29T11:27:44.013Z",
+  "timestamp": "2026-03-29T11:32:50.368Z",
   "skill": "job-matching",
   "weights": {
-    "skill": 0.4,
-    "experience": 0.2,
+    "skill": 0.5,
+    "experience": 0.15,
     "preferred": 0.1,
     "work_type": 0.15,
-    "commute": 0.15
+    "commute": 0.1
   },
   "metrics": {
-    "discrimination": 48.8,
-    "spread": 22.53,
+    "discrimination": 52.53,
+    "spread": 24.51,
     "false_positive_rate": 0,
     "coverage": 100,
-    "positive_avg": 80.8,
-    "negative_avg": 32,
-    "borderline_avg": 53.5
+    "positive_avg": 79.2,
+    "negative_avg": 26.67,
+    "borderline_avg": 48
   },
   "results": [
     {
       "id": "TC-001",
       "label": "positive",
-      "score": 84,
+      "score": 82,
       "components": {
         "skill": {
           "score": 73,
-          "weighted": 29
+          "weighted": 37
         },
         "experience": {
           "score": 100,
-          "weighted": 20
+          "weighted": 15
         },
         "preferred": {
           "score": 50,
@@ -41,7 +41,7 @@
         },
         "commute": {
           "score": 100,
-          "weighted": 15
+          "weighted": 10
         }
       },
       "expected": {
@@ -52,15 +52,15 @@
     {
       "id": "TC-002",
       "label": "positive",
-      "score": 82,
+      "score": 81,
       "components": {
         "skill": {
           "score": 85,
-          "weighted": 34
+          "weighted": 43
         },
         "experience": {
           "score": 100,
-          "weighted": 20
+          "weighted": 15
         },
         "preferred": {
           "score": 50,
@@ -72,7 +72,7 @@
         },
         "commute": {
           "score": 80,
-          "weighted": 12
+          "weighted": 8
         }
       },
       "expected": {
@@ -83,15 +83,15 @@
     {
       "id": "TC-003",
       "label": "negative",
-      "score": 32,
+      "score": 28,
       "components": {
         "skill": {
           "score": 8,
-          "weighted": 3
+          "weighted": 4
         },
         "experience": {
           "score": 70,
-          "weighted": 14
+          "weighted": 11
         },
         "preferred": {
           "score": 25,
@@ -103,7 +103,7 @@
         },
         "commute": {
           "score": 30,
-          "weighted": 5
+          "weighted": 3
         }
       },
       "expected": {
@@ -114,7 +114,7 @@
     {
       "id": "TC-004",
       "label": "negative",
-      "score": 32,
+      "score": 26,
       "components": {
         "skill": {
           "score": 0,
@@ -122,7 +122,7 @@
         },
         "experience": {
           "score": 100,
-          "weighted": 20
+          "weighted": 15
         },
         "preferred": {
           "score": 0,
@@ -134,7 +134,7 @@
         },
         "commute": {
           "score": 30,
-          "weighted": 5
+          "weighted": 3
         }
       },
       "expected": {
@@ -145,15 +145,15 @@
     {
       "id": "TC-005",
       "label": "positive",
-      "score": 93,
+      "score": 94,
       "components": {
         "skill": {
           "score": 100,
-          "weighted": 40
+          "weighted": 50
         },
         "experience": {
           "score": 100,
-          "weighted": 20
+          "weighted": 15
         },
         "preferred": {
           "score": 100,
@@ -165,7 +165,7 @@
         },
         "commute": {
           "score": 80,
-          "weighted": 12
+          "weighted": 8
         }
       },
       "expected": {
@@ -176,15 +176,15 @@
     {
       "id": "TC-006",
       "label": "borderline",
-      "score": 44,
+      "score": 38,
       "components": {
         "skill": {
           "score": 19,
-          "weighted": 8
+          "weighted": 10
         },
         "experience": {
           "score": 70,
-          "weighted": 14
+          "weighted": 11
         },
         "preferred": {
           "score": 25,
@@ -196,7 +196,7 @@
         },
         "commute": {
           "score": 80,
-          "weighted": 12
+          "weighted": 8
         }
       },
       "expected": {
@@ -208,15 +208,15 @@
     {
       "id": "TC-007",
       "label": "positive",
-      "score": 73,
+      "score": 69,
       "components": {
         "skill": {
           "score": 58,
-          "weighted": 23
+          "weighted": 29
         },
         "experience": {
           "score": 100,
-          "weighted": 20
+          "weighted": 15
         },
         "preferred": {
           "score": 0,
@@ -228,7 +228,7 @@
         },
         "commute": {
           "score": 100,
-          "weighted": 15
+          "weighted": 10
         }
       },
       "expected": {
@@ -239,15 +239,15 @@
     {
       "id": "TC-008",
       "label": "positive",
-      "score": 72,
+      "score": 70,
       "components": {
         "skill": {
           "score": 62,
-          "weighted": 25
+          "weighted": 31
         },
         "experience": {
           "score": 100,
-          "weighted": 20
+          "weighted": 15
         },
         "preferred": {
           "score": 50,
@@ -259,7 +259,7 @@
         },
         "commute": {
           "score": 80,
-          "weighted": 12
+          "weighted": 8
         }
       },
       "expected": {
@@ -270,7 +270,7 @@
     {
       "id": "TC-009",
       "label": "negative",
-      "score": 32,
+      "score": 26,
       "components": {
         "skill": {
           "score": 0,
@@ -278,7 +278,7 @@
         },
         "experience": {
           "score": 100,
-          "weighted": 20
+          "weighted": 15
         },
         "preferred": {
           "score": 0,
@@ -290,7 +290,7 @@
         },
         "commute": {
           "score": 30,
-          "weighted": 5
+          "weighted": 3
         }
       },
       "expected": {
@@ -301,15 +301,15 @@
     {
       "id": "TC-010",
       "label": "borderline",
-      "score": 63,
+      "score": 58,
       "components": {
         "skill": {
           "score": 38,
-          "weighted": 15
+          "weighted": 19
         },
         "experience": {
           "score": 100,
-          "weighted": 20
+          "weighted": 15
         },
         "preferred": {
           "score": 50,
@@ -321,7 +321,7 @@
         },
         "commute": {
           "score": 80,
-          "weighted": 12
+          "weighted": 8
         }
       },
       "expected": {

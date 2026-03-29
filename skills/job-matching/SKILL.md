@@ -9,11 +9,11 @@ description: "Resume-to-job matching analysis with skill scoring, experience eva
 
 | Component | Weight | Score Range |
 |-----------|--------|-------------|
-| Skill match | 40% | 0-100 |
-| Experience | 20% | 0-100 |
+| Skill match | 50% | 0-100 |
+| Experience | 15% | 0-100 |
 | Preferred qualifications | 10% | 0-100 |
 | Work type preference | 15% | 0-100 |
-| Commute distance | 15% | 0-100 |
+| Commute distance | 10% | 0-100 |
 
 ## Skill Matching Algorithm
 
