@@ -5,9 +5,12 @@
   "author": "jeongsk",
   "license": "MIT",
   "openclaw": {
-    "extensions": ["./extensions/index.ts"]
+    "extensions": [
+      "./extensions/index.ts"
+    ]
   },
   "dependencies": {
-    "playwright": "^1.58.2"
+    "playwright": "^1.58.2",
+    "sqlite3": "^6.0.1"
   }
 }
