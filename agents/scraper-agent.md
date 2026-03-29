@@ -84,7 +84,7 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
     workingText = workingText.replace(rewardMatch[0], ' ').trim();
   }
   
-  // Step 4: Enhanced multi-stage company extraction
+  // Step 4: Enhanced context-aware company extraction
   let companyMatch = null;
   
   // Strategy 1: Traditional Korean company indicators
@@ -98,25 +98,57 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
     }
   }
   
-  // Strategy 2: Comprehensive Korean company database
-  // Sort companies by length (shorter first) to prioritize more specific matches
-  const koreanCompanies = [
-    '토스', '스패이드', '비댁스', '웨이브릿지', '미래엔', '코어셀', '트리노드', '페칭', '에버온', '키트웍스',
-    '유모스원', '브이젠', '리스타', '카카오', '네이버', '삼성', '라인', '우아한형제들', '배달의민족', '우아한', 
-    '당근마켓', '크몽', '야놀자', '마이플레이스', '지엠소프트', '한컴', '네오위즈', '넥슨', '엔씨소프트', 
-    '엘림스', '더존', '원스톱', '키움'
-  ];
-  
+  // Strategy 2: Context-aware Korean company database with positional scoring
   if (!companyMatch) {
-    for (const company of koreanCompanies) {
-      // Enhanced pattern: look for company name followed by space or end of string
-      const pattern = new RegExp(`${company}(?:\\s|$)`);
-      const match = workingText.match(pattern);
-      if (match) {
-        companyMatch = company;
-        break;
+    const koreanCompanies = [
+      '토스', '스패이드', '비댁스', '웨이브릿지', '미래엔', '코어셀', '트리노드', '페칭', '에버온', '키트웍스',
+      '유모스원', '브이젠', '리스타', '카카오', '네이버', '삼성', '라인', '우아한형제들', '배달의민족', '우아한', 
+      '당근마켓', '크몽', '야놀자', '마이플레이스', '지엠소프트', '한컴', '네오위즈', '넥슨', '엔씨소프트', 
+      '엘림스', '더존', '원스톱', '키움'
+    ];
+    
+    // Find all company occurrences with context scoring
+    let companies = [];
+    koreanCompanies.forEach(company => {
+      const pattern = new RegExp(escapeRegExp(company), 'g');
+      let match;
+      while ((match = pattern.exec(workingText)) !== null) {
+        companies.push({
+          name: company,
+          index: match.index,
+          length: company.length
+        });
       }
+    });
+    
+    // Score companies based on position and context
+    let scoredCompanies = companies.map(company => {
+      let score = 0;
+      
+      // Position-based scoring (earlier = higher priority)
+      score += (100 - company.index) / 100;
+      
+      // Length-based scoring (shorter = more specific)
+      score += (20 - company.length) / 20;
+      
+      // Context bonus for companies before separators (e.g., " - ")
+      const separatorPos = workingText.indexOf(' - ', company.index);
+      if (separatorPos > 0 && separatorPos < company.index + company.length + 10) {
+        score += 10;
+      }
+      
+      return { ...company, score };
+    });
+    
+    // Sort by score and pick the best
+    scoredCompanies.sort((a, b) => b.score - a.score);
+    if (scoredCompanies.length > 0) {
+      companyMatch = scoredCompanies[0].name;
     }
+  }
+  
+  function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
   
   if (companyMatch) {
