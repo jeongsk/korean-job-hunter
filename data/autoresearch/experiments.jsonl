@@ -10,3 +10,6 @@
 {"id":"EXP-004","name":"work_type↑ commute↓","timestamp":"2026-03-29T11:31:20.200Z","metrics":{"discrimination":47.4,"positive_avg":80.4,"negative_avg":33,"borderline_avg":52,"accuracy":80},"delta":-1.4,"verdict":"revert"}
 {"id":"EXP-005","name":"balanced high-skill","timestamp":"2026-03-29T11:31:20.200Z","metrics":{"discrimination":51.67,"positive_avg":80,"negative_avg":28.33,"borderline_avg":49,"accuracy":90},"delta":2.87,"verdict":"keep"}
 {"id":"EXP-006","name":"exp+worktype focus","timestamp":"2026-03-29T11:31:20.200Z","metrics":{"discrimination":44.73,"positive_avg":83.4,"negative_avg":38.67,"borderline_avg":57,"accuracy":70},"delta":-4.07,"verdict":"revert"}
+EXP-008 | 2026-03-29T12:18:34Z | scrape wanted agent-browser success | skill=job-scraping | metric=fields_completeness | verdict=keep
+{"id":"EXP-008","name":"scrape-stability","skill":"job-scraping","metric":"scrape_success_rate","baseline":0,"result":100,"delta":"+100,"verdict":"keep","timestamp":"2026-03-29T12:30:00Z"}
+{"id":"EXP-008","name":"scrape-wanted-v2","skill":"job-scraping","metric":"fields_completeness","baseline":60,"result":0,"delta":-60,"verdict":"revert","timestamp":"2026-03-29T12:30:00Z"}
