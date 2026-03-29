@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-29T11:51:10.319Z",
+  "timestamp": "2026-03-29T12:30:57.346Z",
   "keyword": "백엔드",
   "sources": {
     "wanted": {
@@ -9,7 +9,7 @@
         "fields_completeness": 0,
         "unique_jobs": 0,
         "duplicate_rate": 0,
-        "elapsed_seconds": 6.4
+        "elapsed_seconds": 6.7
       },
       "jobs": []
     }
