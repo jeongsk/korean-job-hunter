@@ -1,9 +1,9 @@
 ---
-description: "Search job postings with keyword, location, remote work, and commute filters"
+description: "Search job postings from Wanted, JobKorea, LinkedIn with keyword, location, remote, and commute filters"
 argument-hint: "--keyword <keyword> [--location <city>] [--remote remote|hybrid|onsite] [--max-commute <minutes>] [--sources wanted,linkedin,jobkorea] [--min-match <score>]"
 ---
 
-Use the scraper-agent sub-agent to search and collect job postings from specified sources.
+Use the scraper-agent to search and collect job postings using agent-browser with custom User-Agent.
 
 ## Arguments
 
@@ -11,26 +11,23 @@ $ARGUMENTS
 
 ## Default Behavior
 
-- If no --sources specified, search all sources (wanted, jobkorea, linkedin)
-- If no --location specified, do not filter by location
-- If no --remote specified, include all work types
-- If no --max-commute specified, do not filter by commute time
-- If --min-match specified, run matcher-agent after scraping to filter by score
+- No --sources: search all (wanted, jobkorea, linkedin)
+- No --location: no location filter
+- No --remote: include all work types
+- No --max-commute: no commute filter
+- --min-match: run matcher-agent after scraping
 
 ## Workflow
 
-1. Parse arguments for keyword, location, sources, remote filter, max-commute, min-match
-2. Delegate to scraper-agent with parsed parameters
-3. scraper-agent collects postings from each source via Playwright CLI
-4. Jobs saved to SQLite database (data/jobs.db)
-5. If --min-match specified:
-   a. Read resume from data/resume/master.yaml
-   b. Delegate to matcher-agent for scoring
-   c. Filter results by minimum score
-6. Display results in table format:
-   ```
-   [ID] Source · Company — Title    Match: XX%  Remote: type  Commute: XXmin
-   ```
+1. Parse arguments
+2. Delegate to scraper-agent
+3. scraper-agent uses agent-browser + custom User-Agent for each source:
+   - **Wanted**: `a[href*="/wd/"]` selector, text parsing
+   - **JobKorea**: `[class*=dlua7o0]` selector, regex parsing
+   - **LinkedIn**: `.base-card` selector, h3/h4 extraction
+4. Jobs saved to SQLite (data/jobs.db)
+5. If --min-match: run matcher-agent for scoring
+6. Display results
 
 ## Examples
 

@@ -1,6 +1,6 @@
 ---
 name: tracker-agent
-description: "Manages job application tracking. Handles status updates, memo management, and application pipeline overview."
+description: "Manages job application tracking with SQLite CRUD operations and pipeline management."
 tools: Read, Write, Bash
 model: haiku
 ---
@@ -21,23 +21,24 @@ You are a job application tracking specialist. Your role is to manage the applic
 | offer | 합격 | Received offer |
 | declined | 불합격 | Not selected after interview |
 
-### Status Transitions
+## Status Transitions
 
-- interested → applying → applied → interview → offer
-- interested → applying → applied → rejected
-- applied → interview → declined
-- Any status → interested (reset)
+```
+interested → applying → applied → interview → offer
+                                 → rejected
+                       → rejected
+                     interview → declined
+Any status → interested (reset)
+```
 
 ## Workflow
 
-### List Applications (`/job-track list`)
+### List Applications
 
-1. Query all applications with job details:
 ```bash
 sqlite3 -json data/jobs.db "
   SELECT a.id, a.status, a.memo, a.updated_at,
-         j.title, j.company, j.work_type, j.commute_min,
-         m.score
+         j.title, j.company, j.work_type, j.commute_min, m.score
   FROM applications a
   JOIN jobs j ON a.job_id = j.id
   LEFT JOIN matches m ON a.job_id = m.job_id
@@ -45,17 +46,9 @@ sqlite3 -json data/jobs.db "
 "
 ```
 
-2. Format as a table grouped by status
-
-### Set Application Status (`/job-track set <job-id> --status <status>`)
-
-1. Check if application exists for the job
-2. If not, create new application record
-3. Update status and memo
-4. Record updated_at timestamp
+### Set Application Status
 
 ```bash
-# Create or update application
 sqlite3 data/jobs.db "
   INSERT INTO applications (id, job_id, status, memo, updated_at)
   VALUES (lower(hex(randomblob(16))), '{job_id}', '{status}', '{memo}', datetime('now'))
@@ -63,31 +56,20 @@ sqlite3 data/jobs.db "
 "
 ```
 
-Note: The applications table needs a UNIQUE constraint on job_id for upsert. If not present, check before inserting.
-
 ## Output Format
 
-### List View
 ```
 ━━━ Job Application Tracker ━━━━━━━━━━━━━━━━━━━━━
 
 📋 Interview (2)
   [abc123] Kakao · Backend Engineer     Score: 87  Hybrid  35min
-  [def456] Toss · Node.js Developer     Score: 82  Remote  -
 
 📝 Applied (3)
   [ghi789] Naver · Java Developer       Score: 71  Onsite  48min
-  ...
 
 ⭐ Interested (5)
   ...
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Total: 10 applications | Interview: 2 | Applied: 3 | Interested: 5
+Total: 10 applications
 ```
-
-## Error Handling
-
-- Invalid status value: Show valid options
-- Job ID not found: Suggest listing jobs first
-- Database locked: Retry after 1 second (max 3 retries)
