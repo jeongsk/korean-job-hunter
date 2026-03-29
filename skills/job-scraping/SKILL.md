@@ -2,6 +2,7 @@
 name: job-scraping
 description: "Web scraping workflow for collecting job postings from multiple Korean and international job sites"
 allowed-tools:
+  - Bash(agent-browser:*)
   - Bash(playwright-cli:*)
   - Bash(sleep)
   - Bash(curl)
@@ -9,9 +10,83 @@ allowed-tools:
 
 # Job Scraping Skill
 
-웹 스크래핑을 위해 playwright-cli를 사용합니다. 이 방식은 토큰 효율적이며 AI 에이전트에 최적화되어 있습니다.
+웹 스크래핑을 위해 **agent-browser** 또는 **playwright-cli**를 사용합니다. 두 도구 모두 토큰 효율적이며 AI 에이전트에 최적화되어 있습니다.
 
-## Playwright CLI Setup
+## 도구 선택 가이드
+
+| 상황 | 추천 도구 | 이유 |
+|------|----------|------|
+| 일반적인 스크래핑 | agent-browser | Rust 네이티브, 빠름, 보안 기능 |
+| 복잡한 인증 필요 | agent-browser | auth vault, 세션 암호화 지원 |
+| 대량 배치 작업 | agent-browser | batch 모드로 오버헤드 감소 |
+| Playwright 생태계 활용 | playwright-cli | 기존 Playwright 지식 활용 |
+| 클라우드 브라우저 필요 | agent-browser | Browserless/Browserbase/Kernel 지원 |
+
+---
+
+## Agent Browser Setup (권장)
+
+### Installation
+```bash
+# npm으로 설치
+npm install -g agent-browser
+
+# 또는 Homebrew
+brew install agent-browser
+
+# Chrome 다운로드 (최초 1회)
+agent-browser install
+```
+
+### Quick Start
+```bash
+# 브라우저 열기
+agent-browser open https://www.wanted.co.kr
+
+# 스냅샷 캡처 (interactive elements만)
+agent-browser snapshot -i
+
+# ref로 클릭
+agent-browser click @e2
+
+# 텍스트 입력
+agent-browser fill @e3 "백엔드"
+
+# 스크린샷
+agent-browser screenshot page.png
+```
+
+### Batch Mode (여러 명령 한 번에)
+```bash
+# JSON 배열로 명령 전달 (프로세스 시작 오버헤드 감소)
+echo '[
+  ["open", "https://www.wanted.co.kr/search?query=백엔드"],
+  ["wait", "--load", "networkidle"],
+  ["snapshot", "-i", "--json"]
+]' | agent-browser batch --json
+```
+
+### 세션 유지 (로그인 상태 저장)
+```bash
+# 세션 이름으로 자동 저장/복원
+agent-browser --session-name wanted open https://www.wanted.co.kr
+
+# 또는 프로필 디렉토리 사용
+agent-browser --profile ~/.agent-browser/wanted open https://www.wanted.co.kr
+```
+
+### 보안 기능
+```bash
+# 도메인 제한
+agent-browser --allowed-domains "wanted.co.kr,*.wanted.co.kr" open https://www.wanted.co.kr
+
+# 액션 확인 (eval 등 위험한 명령)
+agent-browser --confirm-actions eval,download open https://example.com
+```
+
+---
+
+## Playwright CLI Setup (대안)
 
 ### Prerequisites
 ```bash
@@ -83,6 +158,33 @@ playwright-cli close
 
 ### Wanted (wanted.co.kr)
 
+#### Agent Browser (권장)
+```bash
+# 1. 검색 페이지 열기
+agent-browser open "https://www.wanted.co.kr/search?query={keyword}&tab=position"
+
+# 2. 스냅샷 캡처하여 요소 확인 (interactive elements만)
+agent-browser snapshot -i
+
+# 3. 채용공고 목록 추출 (JSON 출력)
+agent-browser eval "[...document.querySelectorAll('.JobCard_container')].map(card => ({
+  title: card.querySelector('.JobCard_title')?.textContent?.trim(),
+  company: card.querySelector('.JobCard_company')?.textContent?.trim(),
+  location: card.querySelector('.JobCard_location')?.textContent?.trim(),
+  link: card.querySelector('a')?.href
+}))" --json
+
+# 4. 상세 페이지 이동 (ref로 클릭)
+agent-browser click @e2
+
+# 5. 상세 내용 추출
+agent-browser eval "document.querySelector('.job-description')?.textContent"
+
+# 6. 뒤로 가기
+agent-browser back
+```
+
+#### Playwright CLI (대안)
 ```bash
 # 1. 검색 페이지 열기
 playwright-cli open "https://www.wanted.co.kr/search?query={keyword}&tab=position"
@@ -113,6 +215,36 @@ playwright-cli go-back
 
 ### Jobkorea (jobkorea.co.kr)
 
+#### Agent Browser (권장)
+```bash
+# 1. 검색 페이지 열기
+agent-browser open "https://www.jobkorea.co.kr/Search/?stext={keyword}&tabType=recruit"
+
+# 2. 스냅샷 캡처
+agent-browser snapshot -i
+
+# 3. 채용공고 목록 추출
+agent-browser eval "[...document.querySelectorAll('.list-item')].map(item => ({
+  title: item.querySelector('.title')?.textContent?.trim(),
+  company: item.querySelector('.name')?.textContent?.trim(),
+  link: item.querySelector('a')?.href
+}))" --json
+
+# 4. 상세 페이지 이동 (새 탭에서 열리는 경우)
+agent-browser click @e20
+agent-browser tab
+agent-browser tab 1
+agent-browser snapshot -i
+
+# 5. 상세 내용 추출
+agent-browser eval "document.querySelector('.view-content')?.textContent"
+
+# 6. 탭 닫고 원래 탭으로
+agent-browser tab close 1
+agent-browser tab 0
+```
+
+#### Playwright CLI (대안)
 ```bash
 # 1. 검색 페이지 열기
 playwright-cli open "https://www.jobkorea.co.kr/Search/?stext={keyword}&tabType=recruit"
@@ -145,6 +277,23 @@ playwright-cli tab-select 0
 
 ### LinkedIn Jobs (Public)
 
+#### Agent Browser (권장)
+```bash
+# 1. 검색 페이지 열기
+agent-browser open "https://www.linkedin.com/jobs/search/?keywords={keyword}&location={location}"
+
+# 2. 스냅샷 캡처
+agent-browser snapshot -i
+
+# 3. 채용공고 목록 추출 (공개 리스트만)
+agent-browser eval "[...document.querySelectorAll('.jobs-search__results-list li')].map(job => ({
+  title: job.querySelector('.base-search-card__title')?.textContent?.trim(),
+  company: job.querySelector('.base-search-card__subtitle')?.textContent?.trim(),
+  link: job.querySelector('a')?.href
+}))" --json
+```
+
+#### Playwright CLI (대안)
 ```bash
 # 1. 검색 페이지 열기
 playwright-cli open "https://www.linkedin.com/jobs/search/?keywords={keyword}&location={location}"
@@ -403,6 +552,48 @@ curl -s "https://apis-navi.kakaomobility.com/v1/directions?origin={lon},{lat}&de
 
 ## Complete Scraping Example
 
+### Agent Browser (권장)
+```bash
+# 1. 브라우저 열기 (세션 유지)
+agent-browser --session-name job-scraper open "https://www.wanted.co.kr/search?query=프론트엔드&tab=position"
+
+# 2. 페이지 로드 대기
+agent-browser wait --load networkidle
+
+# 3. 스냅샷 (interactive elements만)
+agent-browser snapshot -i
+
+# 4. 채용공고 추출 (JSON, fallback 셀렉터 포함)
+agent-browser eval "[...document.querySelectorAll('.JobCard_container, [data-testid=\"job-card\"]')].map(card => ({
+  title: card.querySelector('.JobCard_title, [data-testid=\"job-title\"]')?.textContent?.trim(),
+  company: card.querySelector('.JobCard_company, [data-testid=\"company-name\"]')?.textContent?.trim(),
+  location: card.querySelector('.JobCard_location, [data-testid=\"location\"]')?.textContent?.trim(),
+  link: card.querySelector('a')?.href,
+  scraped_at: new Date().toISOString()
+}))" --json | jq '.' > "jobs_$(date +%Y%m%d_%H%M%S).json"
+
+# 5. 스크롤하여 더 많은 결과 로드
+agent-browser eval "window.scrollTo(0, document.body.scrollHeight)"
+sleep 2
+
+# 6. batch 모드로 여러 작업 한 번에 (오버헤드 감소)
+echo '[
+  ["snapshot", "-i"],
+  ["eval", "[...document.querySelectorAll(\".JobCard_container\")].map(card => ({title: card.querySelector(\".JobCard_title\")?.textContent?.trim()}))"],
+  ["screenshot", "result.png"]
+]' | agent-browser batch --json
+
+# 7. 상세 페이지 순회 (ref 사용)
+agent-browser click @e2 && agent-browser snapshot -i && agent-browser eval "document.querySelector('.job-description')?.textContent" && agent-browser back
+
+# 8. 브라우저 종료
+agent-browser close
+
+# 9. 결과 요약
+echo "Scraped $(jq 'length' jobs_merged.json) unique jobs"
+```
+
+### Playwright CLI (대안)
 ```bash
 # 1. 브라우저 열기
 playwright-cli open "https://www.wanted.co.kr/search?query=프론트엔드&tab=position"
@@ -460,28 +651,57 @@ playwright-cli close
 echo "Scraped $(jq 'length' jobs_merged.json) unique jobs"
 ```
 
+---
+
 ## Debugging & Troubleshooting
 
-### 콘솔 로그 확인
+### Agent Browser
 ```bash
+# 콘솔 로그 확인
+agent-browser console
+
+# 에러 확인
+agent-browser errors
+
+# 스크린샷 캡처 (주석 포함)
+agent-browser screenshot --annotate page.png
+
+# 대시보드 실행 (실시간 모니터링)
+agent-browser dashboard start
+```
+
+### Playwright CLI
+```bash
+# 콘솔 로그 확인
 playwright-cli console
 playwright-cli console warning  # warning 레벨 이상만
-```
 
-### 네트워크 요청 확인
-```bash
+# 네트워크 요청 확인
 playwright-cli network
-```
 
-### 스크린샷 캡처
-```bash
+# 스크린샷 캡처
 playwright-cli screenshot
 playwright-cli screenshot --filename=error-page.png
-```
 
-### 트레이싱 (문제 분석)
-```bash
+# 트레이싱 (문제 분석)
 playwright-cli tracing-start
 # ... 작업 수행 ...
 playwright-cli tracing-stop
 ```
+
+---
+
+## 도구 비교 요약
+
+| 기능 | agent-browser | playwright-cli |
+|------|---------------|----------------|
+| **성능** | Rust 네이티브, 빠름 | Node.js 기반 |
+| **메모리** | Daemon 프로세스 재사용 | 매 명령마다 새 프로세스 |
+| **batch 모드** | ✅ 지원 (JSON 배열) | ❌ 미지원 |
+| **세션 유지** | ✅ session-name, profile | ⚠️ state-save/load |
+| **보안** | ✅ 도메인 allowlist, 액션 정책 | ⚠️ 제한적 |
+| **클라우드 브라우저** | ✅ Browserless, Browserbase, Kernel | ❌ 미지원 |
+| **대시보드** | ✅ 실시간 모니터링 | ❌ 미지원 |
+| **iOS 지원** | ✅ Safari 시뮬레이터 | ❌ 미지원 |
+| **설치** | npm/brew/cargo | npm |
+| **문서** | agent-browser.dev | Playwright 문서 |
