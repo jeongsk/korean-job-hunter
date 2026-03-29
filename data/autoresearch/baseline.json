@@ -1,31 +1,33 @@
 {
-  "timestamp": "2026-03-29T11:32:50.368Z",
+  "timestamp": "2026-03-30T01:04:00Z",
   "skill": "job-matching",
   "weights": {
-    "skill": 0.5,
+    "skill": 0.6,
     "experience": 0.15,
     "preferred": 0.1,
-    "work_type": 0.15,
-    "commute": 0.1
+    "work_type": 0.1,
+    "commute": 0.05
   },
   "metrics": {
-    "discrimination": 52.53,
-    "spread": 24.51,
+    "discrimination": 67.67,
+    "spread": 44,
     "false_positive_rate": 0,
     "coverage": 100,
-    "positive_avg": 79.2,
-    "negative_avg": 26.67,
-    "borderline_avg": 48
+    "positive_avg": 88,
+    "negative_avg": 20.33,
+    "borderline_avg": 46.5,
+    "accuracy": 90
   },
   "results": [
     {
       "id": "TC-001",
       "label": "positive",
-      "score": 82,
+      "score": 84,
       "components": {
         "skill": {
-          "score": 73,
-          "weighted": 37
+          "score": 84,
+          "weighted": 50,
+          "breakdown": {"exact": 2, "strong": 1, "partial": 0, "context": 0}
         },
         "experience": {
           "score": 100,
@@ -37,11 +39,11 @@
         },
         "work_type": {
           "score": 100,
-          "weighted": 15
+          "weighted": 10
         },
         "commute": {
           "score": 100,
-          "weighted": 10
+          "weighted": 5
         }
       },
       "expected": {
@@ -52,27 +54,28 @@
     {
       "id": "TC-002",
       "label": "positive",
-      "score": 81,
+      "score": 85,
       "components": {
         "skill": {
           "score": 85,
-          "weighted": 43
+          "weighted": 51,
+          "breakdown": {"exact": 3, "strong": 0, "partial": 0, "context": 0}
         },
         "experience": {
           "score": 100,
           "weighted": 15
         },
         "preferred": {
-          "score": 50,
-          "weighted": 5
+          "score": 100,
+          "weighted": 10
         },
         "work_type": {
           "score": 70,
-          "weighted": 11
+          "weighted": 7
         },
         "commute": {
           "score": 80,
-          "weighted": 8
+          "weighted": 4
         }
       },
       "expected": {
@@ -83,27 +86,28 @@
     {
       "id": "TC-003",
       "label": "negative",
-      "score": 28,
+      "score": 18,
       "components": {
         "skill": {
-          "score": 8,
-          "weighted": 4
+          "score": 0,
+          "weighted": 0,
+          "breakdown": {"exact": 0, "strong": 0, "partial": 0, "context": 0}
         },
         "experience": {
           "score": 70,
-          "weighted": 11
+          "weighted": 10.5
         },
         "preferred": {
-          "score": 25,
-          "weighted": 3
+          "score": 0,
+          "weighted": 0
         },
         "work_type": {
-          "score": 50,
-          "weighted": 8
+          "score": 0,
+          "weighted": 0
         },
         "commute": {
           "score": 30,
-          "weighted": 3
+          "weighted": 1.5
         }
       },
       "expected": {
@@ -114,11 +118,12 @@
     {
       "id": "TC-004",
       "label": "negative",
-      "score": 26,
+      "score": 15,
       "components": {
         "skill": {
           "score": 0,
-          "weighted": 0
+          "weighted": 0,
+          "breakdown": {"exact": 0, "strong": 0, "partial": 0, "context": 0}
         },
         "experience": {
           "score": 100,
@@ -129,12 +134,12 @@
           "weighted": 0
         },
         "work_type": {
-          "score": 50,
-          "weighted": 8
+          "score": 0,
+          "weighted": 0
         },
         "commute": {
           "score": 30,
-          "weighted": 3
+          "weighted": 1.5
         }
       },
       "expected": {
@@ -145,11 +150,12 @@
     {
       "id": "TC-005",
       "label": "positive",
-      "score": 94,
+      "score": 96,
       "components": {
         "skill": {
-          "score": 100,
-          "weighted": 50
+          "score": 96,
+          "weighted": 58,
+          "breakdown": {"exact": 3, "strong": 1, "partial": 0, "context": 0}
         },
         "experience": {
           "score": 100,
@@ -161,11 +167,11 @@
         },
         "work_type": {
           "score": 70,
-          "weighted": 11
+          "weighted": 7
         },
         "commute": {
           "score": 80,
-          "weighted": 8
+          "weighted": 4
         }
       },
       "expected": {
@@ -176,27 +182,28 @@
     {
       "id": "TC-006",
       "label": "borderline",
-      "score": 38,
+      "score": 26,
       "components": {
         "skill": {
-          "score": 19,
-          "weighted": 10
+          "score": 26,
+          "weighted": 16,
+          "breakdown": {"exact": 0, "strong": 1, "partial": 0, "context": 0}
         },
         "experience": {
           "score": 70,
-          "weighted": 11
+          "weighted": 10.5
         },
         "preferred": {
-          "score": 25,
-          "weighted": 3
+          "score": 0,
+          "weighted": 0
         },
         "work_type": {
-          "score": 50,
-          "weighted": 8
+          "score": 0,
+          "weighted": 0
         },
         "commute": {
           "score": 80,
-          "weighted": 8
+          "weighted": 4
         }
       },
       "expected": {
@@ -208,11 +215,12 @@
     {
       "id": "TC-007",
       "label": "positive",
-      "score": 69,
+      "score": 80,
       "components": {
         "skill": {
-          "score": 58,
-          "weighted": 29
+          "score": 80,
+          "weighted": 48,
+          "breakdown": {"exact": 2, "strong": 0, "partial": 0, "context": 0}
         },
         "experience": {
           "score": 100,
@@ -224,11 +232,11 @@
         },
         "work_type": {
           "score": 100,
-          "weighted": 15
+          "weighted": 10
         },
         "commute": {
           "score": 100,
-          "weighted": 10
+          "weighted": 5
         }
       },
       "expected": {
@@ -239,11 +247,12 @@
     {
       "id": "TC-008",
       "label": "positive",
-      "score": 70,
+      "score": 82,
       "components": {
         "skill": {
-          "score": 62,
-          "weighted": 31
+          "score": 82,
+          "weighted": 49,
+          "breakdown": {"exact": 2, "strong": 0, "partial": 1, "context": 0}
         },
         "experience": {
           "score": 100,
@@ -255,11 +264,11 @@
         },
         "work_type": {
           "score": 70,
-          "weighted": 11
+          "weighted": 7
         },
         "commute": {
           "score": 80,
-          "weighted": 8
+          "weighted": 4
         }
       },
       "expected": {
@@ -270,11 +279,12 @@
     {
       "id": "TC-009",
       "label": "negative",
-      "score": 26,
+      "score": 16,
       "components": {
         "skill": {
           "score": 0,
-          "weighted": 0
+          "weighted": 0,
+          "breakdown": {"exact": 0, "strong": 0, "partial": 0, "context": 0}
         },
         "experience": {
           "score": 100,
@@ -285,12 +295,12 @@
           "weighted": 0
         },
         "work_type": {
-          "score": 50,
-          "weighted": 8
+          "score": 0,
+          "weighted": 0
         },
         "commute": {
           "score": 30,
-          "weighted": 3
+          "weighted": 1.5
         }
       },
       "expected": {
@@ -301,11 +311,12 @@
     {
       "id": "TC-010",
       "label": "borderline",
-      "score": 58,
+      "score": 62,
       "components": {
         "skill": {
-          "score": 38,
-          "weighted": 19
+          "score": 62,
+          "weighted": 37,
+          "breakdown": {"exact": 2, "strong": 0, "partial": 0, "context": 0}
         },
         "experience": {
           "score": 100,
@@ -317,11 +328,11 @@
         },
         "work_type": {
           "score": 70,
-          "weighted": 11
+          "weighted": 7
         },
         "commute": {
-          "score": 80,
-          "weighted": 8
+          "score": 100,
+          "weighted": 5
         }
       },
       "expected": {
