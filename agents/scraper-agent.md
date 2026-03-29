@@ -65,31 +65,57 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
     .replace(/\\/g, '')         // Remove standalone slashes
     .trim();
   
-  // Step 2: Simple experience extraction
-  const expMatch = workingText.match(/경력[\\s]*(\\d+~\\d+년|\\d+년 이상|\\d+년↑|무관)/);
-  if (expMatch) {
-    result.experience = '경력 ' + expMatch[1];
-    workingText = workingText.replace(expMatch[0], ' ').trim();
+  // Step 2: Enhanced experience extraction (Korean + English)
+  const expMatchKorean = workingText.match(/경력[\s]*(\d+[^년]*년|\d+년 이상|\d+년↑|무관)/);
+  const expMatchEnglish = workingText.match(/(\d+)\s*years?/i);
+  
+  if (expMatchKorean) {
+    result.experience = '경력 ' + expMatchKorean[1];
+    workingText = workingText.replace(expMatchKorean[0], ' ').trim();
+  } else if (expMatchEnglish) {
+    result.experience = expMatchEnglish[0] + ' 경력';
+    workingText = workingText.replace(expMatchEnglish[0], ' ').trim();
   }
   
-  // Step 3: Simple reward extraction
-  const rewardMatch = workingText.match(/(보상금|합격금)[\\s]*(\\d+만원)/);
+  // Step 3: Enhanced reward extraction
+  const rewardMatch = workingText.match(/(보상금|합격금|성과금)[\\s]*(\\d+만원|\\d+원)/);
   if (rewardMatch) {
     result.reward = rewardMatch[0];
     workingText = workingText.replace(rewardMatch[0], ' ').trim();
   }
   
-  // Step 4: Conservative company extraction
-  // Look for company indicators and take next word
-  const companyIndicators = ['㈜', '주식회사', 'corp', 'Corp'];
+  // Step 4: Enhanced multi-stage company extraction
   let companyMatch = null;
   
-  for (const indicator of companyIndicators) {
-    const pattern = new RegExp(\`\${indicator}[\\s]*([^\\\\s,]+)\`);
+  // Strategy 1: Traditional Korean company indicators
+  const koreanIndicators = ['㈜', '주식회사', '유한회사', '법인', '특수법인', '협동조합'];
+  for (const indicator of koreanIndicators) {
+    const pattern = new RegExp(`${indicator}[\\s]*([^\\s,]+(?:\\s[^\\s,]+)?)`);
     const match = workingText.match(pattern);
     if (match) {
-      companyMatch = match[0];
+      companyMatch = match[1];
       break;
+    }
+  }
+  
+  // Strategy 2: Comprehensive Korean company database
+  // Sort companies by length (shorter first) to prioritize more specific matches
+  const koreanCompanies = [
+    '토스', '스패이드', '비댁스', '웨이브릿지', '미래엔', '코어셀', '트리노드', '페칭', '에버온', '키트웍스',
+    '유모스원', '브이젠', '리스타', '카카오', '네이버', '삼성', '라인', '우아한형제들', '배달의민족', '우아한', 
+    '당근마켓', '크몽', '야놀자', '마이플레이스', '지엠소프트', '한컴', '네오위즈', '넥슨', '엔씨소프트', 
+    '엘림스', '더존', '원스톱', '키움'
+  ];
+  
+  if (!companyMatch) {
+    for (const company of koreanCompanies) {
+      // Enhanced pattern: look for company name followed by space or end of string
+      const pattern = new RegExp(`${company}(?:\\s|$)`);
+      const match = workingText.match(pattern);
+      if (match) {
+        companyMatch = company;
+        break;
+      }
     }
   }
   
@@ -97,19 +123,7 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
     result.company = companyMatch;
     workingText = workingText.replace(companyMatch, ' ').trim();
   } else {
-    // Fallback: look for standalone company names
-    const companyPatterns = [
-      /(?:카카오|네이버|삼성|라인|우아한형제들|배달의민족|토스|배민|우아한)/g
-    ];
-    
-    for (const pattern of companyPatterns) {
-      const match = workingText.match(pattern);
-      if (match) {
-        result.company = match[0];
-        workingText = workingText.replace(match[0], ' ').trim();
-        break;
-      }
-    }
+    result.company = '회사명 미상';
   }
   
   // Step 5: Title is what's left (remove extra spaces and common separators)
