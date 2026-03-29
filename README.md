@@ -90,6 +90,11 @@ openclaw job-resume --view
 ### Playwright 설치 (스크래핑용)
 
 ```bash
+# agent-browser 설치 (필수)
+npm install -g agent-browser
+agent-browser install  # Chrome 다운로드
+
+# 또는 Playwright (대안)
 npx playwright install chromium
 ```
 
@@ -159,15 +164,17 @@ cd mcp-server && npm install && npm run build
 /korean-job-hunter:job-track set abc123 --status interview --memo "면접일: 3/20"
 ```
 
-## 매칭 점수 기준
+## 매칭 점수 기준 (v2 — autoresearch 최적화)
 
 | 항목 | 가중치 | 설명 |
 |------|--------|------|
-| 기술 스킬 | 40% | 필수/우대 기술 일치도 |
-| 경력 요건 | 20% | 요구 경력 충족 여부 |
+| 기술 스킬 | **50%** | 필수/우대 기술 일치도 |
+| 경력 요건 | **15%** | 요구 경력 충족 여부 |
 | 우대사항 | 10% | 우대 조건 부합도 |
 | 근무 형태 | 15% | 재택/하이브리드/오피스 선호도 일치 |
-| 통근 거리 | 15% | 최대 허용 시간 대비 실제 통근 시간 |
+| 통근 거리 | **10%** | 최대 허용 시간 대비 실제 통근 시간 |
+
+> 가중치는 autoresearch 실험(EXP-001~006)으로 최적화. discrimination: 48.8 → 52.53 (+7.7%)
 
 ## 아키텍처
 
@@ -233,7 +240,20 @@ korean-job-hunter/
 │   ├── resume-agent.md
 │   ├── scraper-agent.md
 │   └── tracker-agent.md
-├── mcp-server/               # MCP 서버 (선택)
+├── scripts/                # 실험 스크립트
+│   ├── autoresearch-metrics.js
+│   ├── autoresearch-run.js
+│   └── autoresearch-scrape.js
+├── data/                   # 데이터
+│   ├── jobs.db             # SQLite DB
+│   ├── resume/             # 이력서
+│   └── autoresearch/       # 실험 결과
+├── reports/                # 개선 리포트
+├── skills/                 # 공유 Skills
+│   ├── autoresearch/SKILL.md  # 자율 개선 루프
+│   ├── job-matching/SKILL.md
+│   ├── job-scraping/SKILL.md
+│   └── job-tracking/SKILL.md
 ├── openclaw.plugin.json      # OpenClaw 플러그인 매니페스트
 ├── package.json              # npm 패키지 설정 (openclaw.extensions 포함)
 ├── CLAUDE.md                 # Claude Code 프로젝트 instructions
