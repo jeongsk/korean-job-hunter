@@ -38,7 +38,8 @@ agent-browser --user-agent "$UA" open "..."
 
 ### 데이터 구조
 - title, company, experience, reward가 `el.textContent`에 합쳐져 있음
-- JS로 분리 필요
+- **중요**: 현재 파싱 로직 실패 → fields completeness 0% (EXP-008 revert 원인)
+- 개선된 다단계 파싱 로직 필요
 
 ### 워크플로우
 
@@ -48,17 +49,98 @@ agent-browser --user-agent "$UA" open "https://www.wanted.co.kr/search?query={ke
 sleep 5
 agent-browser wait --load networkidle
 
-# 2. 공고 목록 추출
+# 2. 공고 목록 추출 (개선된 파싱 로직 - EXP-009)
 agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,20).map(el => {
   const allText = (el.textContent || '').trim();
   const link = el.href;
   const wdId = link?.split('/wd/')[1] || '';
-  const lines = allText.split(/\\n/).map(s => s.trim()).filter(Boolean);
-  const title = lines[0] || '';
-  const company = lines[1] || '';
-  const experience = lines.find(l => l.match(/경력/)) || '';
-  const reward = lines.find(l => l.match(/보상/)) || '';
-  return { id: wdId, title, company, experience, reward, link };
+  
+  let result = { id: wdId, title: '', company: '', experience: '', reward: '', link: link };
+  let workingText = allText;
+  
+  // Step 1: Very basic location removal
+  workingText = workingText
+    .replace(/\\[.*?\\]/g, '')  // Remove [location] patterns
+    .replace(/\\/g, '')         // Remove standalone slashes
+    .trim();
+  
+  // Step 2: Simple experience extraction
+  const expMatch = workingText.match(/경력[\\s]*(\\d+~\\d+년|\\d+년 이상|\\d+년↑|무관)/);
+  if (expMatch) {
+    result.experience = '경력 ' + expMatch[1];
+    workingText = workingText.replace(expMatch[0], ' ').trim();
+  }
+  
+  // Step 3: Simple reward extraction
+  const rewardMatch = workingText.match(/(보상금|합격금)[\\s]*(\\d+만원)/);
+  if (rewardMatch) {
+    result.reward = rewardMatch[0];
+    workingText = workingText.replace(rewardMatch[0], ' ').trim();
+  }
+  
+  // Step 4: Conservative company extraction
+  // Look for company indicators and take next word
+  const companyIndicators = ['㈜', '주식회사', 'corp', 'Corp'];
+  let companyMatch = null;
+  
+  for (const indicator of companyIndicators) {
+    const pattern = new RegExp(\`\${indicator}[\\s]*([^\\\\s,]+)\`);
+    const match = workingText.match(pattern);
+    if (match) {
+      companyMatch = match[0];
+      break;
+    }
+  }
+  
+  if (companyMatch) {
+    result.company = companyMatch;
+    workingText = workingText.replace(companyMatch, ' ').trim();
+  } else {
+    // Fallback: look for standalone company names
+    const companyPatterns = [
+      /(?:카카오|네이버|삼성|라인|우아한형제들|배달의민족|토스|배민|우아한)/g
+    ];
+    
+    for (const pattern of companyPatterns) {
+      const match = workingText.match(pattern);
+      if (match) {
+        result.company = match[0];
+        workingText = workingText.replace(match[0], ' ').trim();
+        break;
+      }
+    }
+  }
+  
+  // Step 5: Title is what's left (remove extra spaces and common separators)
+  const titleText = workingText
+    .replace(/[,·\\s]+/g, ' ')
+    .trim();
+  
+  if (titleText) {
+    result.title = titleText;
+  } else {
+    result.title = '직무 미상';
+  }
+  
+  // Ensure we have reasonable defaults
+  if (!result.company || result.company.length < 2) {
+    result.company = '회사명 미상';
+  }
+  if (!result.experience) {
+    result.experience = '';
+  }
+  if (!result.reward) {
+    result.reward = '';
+  }
+  
+  return { 
+    id: wdId, 
+    title: result.title, 
+    company: result.company, 
+    experience: result.experience, 
+    reward: result.reward, 
+    link: result.link 
+  };
 })" --json > wanted_jobs.json
 
 # 3. 상세 페이지 (선택)
