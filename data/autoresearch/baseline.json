@@ -1,26 +1,23 @@
 {
-  "timestamp": "2026-03-30T22:04:00Z",
-  "experiment_id": "EXP-031",
-  "skill": "job-scraping",
-  "focus": "eval-code-sync",
-  "hypothesis": "Syncing Wanted eval code in SKILL.md with validated test_parsing.js logic (EXP-023 pre-segmentation + EXP-025 work_type/location) ensures agents execute the same quality parsing that tests validate",
+  "timestamp": "2026-03-30T23:04:00Z",
+  "experiment_id": "EXP-032",
+  "skill": "resume-agent",
+  "focus": "korean-nlp-test-suite",
+  "hypothesis": "Creating automated tests for resume-agent Korean NLP extraction validates correctness and catches bugs in the untested extraction logic",
   "metrics": {
     "parsing_tests": "12/12 (100%)",
     "context_tests": "5/5 (100%)",
     "schema_tests": "7/7 (100%)",
     "matching_tests": "7/7 (100%)",
     "nlp_queries": "11/11 (100%)",
-    "eval_has_preseg": true,
-    "eval_has_work_type": true,
-    "eval_has_location": true,
-    "eval_has_dash_range": true,
-    "stale_warnings": 0
+    "resume_nlp_tests": "44/44 (100%)",
+    "java_disambiguation": "fixed",
+    "domain_false_positives": "eliminated",
+    "hybrid_threshold": "corrected"
   },
   "baseline_metrics": {
-    "eval_has_preseg": false,
-    "eval_has_work_type": false,
-    "eval_has_location": false,
-    "eval_has_dash_range": false,
-    "stale_warnings": 1
+    "resume_nlp_tests": "0 (no tests existed)",
+    "java_disambiguation": "broken (trailing space hack)",
+    "domain_false_positives": "present (r in spring)"
   }
 }
