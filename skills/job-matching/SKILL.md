@@ -16,6 +16,8 @@ description: "Advanced resume-to-job matching with semantic analysis, company cu
 | **Location/work fit** | **10%** | 0-100 | Work type and location preference alignment |
 
 > **Skill-Gated Scoring (EXP-021)**: When skill score < 40, all non-skill components are dampened by a gate multiplier (0.25 at skill=0, ramping to 1.0 at skill=40). This prevents unrelated jobs from scoring high on experience/culture/location alone. Experience scoring also considers range upper bounds (e.g., "3~7년" with 5 years experience = 95).
+>
+> **Primary Domain Alignment (EXP-024)**: When the job's primary technology stack (Python, Java, Swift, etc.) has zero overlap with the candidate's core domain skills, the skill score is penalized by 25%. This prevents infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflating scores for jobs in completely different primary tech stacks.
 
 ## Advanced Semantic Analysis
 

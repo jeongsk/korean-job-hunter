@@ -50,7 +50,7 @@
     },
     {
       "id": "MED-001",
-      "description": "Partial match - Python backend, no frontend overlap",
+      "description": "Partial match - Python backend, no frontend overlap (primary domain mismatch)",
       "job": {
         "title": "백엔드 개발자 (Python/Django)",
         "company": "라인",
@@ -61,7 +61,7 @@
       },
       "expected": {
         "min_score": 55,
-        "expected_range": [75, 90],
+        "expected_range": [60, 75],
         "rank_group": "medium"
       }
     },

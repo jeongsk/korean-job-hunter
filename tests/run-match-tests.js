@@ -187,7 +187,53 @@ function calculateMatch(candidate, job) {
   // Blend: 60% job coverage + 40% candidate relevance
   // Higher relevance weight ensures candidates with skills matching job requirements
   // score higher than those who just have overlapping infrastructure skills
-  const skillScore = Math.min(100, Math.round(jobCoverageScore * 0.6 + candidateRelevanceScore * 0.4));
+  let skillScore = Math.min(100, Math.round(jobCoverageScore * 0.6 + candidateRelevanceScore * 0.4));
+  
+  // --- Primary domain alignment check (EXP-024) ---
+  // When the job's primary technology domain has zero overlap with the candidate's
+  // core domain (exact + tier2 matches), apply a domain mismatch penalty.
+  // This prevents infrastructure-only overlap (AWS, Docker, PostgreSQL) from
+  // inflating scores for jobs in completely different primary tech stacks.
+  const candidateCoreDomain = ['javascript', 'typescript', 'react', 'node.js', 'next.js', 'vue', 'angular', 'frontend', '백엔드', '프론트엔드'];
+  const jobPrimaryTechs = [];
+  // Detect primary language/framework from job title + content
+  const primaryTechPatterns = [
+    { tech: 'python', patterns: ['python', '파이썬', 'django', 'flask', 'fastapi'] },
+    { tech: 'java', patterns: ['java ', 'java/', 'spring', '스프링', 'kotlin', '코틀린'] },
+    { tech: 'javascript', patterns: ['javascript', '자바스크립트', 'typescript', '타입스크립트', 'react', '리액트', 'node.js', 'nodejs', 'next.js', 'vue', '뷰'] },
+    { tech: 'csharp', patterns: ['c#', 'csharp', '.net', '닷넷'] },
+    { tech: 'go', patterns: ['golang', 'go 언어', '고언어'] },
+    { tech: 'rust', patterns: ['rust', '러스트'] },
+    { tech: 'swift', patterns: ['swift', '스위프트', 'ios', '아이폰'] },
+    { tech: 'cpp', patterns: ['c++', 'cpp', '시플러스'] },
+  ];
+  for (const pt of primaryTechPatterns) {
+    if (pt.patterns.some(p => jobText.includes(p))) {
+      jobPrimaryTechs.push(pt.tech);
+    }
+  }
+  // Check if candidate has exact/tier2 match with any primary tech
+  const candidateDomainSkills = candidateSkills.map(s => s.toLowerCase());
+  const candidateHasPrimaryDomain = jobPrimaryTechs.some(jt => {
+    // Direct match
+    if (candidateDomainSkills.includes(jt)) return true;
+    // Check through skillKeywords
+    for (const cs of candidateDomainSkills) {
+      const ck = skillKeywords[cs] || [cs];
+      if (ck.includes(jt)) return true;
+    }
+    // Check tier2
+    for (const cs of candidateDomainSkills) {
+      const t2 = tier2Map[cs] || [];
+      if (t2.includes(jt)) return true;
+    }
+    return false;
+  });
+  // If job has a primary tech domain and candidate has NO overlap, penalize skill score
+  if (jobPrimaryTechs.length > 0 && !candidateHasPrimaryDomain && skillScore > 0) {
+    // Reduce by 25% - infrastructure overlap still counts but shouldn't dominate
+    skillScore = Math.round(skillScore * 0.75);
+  }
   scores.skill = { score: skillScore, weight: 0.35, exact: exactMatches, strong: strongMatches, partial: partialMatches, jobCoverage: jobCoverageScore, candidateRelevance: candidateRelevanceScore, jobRequired: jobRequiredSkills.length };
   
   // --- 2. Experience Fit (25%) ---
