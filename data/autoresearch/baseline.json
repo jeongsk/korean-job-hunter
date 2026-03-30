@@ -1,26 +1,28 @@
 {
-  "timestamp": "2026-03-30T19:04:00Z",
-  "experiment_id": "EXP-029",
-  "skill": "job-scraping",
-  "focus": "agent-prompt-cleanup",
-  "hypothesis": "Trimming scraper-agent.md to workflow/strategy and referencing SKILL.md for detailed extraction code reduces agent confusion and token cost without changing scraping behavior",
+  "timestamp": "2026-03-30T20:04:00Z",
+  "experiment_id": "EXP-030",
+  "skill": "job-matching",
+  "focus": "skill-md-cleanup",
+  "hypothesis": "Removing hallucinated API references, fabricated quality metrics, and non-actionable filler from job-matching SKILL.md reduces agent confusion without affecting the validated matching algorithm",
   "metrics": {
     "parsing_tests": "12/12 (100%)",
     "context_tests": "5/5 (100%)",
     "schema_tests": "7/7 (100%)",
     "nlp_queries": "11/11 (100%)",
-    "scraper_agent_lines": 112,
-    "duplicated_js_blocks": 0
+    "skill_md_lines": 123,
+    "hallucinated_apis": 0,
+    "fabricated_metrics": 0
   },
   "changes": {
-    "scraper_agent_lines_before": 732,
-    "scraper_agent_lines_after": 112,
-    "line_reduction_pct": 85,
-    "removed": ["inline Wanted JS", "inline JobKorea JS", "inline LinkedIn JS", "parallel scraping bash", "company extraction JS", "salary patterns JS"],
-    "preserved": ["extraction strategy overview", "field schema", "workflow", "rate limiting", "error handling"]
+    "skill_md_lines_before": 301,
+    "skill_md_lines_after": 123,
+    "line_reduction_pct": 59,
+    "removed": ["matcher.calculateAdvancedMatch", "matcher.setDebugMode", "matcher.runValidationTests", "analyzeJobSemantics", "analyzeCandidateProfile", "fabricated 85%+ accuracy claims", "ML/predictive sections", "performance benchmarks", "caching filler"],
+    "preserved": ["EXP-017 weights", "EXP-021 skill gate", "EXP-024 domain alignment", "similarity map", "culture keywords", "intent classification", "discrimination requirements", "output format"]
   },
   "baseline_metrics": {
-    "scraper_agent_lines": 732,
-    "duplicated_js_blocks": 6
+    "skill_md_lines": 301,
+    "hallucinated_apis": 6,
+    "fabricated_metrics": 4
   }
 }
