@@ -1,0 +1,34 @@
+{
+  "timestamp": "2026-03-30T16:05:00Z",
+  "experiment_id": "EXP-017",
+  "skill": "job-matching",
+  "focus": "advanced-context-aware-job-matching-with-predictive-scoring",
+  "hypothesis": "Implementing advanced semantic job matching with company culture analysis, predictive success scoring, and contextual relevance weighting will improve the practical utility of job matches by 30% while maintaining current discrimination levels. This includes natural language understanding of job descriptions, company value extraction from job postings, and success probability prediction based on historical patterns.",
+  "baseline_metrics": {
+    "discrimination_metric": 32.25,
+    "success_rate": 100.0,
+    "skill_match_quality": 87.0,
+    "experience_alignment": 86.6,
+    "average_score_improvement": 177.0,
+    "practical_utility": 70.0
+  },
+  "expected_improvement": {
+    "discrimination_metric": "maintain or improve beyond 32.25",
+    "practical_utility": "improve from 70.0 to 90.0+ (+30%)",
+    "predictive_accuracy": "new metric - 80%+ success prediction accuracy",
+    "semantic_understanding": "new metric - 85%+ job intent classification accuracy"
+  },
+  "experiment_plan": {
+    "phase_1": "Semantic job description analysis with NLP",
+    "phase_2": "Company culture and values extraction", 
+    "phase_3": "Predictive success scoring algorithm",
+    "phase_4": "Contextual relevance weighting",
+    "phase_5": "Comprehensive testing and validation"
+  },
+  "target_improvements": [
+    "Better understanding of job requirements beyond surface-level skills",
+    "Company culture matching for better fit assessment",
+    "Predictive scoring for application success likelihood",
+    "Contextual weighting for different job seeker priorities"
+  ]
+}

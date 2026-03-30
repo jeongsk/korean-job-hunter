@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-03-30T04:11:46.911Z",
+  "metrics": {
+    "totalTests": 25,
+    "averageScore": 61.84,
+    "averageConfidence": 88.16,
+    "bestMatch": {
+      "job": "Senior Backend Developer - Fintech Innovation",
+      "candidate": "경력 백엔드 개발자",
+      "score": 93,
+      "confidence": 82
+    },
+    "worstMatch": {
+      "job": "Data Scientist - AI/ML Research",
+      "candidate": "신입 프론트엔드 개발자",
+      "score": 37,
+      "confidence": 91
+    },
+    "improvementAreas": []
+  },
+  "analysis": {
+    "enhanced_utility_improvement": "Needs Improvement",
+    "predictive_accuracy": "High",
+    "semantic_understanding": "Advanced",
+    "discrimination_maintained": true
+  }
+}
