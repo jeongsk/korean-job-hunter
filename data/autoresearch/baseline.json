@@ -1,26 +1,27 @@
 {
-  "timestamp": "2026-03-30T19:04:00Z",
-  "experiment_id": "EXP-022",
+  "timestamp": "2026-03-30T20:04:00Z",
+  "experiment_id": "EXP-023",
   "skill": "job-scraping",
-  "focus": "scraper-agent-bugfix",
-  "hypothesis": "Fixing critical workingText undefined bug in scraper-agent Wanted JS prevents runtime crash and improves company extraction accuracy",
+  "focus": "concatenated-text-parsing",
+  "hypothesis": "Pre-segmenting concatenated Wanted text with space insertion before boundary markers improves field extraction",
   "metrics": {
+    "parsing_tests": "8/8 (100%)",
     "match_tests": "7/7 (100%)",
     "discrimination": "PASS",
     "spread": 79,
-    "runtime_bug_fixed": true,
-    "lines_cleaned": 25
+    "edge_cases": "3/3 (100%)"
   },
   "changes": {
-    "workingText_initialization": "Fixed undefined variable crash",
-    "duplicate_strategy_3": "Removed",
-    "escapeRegExp_position": "Moved before first usage",
-    "company_list": "Deduplicated, removed generic noise words"
+    "pre_segmentation": "Insert spaces before 경력, 합격, 보상금, 성과금",
+    "dash_range": "Experience regex supports both ~ and - as range separator",
+    "noise_cleanup": "Remove standalone 합격 after reward extraction",
+    "bracket_regex": "Fixed /\\[.*?\\]/g to /\\[.*?\\]/g"
   },
   "baseline_metrics": {
+    "parsing_tests": "4/5 (80%)",
     "match_tests": "7/7 (100%)",
     "discrimination": "PASS",
     "spread": 79,
-    "runtime_bug": "workingText undefined in Wanted scraping"
+    "edge_cases": "0/3 (0%)"
   }
 }
