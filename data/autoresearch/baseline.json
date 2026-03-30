@@ -1,26 +1,30 @@
 {
-  "timestamp": "2026-03-30T15:04:00Z",
-  "experiment_id": "EXP-020",
-  "skill": "job-scraping",
-  "focus": "parallel-scraping-performance-optimization",
-  "hypothesis": "Implementing parallel scraping with session reuse will reduce scraping time by 30% while maintaining 100% success rate and data quality",
+  "timestamp": "2026-03-30T17:04:00Z",
+  "experiment_id": "EXP-021",
+  "skill": "job-matching",
+  "focus": "skill-gated-discrimination-improvement",
+  "hypothesis": "Adding a skill-gate multiplier to dampen non-skill components when skill overlap is low will improve match discrimination between high/medium/low relevance jobs",
   "metrics": {
-    "scrape_success_rate": 100.0,
-    "field_completeness": 100.0,
-    "company_extraction_rate": 100.0,
-    "scrape_time": null,
-    "unique_jobs": null,
-    "parallel_efficiency": null
+    "discrimination_all_passed": true,
+    "test_pass_rate": "7/7 (100%)",
+    "score_tests_passed": 7,
+    "discrimination_rules": 3,
+    "spread": 68,
+    "high_range": "79-79",
+    "medium_range": "56-70",
+    "low_range": "11-19"
   },
   "changes": {
-    "strategy": "parallel-scraping-with-session-reuse",
-    "session_management": "persistent-browser-sessions",
-    "rate_limiting": "adaptive-dynamic-wait",
-    "error_recovery": "enhanced-fallback-mechanisms"
+    "skill_gate_multiplier": "0.25 + (skill/40) * 0.75 when skill < 40, else 1.0",
+    "experience_range_scoring": "Consider upper bound of experience ranges (e.g., 3~7년)",
+    "test_expectations": "Updated to reflect improved discrimination"
   },
   "baseline_metrics": {
-    "success_rate": 100.0,
-    "field_completeness": 100.0,
-    "company_extraction_rate": 100.0
+    "discrimination_passed": true,
+    "test_pass_rate": "6/7 (85.7%)",
+    "spread": 45,
+    "high_range": "71-78",
+    "medium_range": "52-67",
+    "low_range": "33-51"
   }
 }

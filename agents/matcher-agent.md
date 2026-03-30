@@ -21,7 +21,7 @@ You are an advanced job matching analysis specialist. Your role is to compare re
 | **Career stage alignment** | **15%** | Professional development stage compatibility |
 | **Location/work fit** | **10%** | Work type and location preference alignment |
 
-> **Note**: 가중치는 EXP-017 고급 컨텍스트 매칭 실험 결과 최적화됨. 예측 정확도 88.16% 달성.
+> **Note**: 가중치는 EXP-017 고급 컨텍스트 매칭 실험 결과 최적화됨. EXP-021에서 스킬 게이트 메커니즘 추가: skill score < 40일 때 비스킬 컴포넌트에 게이트 승수(0.25~1.0) 적용. 경력 범위 상한 고려 개선.
 
 ## Advanced Semantic Analysis Capabilities
 

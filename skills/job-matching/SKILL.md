@@ -15,7 +15,7 @@ description: "Advanced resume-to-job matching with semantic analysis, company cu
 | **Career stage alignment** | **15%** | 0-100 | Professional development stage compatibility |
 | **Location/work fit** | **10%** | 0-100 | Work type and location preference alignment |
 
-> **Note**: Weights optimized for EXP-017 to balance predictive accuracy with practical utility
+> **Skill-Gated Scoring (EXP-021)**: When skill score < 40, all non-skill components are dampened by a gate multiplier (0.25 at skill=0, ramping to 1.0 at skill=40). This prevents unrelated jobs from scoring high on experience/culture/location alone. Experience scoring also considers range upper bounds (e.g., "3~7년" with 5 years experience = 95).
 
 ## Advanced Semantic Analysis
 

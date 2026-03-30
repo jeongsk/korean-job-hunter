@@ -1,0 +1,337 @@
+{
+  "timestamp": "2026-03-30T08:12:03.203Z",
+  "total_tests": 7,
+  "passed": 7,
+  "failed": 0,
+  "in_range": 7,
+  "discrimination": {
+    "rule1": true,
+    "rule2": true,
+    "rule3": true,
+    "spread": 68,
+    "allPassed": true
+  },
+  "results": [
+    {
+      "id": "HIGH-001",
+      "description": "Perfect match - React+Node.js mid-level, hybrid, Seoul",
+      "score": 79,
+      "min_score": 75,
+      "expected_range": [
+        75,
+        95
+      ],
+      "rank_group": "high",
+      "pass": true,
+      "in_range": true,
+      "components": {
+        "skill": {
+          "score": 67,
+          "weight": 0.35,
+          "exact": 6,
+          "strong": 0,
+          "partial": 0
+        },
+        "experience": {
+          "score": 95,
+          "weight": 0.25,
+          "required": 3,
+          "actual": 5
+        },
+        "culture": {
+          "score": 60,
+          "weight": 0.15
+        },
+        "career": {
+          "score": 85,
+          "weight": 0.15,
+          "job": "mid",
+          "candidate": "mid"
+        },
+        "location": {
+          "score": 100,
+          "weight": 0.1
+        }
+      }
+    },
+    {
+      "id": "HIGH-002",
+      "description": "Strong match - Next.js full-stack, 판교",
+      "score": 79,
+      "min_score": 70,
+      "expected_range": [
+        75,
+        90
+      ],
+      "rank_group": "high",
+      "pass": true,
+      "in_range": true,
+      "components": {
+        "skill": {
+          "score": 58,
+          "weight": 0.35,
+          "exact": 5,
+          "strong": 0,
+          "partial": 1
+        },
+        "experience": {
+          "score": 95,
+          "weight": 0.25,
+          "required": 5,
+          "actual": 5
+        },
+        "culture": {
+          "score": 100,
+          "weight": 0.15
+        },
+        "career": {
+          "score": 85,
+          "weight": 0.15,
+          "job": "mid",
+          "candidate": "mid"
+        },
+        "location": {
+          "score": 75,
+          "weight": 0.1
+        }
+      }
+    },
+    {
+      "id": "MED-001",
+      "description": "Partial match - Python backend, no frontend overlap",
+      "score": 70,
+      "min_score": 55,
+      "expected_range": [
+        60,
+        75
+      ],
+      "rank_group": "medium",
+      "pass": true,
+      "in_range": true,
+      "components": {
+        "skill": {
+          "score": 36,
+          "weight": 0.35,
+          "exact": 3,
+          "strong": 0,
+          "partial": 1
+        },
+        "experience": {
+          "score": 95,
+          "weight": 0.25,
+          "required": 3,
+          "actual": 5
+        },
+        "culture": {
+          "score": 100,
+          "weight": 0.15
+        },
+        "career": {
+          "score": 85,
+          "weight": 0.15,
+          "job": "mid",
+          "candidate": "mid"
+        },
+        "location": {
+          "score": 100,
+          "weight": 0.1
+        }
+      }
+    },
+    {
+      "id": "MED-002",
+      "description": "Partial match - Frontend but Vue.js, different stack",
+      "score": 56,
+      "min_score": 40,
+      "expected_range": [
+        45,
+        60
+      ],
+      "rank_group": "medium",
+      "pass": true,
+      "in_range": true,
+      "components": {
+        "skill": {
+          "score": 36,
+          "weight": 0.35,
+          "exact": 1,
+          "strong": 3,
+          "partial": 0
+        },
+        "experience": {
+          "score": 95,
+          "weight": 0.25,
+          "required": 3,
+          "actual": 5
+        },
+        "culture": {
+          "score": 20,
+          "weight": 0.15
+        },
+        "career": {
+          "score": 85,
+          "weight": 0.15,
+          "job": "mid",
+          "candidate": "mid"
+        },
+        "location": {
+          "score": 75,
+          "weight": 0.1
+        }
+      }
+    },
+    {
+      "id": "LOW-001",
+      "description": "Poor match - Data scientist, no skill overlap",
+      "score": 11,
+      "min_score": 5,
+      "expected_range": [
+        5,
+        20
+      ],
+      "rank_group": "low",
+      "pass": true,
+      "in_range": true,
+      "components": {
+        "skill": {
+          "score": 3,
+          "weight": 0.35,
+          "exact": 0,
+          "strong": 0,
+          "partial": 1
+        },
+        "experience": {
+          "score": 65,
+          "weight": 0.25,
+          "required": 7,
+          "actual": 5
+        },
+        "culture": {
+          "score": 50,
+          "weight": 0.15
+        },
+        "career": {
+          "score": 21,
+          "weight": 0.15,
+          "job": "senior",
+          "candidate": "mid"
+        },
+        "location": {
+          "score": 50,
+          "weight": 0.1
+        }
+      }
+    },
+    {
+      "id": "LOW-002",
+      "description": "Poor match - iOS developer, completely different domain",
+      "score": 19,
+      "min_score": 10,
+      "expected_range": [
+        10,
+        25
+      ],
+      "rank_group": "low",
+      "pass": true,
+      "in_range": true,
+      "components": {
+        "skill": {
+          "score": 3,
+          "weight": 0.35,
+          "exact": 0,
+          "strong": 0,
+          "partial": 1
+        },
+        "experience": {
+          "score": 95,
+          "weight": 0.25,
+          "required": 3,
+          "actual": 5
+        },
+        "culture": {
+          "score": 100,
+          "weight": 0.15
+        },
+        "career": {
+          "score": 59,
+          "weight": 0.15,
+          "job": "mid",
+          "candidate": "mid"
+        },
+        "location": {
+          "score": 100,
+          "weight": 0.1
+        }
+      }
+    },
+    {
+      "id": "LOW-003",
+      "description": "Poor match - Hardware engineer, zero overlap",
+      "score": 11,
+      "min_score": 5,
+      "expected_range": [
+        5,
+        20
+      ],
+      "rank_group": "low",
+      "pass": true,
+      "in_range": true,
+      "components": {
+        "skill": {
+          "score": 0,
+          "weight": 0.35,
+          "exact": 0,
+          "strong": 0,
+          "partial": 0
+        },
+        "experience": {
+          "score": 95,
+          "weight": 0.25,
+          "required": 5,
+          "actual": 5
+        },
+        "culture": {
+          "score": 50,
+          "weight": 0.15
+        },
+        "career": {
+          "score": 34,
+          "weight": 0.15,
+          "job": "mid",
+          "candidate": "mid"
+        },
+        "location": {
+          "score": 50,
+          "weight": 0.1
+        }
+      }
+    }
+  ],
+  "groups": {
+    "high": {
+      "scores": [
+        79,
+        79
+      ],
+      "min": 79,
+      "max": 79
+    },
+    "medium": {
+      "scores": [
+        70,
+        56
+      ],
+      "min": 56,
+      "max": 70
+    },
+    "low": {
+      "scores": [
+        11,
+        19,
+        11
+      ],
+      "min": 11,
+      "max": 19
+    }
+  }
+}
