@@ -1,28 +1,26 @@
 {
-  "timestamp": "2026-03-30T20:04:00Z",
-  "experiment_id": "EXP-030",
-  "skill": "job-matching",
-  "focus": "skill-md-cleanup",
-  "hypothesis": "Removing hallucinated API references, fabricated quality metrics, and non-actionable filler from job-matching SKILL.md reduces agent confusion without affecting the validated matching algorithm",
+  "timestamp": "2026-03-30T22:04:00Z",
+  "experiment_id": "EXP-031",
+  "skill": "job-scraping",
+  "focus": "eval-code-sync",
+  "hypothesis": "Syncing Wanted eval code in SKILL.md with validated test_parsing.js logic (EXP-023 pre-segmentation + EXP-025 work_type/location) ensures agents execute the same quality parsing that tests validate",
   "metrics": {
     "parsing_tests": "12/12 (100%)",
     "context_tests": "5/5 (100%)",
     "schema_tests": "7/7 (100%)",
+    "matching_tests": "7/7 (100%)",
     "nlp_queries": "11/11 (100%)",
-    "skill_md_lines": 123,
-    "hallucinated_apis": 0,
-    "fabricated_metrics": 0
-  },
-  "changes": {
-    "skill_md_lines_before": 301,
-    "skill_md_lines_after": 123,
-    "line_reduction_pct": 59,
-    "removed": ["matcher.calculateAdvancedMatch", "matcher.setDebugMode", "matcher.runValidationTests", "analyzeJobSemantics", "analyzeCandidateProfile", "fabricated 85%+ accuracy claims", "ML/predictive sections", "performance benchmarks", "caching filler"],
-    "preserved": ["EXP-017 weights", "EXP-021 skill gate", "EXP-024 domain alignment", "similarity map", "culture keywords", "intent classification", "discrimination requirements", "output format"]
+    "eval_has_preseg": true,
+    "eval_has_work_type": true,
+    "eval_has_location": true,
+    "eval_has_dash_range": true,
+    "stale_warnings": 0
   },
   "baseline_metrics": {
-    "skill_md_lines": 301,
-    "hallucinated_apis": 6,
-    "fabricated_metrics": 4
+    "eval_has_preseg": false,
+    "eval_has_work_type": false,
+    "eval_has_location": false,
+    "eval_has_dash_range": false,
+    "stale_warnings": 1
   }
 }
