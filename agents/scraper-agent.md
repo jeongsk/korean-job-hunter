@@ -43,7 +43,9 @@ agent-browser --user-agent "$UA" open "..."
    - **experience**: Years of experience requirement
    - **work_type**: 'remote', 'hybrid', or 'onsite'
    - **location**: City/region
+   - **salary**: Compensation (e.g., "5000~8000만원")
    - **reward**: Referral bonus (Wanted only)
+   - **deadline**: Application deadline
 5. Merge results from all sources and remove duplicates
 6. Save collected jobs to SQLite database (data/jobs.db)
 
@@ -56,9 +58,9 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
   const allText = (el.textContent||'').trim();
   const link = el.href;
   const wdId = link?.split('/wd/')[1]||'';
-  
+
   let result = { id: wdId, title: '', company: '', experience: '', reward: '', link: link };
-  
+
   // Step 1: Pre-segment concatenated text (Wanted often has no spaces between fields)
   let workingText = allText
     .replace(/(경력)/g, ' $1')
@@ -66,11 +68,11 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
     .replace(/\[.*?\]/g, '')
     .replace(/\//g, ' ')
     .trim();
-  
+
   // Step 2: Enhanced experience extraction (Korean + English, supports ~ and - ranges)
   const expMatchKorean = workingText.match(/경력[\s]*(\d+[~-]\d+년|\d+년\s*이상|\d+년↑|무관)/);
   const expMatchEnglish = workingText.match(/(\d+)\s*years?/i);
-  
+
   if (expMatchKorean) {
     result.experience = '경력 ' + expMatchKorean[1];
     workingText = workingText.replace(expMatchKorean[0], ' ').trim();
@@ -78,22 +80,22 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
     result.experience = expMatchEnglish[0] + ' 경력';
     workingText = workingText.replace(expMatchEnglish[0], ' ').trim();
   }
-  
+
   // Step 3: Enhanced reward extraction
   const rewardMatch = workingText.match(/(보상금|합격금|성과금)[\\s]*(\\d+만원|\\d+원)/);
   if (rewardMatch) {
     result.reward = rewardMatch[0];
     workingText = workingText.replace(rewardMatch[0], ' ').trim();
   }
-  
+
   // Clean noise: standalone 합격 (not 합격금)
   workingText = workingText.replace(/\b합급?\b/g, '').replace(/합격/g, ' ').trim();
-  
+
   // Step 4: Enhanced context-aware company extraction with multi-stage fallback
   let companyMatch = null;
-  
+
   // Strategy 1: Traditional Korean company indicators with expanded patterns
-  const koreanIndicators = ['㈜', '주식회사', '유한회사', '법인', '특수법인', '협동조합'];
+  const koreanIndicators = ['(주)', '주식회사', '유한회사', '법인', '특수법인', '협동조합'];
   for (const indicator of koreanIndicators) {
     const pattern = new RegExp(`${indicator}[\\s]*([^\\s,]+(?:\\s[^\\s,]+)?)`);
     const match = workingText.match(pattern);
@@ -102,7 +104,7 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
       break;
     }
   }
-  
+
   // Strategy 2: Context-aware Korean company database with enhanced scoring
   if (!companyMatch) {
     const koreanCompanies = [
@@ -120,7 +122,7 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
       '인공지능연구소', 'AI연구소', '딥러닝연구소', '머신러닝연구소',
       'KAIST', 'POSTECH'
     ];
-    
+
     // Find all company occurrences with enhanced context scoring
     let companies = [];
     koreanCompanies.forEach(company => {
@@ -134,14 +136,14 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
         });
       }
     });
-    
+
     // Enhanced scoring algorithm with multiple context factors
     let scoredCompanies = companies.map(company => {
       let score = 0;
-      
+
       // Position-based scoring (earlier = higher priority) - increased weight
       score += (150 - company.index) / 150;
-      
+
       // Length-based scoring (shorter = more specific) - adjusted for optimal range
       if (company.length <= 4) {
         score += 15; // Short company names are more specific
@@ -150,13 +152,13 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
       } else {
         score += 5;  // Longer names are less specific
       }
-      
+
       // Enhanced context bonuses
       const separatorPos = workingText.indexOf(' - ', company.index);
       if (separatorPos > 0 && separatorPos < company.index + company.length + 15) {
         score += 15; // Increased bonus for companies before separators
       }
-      
+
       // Additional context: companies before experience indicators
       const expPatterns = ['경력', '연차', '경험', 'N년', 'years', 'Year'];
       for (const expPattern of expPatterns) {
@@ -165,27 +167,27 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
           score += 12; // Company names before experience indicators
         }
       }
-      
+
       // Penalty for companies at the very end of text (likely noise)
       if (company.index > workingText.length * 0.8) {
         score -= 10;
       }
-      
+
       // Bonus for companies at the beginning of text
       if (company.index < workingText.length * 0.2) {
         score += 8;
       }
-      
+
       return { ...company, score };
     });
-    
+
     // Sort by score and pick the best
     scoredCompanies.sort((a, b) => b.score - a.score);
     if (scoredCompanies.length > 0 && scoredCompanies[0].score > 5) {
       companyMatch = scoredCompanies[0].name;
     }
   }
-  
+
   // Strategy 3: Enhanced pattern-based company name detection
   if (!companyMatch) {
     // Simplified but more reliable pattern for Korean companies
@@ -194,7 +196,7 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
       /[가-힣]{3,5}(?:연구소|연구원|테크놀로지|인스티튜트|랩|스튜디오)/,
       /[가-힣]{2,4}(?:컴퍼니|커머스|네트워크|서비스|솔루션)/
     ];
-    
+
     for (const pattern of koreanPatterns) {
       const match = workingText.match(pattern);
       if (match && match[0]) {
@@ -203,7 +205,7 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
       }
     }
   }
-  
+
   // Strategy 4: English company patterns with improved detection
   if (!companyMatch) {
     // More reliable English company pattern
@@ -213,15 +215,15 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
       companyMatch = match[1].trim();
     }
   }
-  
+
   // Strategy 5: Fallback to company indicators with relaxed patterns
   if (!companyMatch) {
     // Look for common company indicators with surrounding text
     const indicatorPatterns = [
-      /(?:㈜|주식회사)\s*([가-힣]+)/,
+      /(?:(주)|주식회사)\s*([가-힣]+)/,
       /([A-Za-z0-9&.-]+)\s+(?:Inc|LLC|Corp|Co|Ltd)/i
     ];
-    
+
     for (const pattern of indicatorPatterns) {
       const match = workingText.match(pattern);
       if (match && match[1]) {
@@ -230,7 +232,7 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
       }
     }
   }
-  
+
   // Strategy 6: Final fallback - extract any meaningful Korean word
   if (!companyMatch) {
     // Extract the longest Korean word that looks like a company name
@@ -239,9 +241,9 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
       // Pick the word that appears before experience/reward indicators
       const expIndex = workingText.indexOf('경력');
       const rewardIndex = workingText.indexOf('보상금');
-      const minIndex = Math.min(expIndex > 0 ? expIndex : workingText.length, 
+      const minIndex = Math.min(expIndex > 0 ? expIndex : workingText.length,
                                rewardIndex > 0 ? rewardIndex : workingText.length);
-      
+
       // Find company before experience/reward indicators
       for (const word of koreanWords) {
         const wordIndex = workingText.indexOf(word);
@@ -250,36 +252,36 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
           break;
         }
       }
-      
+
       // If no company found before indicators, pick the first reasonable word
       if (!companyMatch && koreanWords[0]) {
         companyMatch = koreanWords[0];
       }
     }
   }
-  
+
   function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
-  
+
   if (companyMatch) {
     result.company = companyMatch;
     workingText = workingText.replace(companyMatch, ' ').trim();
   } else {
     result.company = '회사명 미상';
   }
-  
+
   // Step 5: Title is what's left (remove extra spaces and common separators)
   const titleText = workingText
     .replace(/[,·\\s]+/g, ' ')
     .trim();
-  
+
   if (titleText) {
     result.title = titleText;
   } else {
     result.title = '직무 미상';
   }
-  
+
   // Ensure we have reasonable defaults
   if (!result.company || result.company.length < 2) {
     result.company = '회사명 미상';
@@ -290,14 +292,28 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
   if (!result.reward) {
     result.reward = '';
   }
-  
-  return { 
-    id: wdId, 
-    title: result.title, 
-    company: result.company, 
-    experience: result.experience, 
-    reward: result.reward, 
-    link: result.link 
+
+  // Step 6: Salary extraction
+  const salaryPatterns = [
+    /연봉\s*(\d+[~-]\d+만원)/,
+    /연봉\s*(\d+억?\s*\d*만원)/,
+    /(\d{4,})\s*~\s*(\d{4,})\s*만원/,
+    /월급?\s*(\d+만원)/,
+    /([₩]\d[\d,]+)/
+  ];
+  for (const sp of salaryPatterns) {
+    const sm = workingText.match(sp);
+    if (sm) { result.salary = sm[0]; workingText = workingText.replace(sm[0], ' ').trim(); break; }
+  }
+
+  return {
+    id: wdId,
+    title: result.title,
+    company: result.company,
+    experience: result.experience,
+    salary: result.salary || '',
+    reward: result.reward,
+    link: result.link
   };
 })" --json
 agent-browser close
@@ -319,48 +335,52 @@ const primaryCards = [...document.querySelectorAll('[class*=dlua7o0]')];
 const fallbackCards = [...document.querySelectorAll('.job-card, .recruit-card, .list-card')];
 
 // Combine and deduplicate cards
-const allCards = [...primaryCards, ...fallbackCards].filter((card, index, self) => 
+const allCards = [...primaryCards, ...fallbackCards].filter((card, index, self) =>
   self.findIndex(c => c === card) === index
 );
 
 const jobs = allCards.slice(0, 25).map(card => {
   const text = (card.textContent || '').trim();
   const lines = text.split(/\\n/).map(s => s.trim()).filter(Boolean);
-  
+
   // Enhanced title extraction with multiple strategies
-  const title = lines.find(l => 
-    l.length > 3 && 
+  const title = lines.find(l =>
+    l.length > 3 &&
     !l.match(/스크랩|지원|등록|마감|경력|서울|경기|광고|배�/) &&
     !/^\d+$/.test(l)
   ) || '';
-  
+
   // Enhanced company extraction with better patterns
-  const company = lines.find(l => 
-    l.match(/(㈜|주식회사|유한회사|법인|Corp|Inc|Co|Ltd)/i) ||
+  const company = lines.find(l =>
+    l.match(/((주)|주식회사|유한회사|법인|Corp|Inc|Co|Ltd)/i) ||
     (l.length >= 2 && l.length <= 10 && !l.match(/경력|지원|스크랩|마감|서울|경기|부산/))
   ) || '';
-  
+
   // Enhanced experience extraction
   const experience = lines.find(l => l.match(/경력(무관|\\d+년↑|\\d+~\\d+년|\\d+년 이상)/)) || '';
-  
-  // Enhanced location extraction  
+
+  // Enhanced location extraction
   const location = lines.find(l => l.match(/(서울|경기|부산|대전|인천|광주|대구|울산)/)) || '';
-  
+
   // Enhanced deadline extraction
   const deadline = lines.find(l => l.match(/마감|D-\\d+|오늘|내일|\\d+월\\d+일/)) || '';
-  
+
+  // Enhanced salary extraction
+  const salary = lines.find(l => l.match(/연봉|만원|월급|₩/)) || '';
+
   // Enhanced link extraction
   const linkEl = card.querySelector('a[href*=\"Recruit\"], a[href*=\"JobDetail\"], a[href*=\"recruit\"]') || card.querySelector('a');
   const link = linkEl?.href || '';
-  
+
   // Validate and clean job data
   const isValidJob = title && (company || location) && link;
-  
+
   return isValidJob ? {
     title: title.trim(),
     company: company.trim() || '회사명 미상',
     experience: experience.trim() || '',
     location: location.trim() || '',
+    salary: salary.trim() || '',
     deadline: deadline.trim() || '',
     link: link
   } : null;
@@ -371,21 +391,22 @@ if (jobs.length === 0) {
   const simpleJobs = allCards.slice(0, 15).map(card => {
     const text = (card.textContent || '').trim();
     const lines = text.split(/\\n/).filter(line => line.trim());
-    
+
     const title = lines[0] || '';
     const company = lines[1] || '';
     const link = card.querySelector('a')?.href || '';
-    
+
     return title && company ? {
       title: title.trim(),
       company: company.trim(), 
       experience: '',
       location: '',
+      salary: '',
       deadline: '',
       link: link
     } : null;
   }).filter(job => job !== null);
-  
+
   console.log(JSON.stringify(simpleJobs));
 } else {
   console.log(JSON.stringify(jobs));
@@ -405,11 +426,11 @@ if [ ! -s jobkorea_jobs.json ] || [ $(wc -l < jobkorea_jobs.json) -lt 1 ]; then
         company: lines[1] || '',
         experience: '',
         location: '',
-        deadline: '', 
+        deadline: '',
         link: card.querySelector('a')?.href || ''
       };
     }).filter(job => job.title && job.company);
-    
+
     console.log(JSON.stringify(jobs));
   " --json > jobkorea_jobs_fallback.json
 fi
@@ -430,25 +451,25 @@ agent-browser eval "[...document.querySelectorAll('.jobs-search__results-list li
   // Enhanced title extraction with multiple selectors
   const titleEl = el.querySelector('h3, .base-search-card__title, .job-card__title, [data-job-title]');
   const title = titleEl?.textContent?.trim() || '';
-  
-  // Enhanced company extraction with multiple selectors  
+
+  // Enhanced company extraction with multiple selectors
   const companyEl = el.querySelector('h4, .base-search-card__subtitle, .job-card__subtitle, [data-job-company]');
   const company = companyEl?.textContent?.trim() || '';
-  
+
   // Enhanced location extraction
   const locationEl = el.querySelector('.job-search-card__location, [class*=location], .job-card__location');
   const location = locationEl?.textContent?.trim() || '';
-  
+
   // Enhanced link extraction
   const linkEl = el.querySelector('a[href*=\"/jobs/\"]');
   const link = linkEl?.href || '';
-  
+
   // Only return valid job entries
   if (title && (company || location)) {
     return {
       title: title,
       company: company || 'Company not specified',
-      location: location || 'Location not specified', 
+      location: location || 'Location not specified',
       link: link
     };
   }
@@ -462,7 +483,7 @@ if [ ! -s linkedin_jobs.json ]; then
     const company = el.querySelector('.job-card__subtitle, h4')?.textContent?.trim() || '';
     const location = el.querySelector('.job-card__location, [class*=location]')?.textContent?.trim() || '';
     const link = el.querySelector('a[href*=\"/jobs/\"]')?.href || '';
-    
+
     if (title && company) {
       return { title, company, location, link };
     }
@@ -490,9 +511,9 @@ scrape_source() {
   local keyword=$2
   local start_time=$(date +%s)
   local session_name="scrape_session_${source}"
-  
+
   echo "🔄 Scraping $source..."
-  
+
   case $source in
     "wanted")
       agent-browser --user-agent "$UA" open "https://www.wanted.co.kr/search?query=${keyword}&tab=position"
@@ -507,10 +528,10 @@ scrape_source() {
       local wait_time=10
       ;;
   esac
-  
+
   sleep $wait_time
   agent-browser wait --load networkidle
-  
+
   # Source-specific extraction (simplified for parallel execution)
   case $source in
     "wanted")
@@ -519,22 +540,22 @@ scrape_source() {
           const text = (el.textContent || '').trim();
           const link = el.href;
           const wdId = link?.split('/wd/')[1] || '';
-          
+
           // Simplified parallel parsing
           let result = { id: wdId, title: '', company: '', experience: '', reward: '', link: link };
-          
+
           // Quick experience extraction
           const expMatch = text.match(/경력[\\s]*(\\d+년 이상|\\d+~\\d+년|\\d+년↑|무관)/);
           if (expMatch) {
             result.experience = '경력 ' + expMatch[1];
           }
-          
-          // Quick reward extraction  
+
+          // Quick reward extraction
           const rewardMatch = text.match(/(보상금|합격금)[\\s]*(\\d+만원)/);
           if (rewardMatch) {
             result.reward = rewardMatch[0];
           }
-          
+
           // Quick company extraction (simplified for parallel)
           const companies = ['카카오', '네이버', '삼성', '라인', '우아한형제들', '토스', '미래엔', '웨이브릿지'];
           for (const company of companies) {
@@ -543,18 +564,18 @@ scrape_source() {
               break;
             }
           }
-          
+
           // Title is remaining text
           result.title = text.replace(/경력[^\\s]*[^년]*년|보상금[^\\s]*\\d+만원|${result.company}/g, '').trim();
           if (!result.title) result.title = '직무 미상';
-          
+
           return result;
         }).filter(job => job.title && job.company);
-        
+
         console.log(JSON.stringify(jobs));
       " --json > temp_parallel_results/${source}_jobs.json
       ;;
-      
+
     "jobkorea")
       agent-browser eval "
         const cards = [...document.querySelectorAll('[class*=dlua7o0], .job-card')].slice(0,20);
@@ -563,17 +584,17 @@ scrape_source() {
           const lines = text.split(/\\n/).filter(line => line.trim());
           return {
             title: lines[0] || '',
-            company: lines.find(l => l.match(/㈜|주식회사/) || (l.length <= 8 && !l.match(/경력|지원/))) || '',
+            company: lines.find(l => l.match(/(주)|주식회사/) || (l.length <= 8 && !l.match(/경력|지원/))) || '',
             experience: lines.find(l => l.match(/경력/)) || '',
             location: lines.find(l => l.match(/서울|경기|부산/)) || '',
             link: card.querySelector('a[href*=\"Recruit\"]')?.href || ''
           };
         }).filter(job => job.title && job.company);
-        
+
         console.log(JSON.stringify(jobs));
       " --json > temp_parallel_results/${source}_jobs.json
       ;;
-      
+
     "linkedin")
       agent-browser eval "
         const jobs = [...document.querySelectorAll('.jobs-search__results-list li, .base-card')].slice(0,20).map(el => {
@@ -581,22 +602,22 @@ scrape_source() {
           const company = el.querySelector('h4, .base-search-card__subtitle')?.textContent?.trim() || '';
           const location = el.querySelector('.job-search-card__location')?.textContent?.trim() || '';
           const link = el.querySelector('a[href*=\"/jobs/\"]')?.href || '';
-          
+
           if (title && company) {
             return { title, company, location, link };
           }
           return null;
         }).filter(job => job !== null);
-        
+
         console.log(JSON.stringify(jobs));
       " --json > temp_parallel_results/${source}_jobs.json
       ;;
   esac
-  
+
   local end_time=$(date +%s)
   local duration=$((end_time - start_time))
   echo "✅ $source scraped in ${duration}s"
-  
+
   # Keep browser session open for potential reuse
   if [ "$PARALLEL_SCRAPING" = "true" ] && [ $((end_time - TOTAL_START_TIME)) -lt 120 ]; then
     echo "🔄 Keeping session alive for reuse..."
@@ -612,7 +633,7 @@ echo "🚀 Starting parallel scraping with $MAX_PARALLEL concurrent sources..."
 scrape_source "wanted" "$keyword" &
 WANTED_PID=$!
 
-scrape_source "jobkorea" "$keyword" &  
+scrape_source "jobkorea" "$keyword" &
 JOBKOREA_PID=$!
 
 scrape_source "linkedin" "$keyword" &
@@ -625,10 +646,10 @@ echo "⏳ Waiting for parallel scraping to complete..."
 timeout 180 bash -c "
   wait $WANTED_PID
   echo '✅ Wanted scraping completed'
-  
-  wait $JOBKOREA_PID  
+
+  wait $JOBKOREA_PID
   echo '✅ JobKorea scraping completed'
-  
+
   wait $LINKEDIN_PID
   echo '✅ LinkedIn scraping completed'
 " || echo "⚠️ Parallel scraping timeout occurred"
@@ -654,6 +675,16 @@ echo "📊 Average time per source: $((TOTAL_DURATION / 3))s"
 echo "📊 Jobs per minute: $(echo "scale=1; ${JOBS_COUNT} / (${TOTAL_DURATION} / 60)" | bc)"
 ```
 
+## Salary Detection
+
+Extract salary information from job text:
+- Pattern: `연봉 \d+만원`, `연봉 \d+~\d+만원`, `연봉 \d+억\s*\d*만원`
+- English: `KRW \d+`, `₩\d+`, salary ranges with 만원/원 units
+- Annual indicators: `연봉`, `年薪`, `annual salary`, `연소득`
+- Monthly indicators: `월급`, `월 \d+만원`
+- If only monthly found, annual estimate = monthly × 12 (mark with `~` prefix)
+- Store as-is in Korean format (e.g., "5000~8000만원", "연봉 1억 2000만원")
+
 ## Work Type Detection (EXP-025)
 
 Detect work_type from listing text BEFORE other parsing. Order matters (check remote first):
@@ -673,11 +704,6 @@ Extract location from brackets `[...]` first (city + optional district):
 
 If no bracket location, check remaining text for bare city/district keywords and remove them from working text.
 
-## Work Type Detection
-- **remote**: 재택근무, 전면재택, 풀리모트, full remote, 원격근무
-- **hybrid**: 하이브리드, 주2일출근, 주3일출근, hybrid
-- **onsite**: Default if no remote/hybrid keywords found
-
 ## Rate Limiting
 
 - Minimum 3 seconds between requests to same domain
@@ -695,7 +721,7 @@ If no bracket location, check remaining text for bare city/district keywords and
 ## SQLite Operations
 
 ```bash
-sqlite3 data/jobs.db "INSERT OR IGNORE INTO jobs (id, source, title, company, url, content, location, work_type, commute_min) VALUES (lower(hex(randomblob(16))), 'wanted', 'Backend Engineer', 'Kakao', 'https://...', '...', 'Seoul', '서울 강남구', 'hybrid', NULL)"
+sqlite3 data/jobs.db "INSERT OR IGNORE INTO jobs (id, source, title, company, url, content, location, work_type, experience, salary, deadline, reward, commute_min) VALUES (lower(hex(randomblob(16))), 'wanted', 'Backend Engineer', 'Kakao', 'https://...', '...', '서울 강남구', 'hybrid', '경력 5년 이상', '5000~8000만원', '2026-04-15', '합격보상금 100만원', NULL)"
 ```
 
 ## Output

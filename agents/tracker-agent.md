@@ -32,6 +32,9 @@ Users speak naturally in Korean. Parse their intent before running SQL:
 | 재택, 원격, 리모트 | `j.work_type = 'remote'` |
 | 하이브리드 | `j.work_type = 'hybrid'` |
 | 지역 (서울, 판교, 강남...) | `j.location LIKE '%{keyword}%'` |
+| 연봉, 급여, 연수입 | `j.salary IS NOT NULL AND j.salary != ''` |
+| 마감임박, 곧마감 | `j.deadline IS NOT NULL AND j.deadline != ''` |
+| 경력 (N년차, N년 이상) | `j.experience LIKE '%{keyword}%'` |
 | 점수높은, 매칭 | `ORDER BY m.score DESC` |
 | 최신순 | `ORDER BY a.updated_at DESC` |
 | 빼고, 제외, 말고 | Negate previous filter |
@@ -71,7 +74,7 @@ Any status → interested (reset)
 ```bash
 sqlite3 -json data/jobs.db "
   SELECT a.id, a.status, a.memo, a.updated_at,
-         j.title, j.company, j.work_type, j.location, j.commute_min, j.source,
+         j.title, j.company, j.work_type, j.location, j.experience, j.salary, j.deadline, j.reward, j.commute_min, j.source,
          m.score
   FROM applications a
   JOIN jobs j ON a.job_id = j.id

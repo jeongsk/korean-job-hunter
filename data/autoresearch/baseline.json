@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-03-30T13:04:00Z",
-  "experiment_id": "EXP-025",
-  "skill": "job-scraping",
-  "focus": "work-type-location-detection",
-  "hypothesis": "Adding work_type and location detection to Wanted text parsing will populate two previously-empty fields that feed into the matching algorithm's location/work_type component",
+  "timestamp": "2026-03-30T17:04:00Z",
+  "experiment_id": "EXP-027",
+  "skill": "job-scraping+job-tracking",
+  "focus": "schema-gap-fix",
+  "hypothesis": "Adding experience, salary, deadline, reward columns to jobs table closes the gap between extracted and persisted data",
   "metrics": {
     "parsing_tests": "12/12 (100%)",
     "match_tests": "7/7 (100%)",
@@ -12,22 +12,20 @@
     "high_med_gap": 15,
     "edge_cases": "3/3 (100%)",
     "work_type_detection": "4/4 (100%)",
-    "location_detection": "4/4 (100%)"
+    "location_detection": "4/4 (100%)",
+    "nlp_queries": "11/11 (100%)",
+    "schema_tests": "7/7 (100%)",
+    "db_fields": 13,
+    "salary_patterns": 5
   },
   "changes": {
-    "work_type_keywords": "remote: 전면재택/재택근무/풀리모트/full remote/원격근무, hybrid: 하이브리드/주N일출근/hybrid",
-    "location_bracket_extraction": "Extract city+district from brackets, handle mixed brackets",
-    "location_bare_fallback": "Search text for city/district keywords when no brackets",
-    "keyword_removal": "Work type and location keywords removed from working text after detection"
+    "new_columns": ["experience", "salary", "deadline", "reward"],
+    "salary_extraction": "annual, monthly, KRW formats with 5 regex patterns",
+    "tracker_filters": "+3 keywords (연봉, 마감임박, 경력)"
   },
   "baseline_metrics": {
-    "parsing_tests": "8/8 (100%)",
-    "match_tests": "7/7 (100%)",
-    "discrimination": "PASS",
-    "spread": 79,
-    "high_med_gap": 15,
-    "edge_cases": "3/3 (100%)",
-    "work_type_detection": "not implemented",
-    "location_detection": "not implemented"
+    "db_fields": 9,
+    "scraper_extracts_unstored": 3,
+    "tracker_query_fields": 10
   }
 }
