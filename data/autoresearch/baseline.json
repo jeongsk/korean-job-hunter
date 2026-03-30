@@ -1,34 +1,26 @@
 {
-  "timestamp": "2026-03-30T18:04:00Z",
-  "experiment_id": "EXP-028",
-  "skill": "job-matching",
+  "timestamp": "2026-03-30T19:04:00Z",
+  "experiment_id": "EXP-029",
+  "skill": "job-scraping",
   "focus": "agent-prompt-cleanup",
-  "hypothesis": "Trimming matcher-agent.md to only validated, actionable content reduces confusion without changing the scoring algorithm",
+  "hypothesis": "Trimming scraper-agent.md to workflow/strategy and referencing SKILL.md for detailed extraction code reduces agent confusion and token cost without changing scraping behavior",
   "metrics": {
     "parsing_tests": "12/12 (100%)",
-    "match_tests": "7/7 (100%)",
-    "discrimination": "PASS",
-    "spread": 79,
-    "high_med_gap": 15,
-    "edge_cases": "3/3 (100%)",
-    "work_type_detection": "4/4 (100%)",
-    "location_detection": "4/4 (100%)",
-    "nlp_queries": "11/11 (100%)",
+    "context_tests": "5/5 (100%)",
     "schema_tests": "7/7 (100%)",
-    "db_fields": 13,
-    "salary_patterns": 5,
-    "matcher_agent_lines": 162,
-    "non_actionable_api_refs": 0
+    "nlp_queries": "11/11 (100%)",
+    "scraper_agent_lines": 112,
+    "duplicated_js_blocks": 0
   },
   "changes": {
-    "matcher_agent_lines_before": 313,
-    "matcher_agent_lines_after": 162,
-    "line_reduction_pct": 48,
-    "removed": ["hallucinated Python APIs", "fabricated QA metrics", "ML/predictive sections", "caching/batch filler"],
-    "preserved": ["EXP-017 weights", "EXP-021 skill gate", "EXP-024 domain alignment", "tiered similarity", "experience fit", "culture fit", "career stage"]
+    "scraper_agent_lines_before": 732,
+    "scraper_agent_lines_after": 112,
+    "line_reduction_pct": 85,
+    "removed": ["inline Wanted JS", "inline JobKorea JS", "inline LinkedIn JS", "parallel scraping bash", "company extraction JS", "salary patterns JS"],
+    "preserved": ["extraction strategy overview", "field schema", "workflow", "rate limiting", "error handling"]
   },
   "baseline_metrics": {
-    "matcher_agent_lines": 313,
-    "non_actionable_api_refs": 8
+    "scraper_agent_lines": 732,
+    "duplicated_js_blocks": 6
   }
 }
