@@ -1,9 +1,78 @@
 ---
 name: job-tracking
-description: "Job application status tracking with SQLite CRUD operations and pipeline management"
+description: "Job application status tracking with SQLite CRUD, Korean NLP query parsing, pipeline analytics, and smart suggestions"
 ---
 
-# Job Tracking Skill
+# Job Tracking Skill v2 (EXP-026)
+
+## Korean Natural Language Query Parsing
+
+사용자의 자연어 입력을 SQL 쿼리로 변환:
+
+| Korean Pattern | SQL Filter | Example Input |
+|---|---|---|
+| 면접/면접보는/면접잡힌 | `status = 'interview'` | "면접 잡힌 거 있어?" |
+| 지원한/지원완료/냈던 | `status = 'applied'` | "지원한 거 다 보여줘" |
+| 관심/북마크/찜해둔 | `status = 'interested'` | "찜해둔 공고" |
+| 합격/오퍼 | `status = 'offer'` | "합격한 곳" |
+| 탈락/거절/떨어진 | `status IN ('rejected','declined')` | "탈락한 거 빼고" |
+| 지원예정/지원할 | `status = 'applying'` | "지원할 거" |
+| 불합격 | `status = 'declined'` | "불합격한 곳" |
+
+### Company/Keyword Filter
+| Korean Pattern | SQL Filter |
+|---|---|
+| 카카오/네이버/토스 etc. | `j.company LIKE '%{keyword}%'` |
+| 백엔드/프론트/데이터 etc. | `j.title LIKE '%{keyword}%'` |
+| 재택/원격/리모트 | `j.work_type = 'remote'` |
+| 하이브리드 | `j.work_type = 'hybrid'` |
+| 서울/판교/강남 etc. | `j.location LIKE '%{keyword}%'` |
+| 점수높은/스코어/매칭 | `ORDER BY m.score DESC` |
+
+### Sorting
+| Korean Pattern | SQL ORDER |
+|---|---|
+| 최신순/최근/새로운 | `ORDER BY a.updated_at DESC` |
+| 점수순/매칭순/점수높은 | `ORDER BY m.score DESC` |
+| 회사순/이름순 | `ORDER BY j.company` |
+
+### Composite Query Builder
+
+```
+parse_korean_query(input):
+  filters = []
+  order = "a.updated_at DESC"
+  
+  // Status detection
+  if matches "면접" → filters.push("a.status = 'interview'")
+  if matches "지원(완료|한|했)" → filters.push("a.status = 'applied'")
+  if matches "(관심|북마크|찜)" → filters.push("a.status = 'interested'")
+  if matches "(합격|오퍼)" → filters.push("a.status = 'offer'")
+  if matches "(탈락|거절|떨어)" → filters.push("a.status IN ('rejected','declined')")
+  if matches "지원(예정|할)" → filters.push("a.status = 'applying'")
+  
+  // Negation
+  if matches "(빼고|제외|말고)" + status → invert last status filter with NOT
+  
+  // Work type
+  if matches "(재택|원격|리모트)" → filters.push("j.work_type = 'remote'")
+  if matches "하이브리드" → filters.push("j.work_type = 'hybrid'")
+  
+  // Company/Title keyword (any 2+ char Korean word not matching above)
+  for each remaining Korean word (2+ chars):
+    if known_company(word) → filters.push("j.company LIKE '%{word}%'")
+    else → filters.push("(j.title LIKE '%{word}%' OR j.company LIKE '%{word}%' )")
+  
+  // Location
+  for each location keyword:
+    filters.push("j.location LIKE '%{keyword}%'")
+  
+  // Sorting
+  if matches "(점수|매칭)순" → order = "m.score DESC"
+  if matches "최신순" → order = "a.updated_at DESC"
+  
+  return { filters, order }
+```
 
 ## SQLite CRUD Patterns
 
@@ -12,19 +81,29 @@ description: "Job application status tracking with SQLite CRUD operations and pi
 sqlite3 data/jobs.db "INSERT INTO applications (id, job_id, status, memo, updated_at) VALUES (lower(hex(randomblob(16))), '{job_id}', '{status}', '{memo}', datetime('now'))"
 ```
 
-### Read Applications
+### Upsert Application (Create or Update)
 ```bash
-# All applications with job info
+sqlite3 data/jobs.db "
+  INSERT INTO applications (id, job_id, status, memo, updated_at)
+  VALUES (lower(hex(randomblob(16))), '{job_id}', '{status}', '{memo}', datetime('now'))
+  ON CONFLICT(job_id) DO UPDATE SET status='{status}', memo=COALESCE(NULLIF('{memo}',''), memo), updated_at=datetime('now')
+"
+```
+
+### Read Applications (Enhanced with Filters)
+```bash
+# All applications with job info and match score
 sqlite3 -json data/jobs.db "
-  SELECT a.*, j.title, j.company, j.work_type, j.commute_min, m.score
+  SELECT a.id, a.status, a.memo, a.updated_at,
+         j.title, j.company, j.work_type, j.location, j.commute_min, j.source,
+         m.score
   FROM applications a
   JOIN jobs j ON a.job_id = j.id
   LEFT JOIN matches m ON a.job_id = m.job_id
-  ORDER BY a.updated_at DESC
+  WHERE {filters}
+  ORDER BY {order}
+  LIMIT {limit}
 "
-
-# Filter by status
-sqlite3 -json data/jobs.db "SELECT * FROM applications WHERE status = '{status}'"
 ```
 
 ### Update Application
@@ -45,21 +124,24 @@ interested → applying → applied → interview → offer
                                  → rejected
                        → rejected
                      interview → declined
+Any status → interested (reset)
 ```
 
-Any status can transition back to `interested` (reset).
+| Status | Korean | Description |
+|--------|--------|-------------|
+| interested | 관심 | Bookmarked, considering |
+| applying | 지원예정 | Planning to apply |
+| applied | 지원완료 | Application submitted |
+| rejected | 서류탈락 | Resume rejected |
+| interview | 면접 | Interview stage |
+| offer | 합격 | Received offer |
+| declined | 불합격 | Not selected after interview |
 
-## Memo Format Rules
+## Pipeline Analytics
 
-- Plain text, no special characters that break SQL
-- Maximum 500 characters
-- Escape single quotes: Replace ' with ''
-- Include date context when relevant (e.g., "2024-03-15 1차 면접 완료")
-
-## Pipeline Statistics
-
+### Status Distribution
 ```bash
-sqlite3 data/jobs.db "
+sqlite3 -json data/jobs.db "
   SELECT status, COUNT(*) as count
   FROM applications
   GROUP BY status
@@ -74,3 +156,71 @@ sqlite3 data/jobs.db "
   END
 "
 ```
+
+### Conversion Funnel
+```bash
+sqlite3 -json data/jobs.db "
+  SELECT
+    COUNT(CASE WHEN status IN ('interested','applying','applied','interview','offer') THEN 1 END) as active,
+    COUNT(CASE WHEN status = 'applied' THEN 1 END) as applied,
+    COUNT(CASE WHEN status = 'interview' THEN 1 END) as interviewing,
+    COUNT(CASE WHEN status = 'offer' THEN 1 END) as offers,
+    COUNT(CASE WHEN status IN ('rejected','declined') THEN 1 END) as rejected,
+    ROUND(100.0 * COUNT(CASE WHEN status = 'interview' THEN 1 END) / NULLIF(COUNT(CASE WHEN status = 'applied' THEN 1 END), 0), 1) as interview_rate,
+    ROUND(100.0 * COUNT(CASE WHEN status = 'offer' THEN 1 END) / NULLIF(COUNT(CASE WHEN status = 'interview' THEN 1 END), 0), 1) as offer_rate
+  FROM applications
+"
+```
+
+### Top Scored Jobs (Not Yet Applied)
+```bash
+sqlite3 -json data/jobs.db "
+  SELECT j.title, j.company, j.work_type, j.location, m.score
+  FROM jobs j
+  LEFT JOIN matches m ON j.id = m.job_id
+  LEFT JOIN applications a ON j.id = a.job_id
+  WHERE a.id IS NULL AND m.score IS NOT NULL
+  ORDER BY m.score DESC
+  LIMIT 10
+"
+```
+
+### Weekly Activity Summary
+```bash
+sqlite3 -json data/jobs.db "
+  SELECT
+    date(updated_at, 'weekday 0', '-6 days') as week_start,
+    COUNT(CASE WHEN status = 'applied' THEN 1 END) as applied_count,
+    COUNT(CASE WHEN status = 'interview' THEN 1 END) as interview_count,
+    COUNT(*) as total_updates
+  FROM applications
+  WHERE updated_at >= date('now', '-30 days')
+  GROUP BY week_start
+  ORDER BY week_start DESC
+"
+```
+
+## Memo Format Rules
+
+- Plain text, no special characters that break SQL
+- Maximum 500 characters
+- Escape single quotes: Replace ' with ''
+- Include date context when relevant (e.g., "2026-03-30 1차 면접 완료")
+- Format: `{date} {event} {details}`
+
+## Smart Suggestions
+
+When showing pipeline, optionally suggest:
+- **Stale applications**: `applied` status with no update in 14+ days → "서류 결과 확인해보세요"
+- **High-score unapplied**: jobs with score > 70 and no application → "이 공고 점수가 높아요"
+- **Interview prep**: upcoming interviews → review job details, company info
+- **Follow-up needed**: `applied` > 7 days → "팔로업 메일을 보내보세요"
+
+## Known Companies for NLP Parsing
+
+Common Korean tech companies for query matching:
+카카오, 네이버, 삼성, 라인, 우아한형제들, 토스, 쿠팡, 배달의민족, 당근마켓, 야놀자, 크몽, 배민, 넥슨, 엔씨소프트, 네오위즈, 한컴, 카카오뱅크, 토스뱅크, 위메프, 마이플레이스
+
+## Location Keywords for NLP Parsing
+
+서울, 경기, 부산, 대전, 인천, 광주, 대구, 울산, 수원, 이천, 판교, 강남, 영등포, 송파, 성수, 역삼, 잠실, 마포, 용산, 구로, 분당, 일산, 평촌
