@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-03-30T17:04:00Z",
-  "experiment_id": "EXP-027",
-  "skill": "job-scraping+job-tracking",
-  "focus": "schema-gap-fix",
-  "hypothesis": "Adding experience, salary, deadline, reward columns to jobs table closes the gap between extracted and persisted data",
+  "timestamp": "2026-03-30T18:04:00Z",
+  "experiment_id": "EXP-028",
+  "skill": "job-matching",
+  "focus": "agent-prompt-cleanup",
+  "hypothesis": "Trimming matcher-agent.md to only validated, actionable content reduces confusion without changing the scoring algorithm",
   "metrics": {
     "parsing_tests": "12/12 (100%)",
     "match_tests": "7/7 (100%)",
@@ -16,16 +16,19 @@
     "nlp_queries": "11/11 (100%)",
     "schema_tests": "7/7 (100%)",
     "db_fields": 13,
-    "salary_patterns": 5
+    "salary_patterns": 5,
+    "matcher_agent_lines": 162,
+    "non_actionable_api_refs": 0
   },
   "changes": {
-    "new_columns": ["experience", "salary", "deadline", "reward"],
-    "salary_extraction": "annual, monthly, KRW formats with 5 regex patterns",
-    "tracker_filters": "+3 keywords (연봉, 마감임박, 경력)"
+    "matcher_agent_lines_before": 313,
+    "matcher_agent_lines_after": 162,
+    "line_reduction_pct": 48,
+    "removed": ["hallucinated Python APIs", "fabricated QA metrics", "ML/predictive sections", "caching/batch filler"],
+    "preserved": ["EXP-017 weights", "EXP-021 skill gate", "EXP-024 domain alignment", "tiered similarity", "experience fit", "culture fit", "career stage"]
   },
   "baseline_metrics": {
-    "db_fields": 9,
-    "scraper_extracts_unstored": 3,
-    "tracker_query_fields": 10
+    "matcher_agent_lines": 313,
+    "non_actionable_api_refs": 8
   }
 }
