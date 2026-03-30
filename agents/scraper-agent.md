@@ -59,14 +59,16 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
   
   let result = { id: wdId, title: '', company: '', experience: '', reward: '', link: link };
   
-  // Step 1: Clean text - remove location brackets and standalone slashes
+  // Step 1: Pre-segment concatenated text (Wanted often has no spaces between fields)
   let workingText = allText
-    .replace(/\\[.*?\\]/g, '')
-    .replace(/\\/g, '')
+    .replace(/(경력)/g, ' $1')
+    .replace(/(합격|보상금|성과금)/g, ' $1')
+    .replace(/\[.*?\]/g, '')
+    .replace(/\//g, ' ')
     .trim();
   
-  // Step 2: Enhanced experience extraction (Korean + English)
-  const expMatchKorean = workingText.match(/경력[\s]*(\d+[^년]*년|\d+년 이상|\d+년↑|무관)/);
+  // Step 2: Enhanced experience extraction (Korean + English, supports ~ and - ranges)
+  const expMatchKorean = workingText.match(/경력[\s]*(\d+[~-]\d+년|\d+년\s*이상|\d+년↑|무관)/);
   const expMatchEnglish = workingText.match(/(\d+)\s*years?/i);
   
   if (expMatchKorean) {
@@ -83,6 +85,9 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
     result.reward = rewardMatch[0];
     workingText = workingText.replace(rewardMatch[0], ' ').trim();
   }
+  
+  // Clean noise: standalone 합격 (not 합격금)
+  workingText = workingText.replace(/\b합급?\b/g, '').replace(/합격/g, ' ').trim();
   
   // Step 4: Enhanced context-aware company extraction with multi-stage fallback
   let companyMatch = null;
