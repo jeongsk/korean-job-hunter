@@ -132,7 +132,7 @@ Infer from skill distribution:
 | **devops** | Docker, Kubernetes, Terraform, Ansible, Jenkins, AWS, GCP, Azure |
 | **design** | Figma, Sketch, Photoshop, Illustrator, UX/UI keywords |
 
-Score each domain by counting matching skills. Pick highest. If top 2 are within 1 skill of each other, mark as hybrid (e.g., "frontend/backend").
+Score each domain by counting matching skills. Pick highest. If top 2 are tied (equal score), mark as hybrid (e.g., "frontend/backend"). Use exact word match for indicators ≤ 2 chars (e.g., 'r', 'go') to avoid substring false positives.
 
 ## Korean Skill Extraction (NLP)
 
@@ -142,7 +142,7 @@ const languageMap = {
   'javascript': ['자바스크립트', 'javascript', 'js', '자스'],
   'typescript': ['타입스크립트', 'typescript', 'ts'],
   'python': ['파이썬', 'python'],
-  'java': ['자바', 'java '],  // trailing space to avoid matching 'javascript'
+  'java': ['자바', 'java'],  // Disambiguation: use regex \bjava\b(?!script) when javascript is also present
   'go': ['고언어', 'golang', 'go 언어'],
   'rust': ['러스트', 'rust'],
   'c++': ['시플러스', 'c++', 'cpp'],
