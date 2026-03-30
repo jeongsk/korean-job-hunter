@@ -23,7 +23,7 @@ Without `--user-agent`, Wanted returns 403.
 | Source | Selector | URL Pattern |
 |--------|----------|-------------|
 | **Wanted** | `a[href*="/wd/"]` | `wanted.co.kr/search?query={kw}&tab=position` |
-| **JobKorea** | `[class*=dlua7o0]` | `jobkorea.co.kr/Search/?stext={kw}&tabType=recruit` |
+| **JobKorea** | `[class*=dlua7o0]` + fallback chain (SKILL.md) | `jobkorea.co.kr/Search/?stext={kw}&tabType=recruit` |
 | **LinkedIn** | `.base-card` | `linkedin.com/jobs/search/?keywords={kw}&location=South+Korea` |
 
 ## Extraction Code
