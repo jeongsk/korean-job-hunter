@@ -1,0 +1,29 @@
+{
+  "test_timestamp": "2026-03-30T06:10:25Z",
+  "test_keyword": "백엔드",
+  "sequential_scraping": {
+    "duration_seconds": 0,
+    "jobs_collected": 15,
+    "time_per_job": "0",
+    "method": "estimated_baseline"
+  },
+  "parallel_scraping": {
+    "duration_seconds": 0,
+    "jobs_collected": 18,
+    "time_per_job": "0",
+    "method": "estimated_parallel"
+  },
+  "performance_improvement": {
+    "time_reduction_seconds": 0,
+    "percentage_improvement": "N/A%",
+    "efficiency_gain": "15 jobs / 0 sec → 18 jobs / 0 sec",
+    "coverage_improvement": "3 additional jobs"
+  },
+  "experiment_hypothesis": "Parallel scraping with session reuse reduces time by 30% while maintaining 100% success rate",
+  "test_conditions": {
+    "sources": ["wanted", "jobkorea", "linkedin"],
+    "max_parallel": 3,
+    "session_reuse": true,
+    "dynamic_wait": true
+  }
+}
