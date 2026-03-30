@@ -654,9 +654,26 @@ echo "📊 Average time per source: $((TOTAL_DURATION / 3))s"
 echo "📊 Jobs per minute: $(echo "scale=1; ${JOBS_COUNT} / (${TOTAL_DURATION} / 60)" | bc)"
 ```
 
-## Work Type Detection
+## Work Type Detection (EXP-025)
 
-Scan JD text for Korean keywords:
+Detect work_type from listing text BEFORE other parsing. Order matters (check remote first):
+- **remote**: 전면재택, 재택근무, 풀리모트, full remote, 원격근무, fully remote, 100% remote
+- **hybrid**: 하이브리드, 주N일출근, hybrid, 주N일 출근
+- **onsite**: Default if no remote/hybrid keywords found
+
+After detection, **remove work_type keywords from text** to avoid polluting title extraction.
+
+## Location Detection (EXP-025)
+
+Extract location from brackets `[...]` first (city + optional district):
+- Korean cities: 서울, 경기, 부산, 대전, 인천, 광주, 대구, 울산, 수원, 이천
+- Known districts: 판교, 강남, 영등포, 송파, 성수, 역삼, 잠실, 마포, 용산, 구로, 분당, 일산, 평촌
+- Pattern: `서울 영등포구`, `[판교]`, `[부산/...]`
+- Extract just the location part even from mixed brackets (e.g., `[부산/경력 5년]` → location: `부산`)
+
+If no bracket location, check remaining text for bare city/district keywords and remove them from working text.
+
+## Work Type Detection
 - **remote**: 재택근무, 전면재택, 풀리모트, full remote, 원격근무
 - **hybrid**: 하이브리드, 주2일출근, 주3일출근, hybrid
 - **onsite**: Default if no remote/hybrid keywords found

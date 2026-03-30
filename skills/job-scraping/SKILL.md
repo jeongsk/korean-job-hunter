@@ -7,7 +7,26 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v3
+# Job Scraping Skill v3.1
+
+> **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
+
+## Work Type + Location Detection (EXP-025)
+
+Wanted listing text에 재택/하이브리드/지역 정보가 포함된 경우 파싱:
+
+### Work Type 키워드
+- **remote**: 전면재택, 재택근무, 풀리모트, full remote, 원격근무, fully remote, 100% remote
+- **hybrid**: 하이브리드, 주N일출근, hybrid, 주N일 출근  
+- **onsite**: 위 키워드 없으면 기본값
+
+감지 후 키워드를 working text에서 제거 (title 오염 방지).
+
+### Location 추출
+1. 브래킷에서 추출: `[서울 영등포구]`, `[판교]`, `[부산/...]`
+   - city + district 패턴: `서울 영등포구`, `경기 분당`
+   - mixed bracket도 처리: `[부산/경력 5년]` → location: `부산`
+2. 브래킷 없으면 bare text에서 city/district keyword 검색 후 제거
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 

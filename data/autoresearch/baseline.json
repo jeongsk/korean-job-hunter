@@ -1,28 +1,33 @@
 {
-  "timestamp": "2026-03-30T21:04:00Z",
-  "experiment_id": "EXP-024",
-  "skill": "job-matching",
-  "focus": "primary-domain-alignment",
-  "hypothesis": "Adding a primary domain alignment check that penalizes skill scores when the job's core tech stack has zero overlap with the candidate's domain will improve HIGH-MED discrimination",
+  "timestamp": "2026-03-30T13:04:00Z",
+  "experiment_id": "EXP-025",
+  "skill": "job-scraping",
+  "focus": "work-type-location-detection",
+  "hypothesis": "Adding work_type and location detection to Wanted text parsing will populate two previously-empty fields that feed into the matching algorithm's location/work_type component",
   "metrics": {
-    "parsing_tests": "8/8 (100%)",
+    "parsing_tests": "12/12 (100%)",
     "match_tests": "7/7 (100%)",
     "discrimination": "PASS",
     "spread": 79,
     "high_med_gap": 15,
-    "edge_cases": "3/3 (100%)"
+    "edge_cases": "3/3 (100%)",
+    "work_type_detection": "4/4 (100%)",
+    "location_detection": "4/4 (100%)"
   },
   "changes": {
-    "primary_domain_detection": "Detect Python, Java, JS/TS, Go, Rust, Swift, C++, C# from job text",
-    "domain_mismatch_penalty": "25% skill score reduction when no primary domain overlap",
-    "test_update": "MED-001 expected range adjusted from [75,90] to [60,75]"
+    "work_type_keywords": "remote: 전면재택/재택근무/풀리모트/full remote/원격근무, hybrid: 하이브리드/주N일출근/hybrid",
+    "location_bracket_extraction": "Extract city+district from brackets, handle mixed brackets",
+    "location_bare_fallback": "Search text for city/district keywords when no brackets",
+    "keyword_removal": "Work type and location keywords removed from working text after detection"
   },
   "baseline_metrics": {
     "parsing_tests": "8/8 (100%)",
     "match_tests": "7/7 (100%)",
     "discrimination": "PASS",
     "spread": 79,
-    "high_med_gap": 4,
-    "edge_cases": "3/3 (100%)"
+    "high_med_gap": 15,
+    "edge_cases": "3/3 (100%)",
+    "work_type_detection": "not implemented",
+    "location_detection": "not implemented"
   }
 }
