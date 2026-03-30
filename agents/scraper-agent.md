@@ -323,38 +323,173 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
 agent-browser close
 ```
 
-## JobKorea Scraping Pattern
+## JobKorea Scraping Pattern (Enhanced v2)
 
 ```bash
+# 1. 검색 페이지 열기
 agent-browser --user-agent "$UA" open "https://www.jobkorea.co.kr/Search/?stext={keyword}&tabType=recruit"
-sleep 5
-agent-browser eval "[...document.querySelectorAll('[class*=dlua7o0]')].slice(0,20).map(card => {
-  const text = (card.textContent||'').trim();
-  const linkEl = card.querySelector('a[href*=\"Recruit\"]');
-  return {
-    title: card.querySelector('a[href*=\"Recruit\"]')?.textContent?.trim()||'',
-    company: text.match(/(㈜|주식회사)[^\s,]*/)?.[0]||'',
-    experience: text.match(/경력(무관|\d+년↑|\d+~\d+년)/)?.[0]||'',
-    location: text.match(/(서울|경기|부산|대전|인천)\s*\S*구?/)?.[0]||'',
-    link: linkEl?.href||''
-  };
-})" --json
+sleep 8  # Increased wait for better loading
+agent-browser wait --load networkidle
+
+# 2. Enhanced 공고 목록 추출 with multiple selectors and better parsing
+agent-browser eval "
+// Primary selector for job cards
+const primaryCards = [...document.querySelectorAll('[class*=dlua7o0]')];
+// Fallback selectors
+const fallbackCards = [...document.querySelectorAll('.job-card, .recruit-card, .list-card')];
+
+// Combine and deduplicate cards
+const allCards = [...primaryCards, ...fallbackCards].filter((card, index, self) => 
+  self.findIndex(c => c === card) === index
+);
+
+const jobs = allCards.slice(0, 25).map(card => {
+  const text = (card.textContent || '').trim();
+  const lines = text.split(/\\n/).map(s => s.trim()).filter(Boolean);
+  
+  // Enhanced title extraction with multiple strategies
+  const title = lines.find(l => 
+    l.length > 3 && 
+    !l.match(/스크랩|지원|등록|마감|경력|서울|경기|광고|배�/) &&
+    !/^\d+$/.test(l)
+  ) || '';
+  
+  // Enhanced company extraction with better patterns
+  const company = lines.find(l => 
+    l.match(/(㈜|주식회사|유한회사|법인|Corp|Inc|Co|Ltd)/i) ||
+    (l.length >= 2 && l.length <= 10 && !l.match(/경력|지원|스크랩|마감|서울|경기|부산/))
+  ) || '';
+  
+  // Enhanced experience extraction
+  const experience = lines.find(l => l.match(/경력(무관|\\d+년↑|\\d+~\\d+년|\\d+년 이상)/)) || '';
+  
+  // Enhanced location extraction  
+  const location = lines.find(l => l.match(/(서울|경기|부산|대전|인천|광주|대구|울산)/)) || '';
+  
+  // Enhanced deadline extraction
+  const deadline = lines.find(l => l.match(/마감|D-\\d+|오늘|내일|\\d+월\\d+일/)) || '';
+  
+  // Enhanced link extraction
+  const linkEl = card.querySelector('a[href*=\"Recruit\"], a[href*=\"JobDetail\"], a[href*=\"recruit\"]') || card.querySelector('a');
+  const link = linkEl?.href || '';
+  
+  // Validate and clean job data
+  const isValidJob = title && (company || location) && link;
+  
+  return isValidJob ? {
+    title: title.trim(),
+    company: company.trim() || '회사명 미상',
+    experience: experience.trim() || '',
+    location: location.trim() || '',
+    deadline: deadline.trim() || '',
+    link: link
+  } : null;
+}).filter(job => job !== null);
+
+// If no valid jobs found, try simplified extraction
+if (jobs.length === 0) {
+  const simpleJobs = allCards.slice(0, 15).map(card => {
+    const text = (card.textContent || '').trim();
+    const lines = text.split(/\\n/).filter(line => line.trim());
+    
+    const title = lines[0] || '';
+    const company = lines[1] || '';
+    const link = card.querySelector('a')?.href || '';
+    
+    return title && company ? {
+      title: title.trim(),
+      company: company.trim(), 
+      experience: '',
+      location: '',
+      deadline: '',
+      link: link
+    } : null;
+  }).filter(job => job !== null);
+  
+  console.log(JSON.stringify(simpleJobs));
+} else {
+  console.log(JSON.stringify(jobs));
+}
+" --json > jobkorea_jobs.json
+
+# 3. Validate results and retry if needed
+if [ ! -s jobkorea_jobs.json ] || [ $(wc -l < jobkorea_jobs.json) -lt 1 ]; then
+  echo "Retry JobKorea scraping with fallback approach..."
+  agent-browser eval "
+    const cards = [...document.querySelectorAll('[class*=dlua7o0], .job-card, .recruit-card')].slice(0,15);
+    const jobs = cards.map(card => {
+      const text = (card.textContent || '').trim();
+      const lines = text.split(/\\n/).filter(line => line.trim());
+      return {
+        title: lines[0] || '',
+        company: lines[1] || '',
+        experience: '',
+        location: '',
+        deadline: '', 
+        link: card.querySelector('a')?.href || ''
+      };
+    }).filter(job => job.title && job.company);
+    
+    console.log(JSON.stringify(jobs));
+  " --json > jobkorea_jobs_fallback.json
+fi
+
+# 4. 브라우저 종료
 agent-browser close
 ```
 
-## LinkedIn Scraping Pattern
+## LinkedIn Scraping Pattern (Enhanced v2)
 
 ```bash
 agent-browser --user-agent "$UA" open "https://www.linkedin.com/jobs/search/?keywords={keyword}&location=South+Korea"
-sleep 5
-agent-browser eval "[...document.querySelectorAll('.base-card')].slice(0,20).map(el => {
-  return {
-    title: el.querySelector('h3,.base-search-card__title')?.textContent?.trim()||'',
-    company: el.querySelector('h4,.base-search-card__subtitle')?.textContent?.trim()||'',
-    location: el.querySelector('.job-search-card__location,[class*=location]')?.textContent?.trim()||'',
-    link: el.querySelector('a[href*=\"/jobs/\"]')?.href||''
-  };
-})" --json
+sleep 8  # Increased wait for dynamic content
+agent-browser wait --load networkidle
+
+# Enhanced LinkedIn job extraction with multiple fallback selectors
+agent-browser eval "[...document.querySelectorAll('.jobs-search__results-list li, .job-card-container, .base-card')].slice(0,30).map(el => {
+  // Enhanced title extraction with multiple selectors
+  const titleEl = el.querySelector('h3, .base-search-card__title, .job-card__title, [data-job-title]');
+  const title = titleEl?.textContent?.trim() || '';
+  
+  // Enhanced company extraction with multiple selectors  
+  const companyEl = el.querySelector('h4, .base-search-card__subtitle, .job-card__subtitle, [data-job-company]');
+  const company = companyEl?.textContent?.trim() || '';
+  
+  // Enhanced location extraction
+  const locationEl = el.querySelector('.job-search-card__location, [class*=location], .job-card__location');
+  const location = locationEl?.textContent?.trim() || '';
+  
+  // Enhanced link extraction
+  const linkEl = el.querySelector('a[href*=\"/jobs/\"]');
+  const link = linkEl?.href || '';
+  
+  // Only return valid job entries
+  if (title && (company || location)) {
+    return {
+      title: title,
+      company: company || 'Company not specified',
+      location: location || 'Location not specified', 
+      link: link
+    };
+  }
+  return null;
+}).filter(job => job !== null)" --json > linkedin_jobs.json
+
+# Fallback: Try alternative selectors if primary fails
+if [ ! -s linkedin_jobs.json ]; then
+  agent-browser eval "[...document.querySelectorAll('.job-card, .job-card-container')].slice(0,30).map(el => {
+    const title = el.querySelector('.job-card__title, h3')?.textContent?.trim() || '';
+    const company = el.querySelector('.job-card__subtitle, h4')?.textContent?.trim() || '';
+    const location = el.querySelector('.job-card__location, [class*=location]')?.textContent?.trim() || '';
+    const link = el.querySelector('a[href*=\"/jobs/\"]')?.href || '';
+    
+    if (title && company) {
+      return { title, company, location, link };
+    }
+    return null;
+  }).filter(job => job !== null)" --json > linkedin_jobs_fallback.json
+fi
+
 agent-browser close
 ```
 

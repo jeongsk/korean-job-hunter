@@ -1,0 +1,86 @@
+{
+  "timestamp": "2026-03-30T00:10:01.476Z",
+  "successRate": 71.7948717948718,
+  "totalTests": 39,
+  "passedTests": 28,
+  "failedTests": 11,
+  "failures": [
+    {
+      "testName": "Wanted Access",
+      "details": "HTTP undefined"
+    },
+    {
+      "testName": "JobKorea Access",
+      "details": "HTTP 400"
+    },
+    {
+      "testName": "LinkedIn Access",
+      "details": "HTTP undefined"
+    },
+    {
+      "testName": "JobKorea: \"백엔드 개발자\"",
+      "details": "Found only 1 jobs (expected 3+)"
+    },
+    {
+      "testName": "LinkedIn: \"백엔드 개발자\"",
+      "details": ""
+    },
+    {
+      "testName": "JobKorea: \"프론트엔드 엔지니어\"",
+      "details": "Found only 2 jobs (expected 3+)"
+    },
+    {
+      "testName": "LinkedIn: \"프론트엔드 엔지니어\"",
+      "details": ""
+    },
+    {
+      "testName": "JobKorea: \"Node.js 개발자\"",
+      "details": "Found only 1 jobs (expected 3+)"
+    },
+    {
+      "testName": "LinkedIn: \"Node.js 개발자\"",
+      "details": ""
+    },
+    {
+      "testName": "JobKorea: \"React 개발자\"",
+      "details": "Found only 1 jobs (expected 3+)"
+    },
+    {
+      "testName": "LinkedIn: \"React 개발자\"",
+      "details": ""
+    }
+  ],
+  "duration": 30129,
+  "configuration": {
+    "searchTerms": [
+      "백엔드 개발자",
+      "프론트엔드 엔지니어",
+      "Node.js 개발자",
+      "React 개발자"
+    ],
+    "sites": {
+      "wanted": {
+        "name": "Wanted",
+        "url": "https://www.wanted.co.kr/search?query={keyword}&tab=position",
+        "selector": "a[href*=\"/wd/\"]",
+        "expectedMinJobs": 5,
+        "timeout": 10000
+      },
+      "jobkorea": {
+        "name": "JobKorea",
+        "url": "https://www.jobkorea.co.kr/Search/?stext={keyword}&tabType=recruit",
+        "selector": "[class*=dlua7o0]",
+        "expectedMinJobs": 3,
+        "timeout": 15000
+      },
+      "linkedin": {
+        "name": "LinkedIn",
+        "url": "https://www.linkedin.com/jobs/search/?keywords={keyword}&location=South+Korea",
+        "selector": ".base-card, .jobs-search__results-list li",
+        "expectedMinJobs": 3,
+        "timeout": 20000
+      }
+    },
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+  }
+}
