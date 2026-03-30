@@ -59,13 +59,10 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
   
   let result = { id: wdId, title: '', company: '', experience: '', reward: '', link: link };
   
-  // Enhanced multi-strategy field parsing to improve fields completeness
-  let remainingText = allText;
-  
-  // Step 1: Very basic location removal
-  workingText = workingText
-    .replace(/\\[.*?\\]/g, '')  // Remove [location] patterns
-    .replace(/\\/g, '')         // Remove standalone slashes
+  // Step 1: Clean text - remove location brackets and standalone slashes
+  let workingText = allText
+    .replace(/\\[.*?\\]/g, '')
+    .replace(/\\/g, '')
     .trim();
   
   // Step 2: Enhanced experience extraction (Korean + English)
@@ -91,7 +88,7 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
   let companyMatch = null;
   
   // Strategy 1: Traditional Korean company indicators with expanded patterns
-  const koreanIndicators = ['㈜', '주식회사', '유한회사', '법인', '특수법인', '협동조합', '㈜'];
+  const koreanIndicators = ['㈜', '주식회사', '유한회사', '법인', '특수법인', '협동조합'];
   for (const indicator of koreanIndicators) {
     const pattern = new RegExp(`${indicator}[\\s]*([^\\s,]+(?:\\s[^\\s,]+)?)`);
     const match = workingText.match(pattern);
@@ -107,31 +104,16 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
       // Top-tier companies (highest priority)
       '토스', '스패이드', '비댁스', '웨이브릿지', '미래엔', '코어셀', '트리노드', '페칭', '에버온', '키트웍스',
       // Major tech companies
-      '유모스원', '브이젠', '리스타', '카카오', '네이버', '삼성', '라인', '우아한형제들', '배달의민족', '우아한', 
-      '당근마켓', '크몽', '야놀자', '마이플레이스', '지엠소프트', '한컴', '네오위즈', '넥슨', '엔씨소프트', 
-      '엘림스', '더존', '원스톱', '키움',
-      // Additional recent companies (expanded database)
-      '쿠팡', '배달의민족', '우아한형제들', '우아한', '토스', '카카오뱅크', '토스뱅크', '배민',
-      '우아한테크코스', '우아한프론티어', '스페이스바', '스페이스', '핀테크', '핀크',
-      '안전공원', '안전', '테크스타', '테크솔루션', '소프트맥스', '소프트', '에이치투이',
-      '한컴위즈', '한컴', '넥슨제나', '넥슨', '엔씨', '엔씨소프트', '엔씨게임즈',
-      'IMC', 'IMC홀딩스', 'IMC플레이', '메가존클라우드', '메가존', '클라우드',
-      '비트윈', '비트윈컴퍼니', '데이터엔진', '엔진', '쿠키로봇', '로봇',
-      '제이터스', '제이테크', '테크스퀘어', '스퀘어', '블랙스톤', '블랙',
-      '위메프', '위메프코리아', '위메프커머스', '커머스',
+      '유모스원', '브이젠', '리스타', '카카오', '네이버', '삼성', '라인', '우아한형제들', '배달의민족',
+      '당근마켓', '크몽', '야놀자', '마이플레이스', '지엠소프트', '한컴', '네오위즈', '넥슨', '엔씨소프트',
+      '엘림스', '더존', '원스톱', '키움', '쿠팡', '카카오뱅크', '토스뱅크', '배민',
+      '우아한테크코스', '우아한프론티어', '위메프', '네이버파이낸셜',
       // Global companies with Korean operations
-      '애플코리아', '애플', '애플코', '한국IBM', 'IBM코리아', '마이크로소프트코리아', '마이크로소프트',
-      '구글코리아', '구글', '아마존코리아', '아마존', '메타코리아', '메타', '오라클코리아', '오라클',
-      // Research and AI companies
-      '인공지능연구소', 'AI연구소', '지능형시스템', '딥러닝연구소', '머신러닝연구소',
-      // Fintech companies
-      '핀테크', '핀크', '테크핀', '디지털뱅크', '네이버파이낸셜', '카카오뱅크', '토스뱅크',
-      // Startups and emerging companies
-      '스타트업', '테크스타트업', '벤처기업', '테크노베이스', '테크랩스', '인큐베이터',
-      // Specialized tech companies
-      '블록체인', '크립토', 'NFT', '메타버스', 'AR', 'VR', '게임개발', '모바일게임',
-      // University/research institutions
-      'KAIST', 'POSTECH', '서울대', '연세대', '고려대', '한국과학기술원', '포항공과대'
+      '애플코리아', '한국IBM', 'IBM코리아', '마이크로소프트코리아', '마이크로소프트',
+      '구글코리아', '아마존코리아', '메타코리아', '오라클코리아',
+      // Research institutions
+      '인공지능연구소', 'AI연구소', '딥러닝연구소', '머신러닝연구소',
+      'KAIST', 'POSTECH'
     ];
     
     // Find all company occurrences with enhanced context scoring
@@ -268,16 +250,6 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
       if (!companyMatch && koreanWords[0]) {
         companyMatch = koreanWords[0];
       }
-    }
-  }
-  
-  // Strategy 3: Pattern-based company name detection for unknown companies
-  if (!companyMatch) {
-    // Pattern for 2-5 character Korean words (likely company names)
-    const companyPattern = /[가-힣]{2,5}(?:기업|그룹|솔루션|테크|시스템|랩스|인터내셔널|코리아|글로벌|소프트웨|IT|커뮤니케이션|네트웍스|디지털|플랫폼|랩스|스튜디오|랩|랜드|코리아|글로벌|인터내셔널|테크놀로지|테크놀로|테크|솔루션|시스템|플랫폼|커머스|커뮤니티|네트워크|네트웍|디지털|인공지능|AI|블록체인|클라우드|데이터|소프트|코리아|글로벌|인터내셔널)/;
-    const match = workingText.match(companyPattern);
-    if (match && match[0]) {
-      companyMatch = match[0];
     }
   }
   

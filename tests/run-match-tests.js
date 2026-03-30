@@ -103,11 +103,92 @@ function calculateMatch(candidate, job) {
     }
   }
   
-  // Improved scoring: use weighted points out of max possible
-  const totalPoints = exactMatches * 100 + strongMatches * 75 + partialMatches * 25;
-  const maxPoints = totalCandidateSkills * 100;
-  const skillScore = Math.min(100, Math.round((totalPoints / maxPoints) * 100));
-  scores.skill = { score: skillScore, weight: 0.35, exact: exactMatches, strong: strongMatches, partial: partialMatches };
+  // --- Job-centric skill coverage (EXP-022) ---
+  // Extract job-required skills from the job text, then measure coverage.
+  // This avoids penalizing candidates for having extra skills the job doesn't mention.
+  const allKnownSkills = Object.keys(skillKeywords);
+  const jobRequiredSkills = [];
+  const jobRequiredSet = new Set();
+  
+  for (const skill of allKnownSkills) {
+    const keywords = skillKeywords[skill];
+    if (keywords.some(kw => jobText.includes(kw))) {
+      jobRequiredSkills.push(skill);
+      jobRequiredSet.add(skill);
+    }
+    // Also check tier2 equivalents in job text
+    const t2 = tier2Map[skill] || [];
+    for (const kw of t2) {
+      if (jobText.includes(kw) && !jobRequiredSet.has(skill)) {
+        jobRequiredSkills.push(skill);
+        jobRequiredSet.add(skill);
+        break;
+      }
+    }
+  }
+  
+  // For each job-required skill, find best coverage by candidate
+  let coveragePoints = 0;
+  const maxCoveragePoints = Math.max(jobRequiredSkills.length, 1) * 100;
+  
+  for (const reqSkill of jobRequiredSkills) {
+    // Does candidate have exact match?
+    const reqKeywords = skillKeywords[reqSkill] || [reqSkill];
+    const candidateHasExact = candidateSkills.some(cs => {
+      const ck = skillKeywords[cs] || [cs];
+      return ck.some(k => reqKeywords.some(rk => rk === k));
+    });
+    
+    if (candidateHasExact) {
+      coveragePoints += 100;
+      continue;
+    }
+    
+    // Does candidate have tier2 equivalent?
+    const candidateHasTier2 = candidateSkills.some(cs => {
+      const t2 = tier2Map[cs] || [];
+      return t2.some(kw => reqKeywords.some(rk => rk === kw)) ||
+             reqKeywords.some(rk => t2.includes(rk.replace(/\.js$/, '').replace(/\./g, '')));
+    });
+    // Simpler: check if candidate skill's tier2 equivalents include any of this reqSkill's keywords
+    const candidateHasTier2Simple = candidateSkills.some(cs => {
+      const t2 = tier2Map[cs] || [];
+      return t2.some(t2kw => reqKeywords.includes(t2kw));
+    });
+    
+    if (candidateHasTier2Simple) {
+      coveragePoints += 75;
+      continue;
+    }
+    
+    // Does candidate have tier3?
+    const candidateHasTier3 = candidateSkills.some(cs => {
+      const t3 = tier3Map[cs] || [];
+      return t3.some(t3kw => reqKeywords.includes(t3kw));
+    });
+    
+    if (candidateHasTier3) {
+      coveragePoints += 25;
+      continue;
+    }
+    
+    // No coverage for this requirement
+    coveragePoints += 0;
+  }
+  
+  // Hybrid: blend job-centric coverage with candidate-centric relevance
+  // This gives credit both for covering job needs AND for relevant extra skills
+  const jobCoverageScore = Math.min(100, Math.round((coveragePoints / maxCoveragePoints) * 100));
+  
+  // Candidate-centric score (original): how much of candidate's skills are relevant
+  const candidateRelevancePoints = exactMatches * 100 + strongMatches * 75 + partialMatches * 25;
+  const candidateRelevanceScore = Math.min(100, Math.round((candidateRelevancePoints / (totalCandidateSkills * 100)) * 100));
+  
+  // Blend: 60% job coverage + 40% candidate relevance
+  // Higher relevance weight ensures candidates with skills matching job requirements
+  // score higher than those who just have overlapping infrastructure skills
+  const skillScore = Math.min(100, Math.round(jobCoverageScore * 0.6 + candidateRelevanceScore * 0.4));
+  scores.skill = { score: skillScore, weight: 0.35, exact: exactMatches, strong: strongMatches, partial: partialMatches, jobCoverage: jobCoverageScore, candidateRelevance: candidateRelevanceScore, jobRequired: jobRequiredSkills.length };
   
   // --- 2. Experience Fit (25%) ---
   const expRange = jobContent.match(/(\d+)\s*[~\-]\s*(\d+)\s*년/);
@@ -229,10 +310,11 @@ function calculateMatch(candidate, job) {
   // When skill overlap is low, dampen all non-skill components.
   // Rationale: culture fit, career alignment, etc. are meaningless
   // if you don't have the right skills for the job.
-  // Gate function: 1.0 when skill >= 40, ramps down to 0.25 when skill = 0
-  const skillGate = scores.skill.score >= 40 
+  // Gate function: 1.0 when skill >= 50, ramps down to 0.25 when skill = 0
+  const SKILL_GATE_THRESHOLD = 50;
+  const skillGate = scores.skill.score >= SKILL_GATE_THRESHOLD 
     ? 1.0 
-    : 0.25 + (scores.skill.score / 40) * 0.75;
+    : 0.25 + (scores.skill.score / SKILL_GATE_THRESHOLD) * 0.75;
   
   const gatedExperience = Math.round(scores.experience.score * skillGate);
   const gatedCulture = Math.round(scores.culture.score * skillGate);

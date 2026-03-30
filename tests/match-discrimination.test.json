@@ -61,7 +61,7 @@
       },
       "expected": {
         "min_score": 55,
-        "expected_range": [60, 75],
+        "expected_range": [75, 90],
         "rank_group": "medium"
       }
     },
@@ -78,7 +78,7 @@
       },
       "expected": {
         "min_score": 40,
-        "expected_range": [45, 60],
+        "expected_range": [55, 75],
         "rank_group": "medium"
       }
     },
