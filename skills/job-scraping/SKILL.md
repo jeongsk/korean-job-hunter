@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v3.8
+# Job Scraping Skill v3.9
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
@@ -308,6 +308,44 @@ const parseKoreanDate = (text) => {
   return null;
 };
 ```
+
+---
+
+## Culture Keyword Extraction (EXP-043)
+
+Job listings contain cultural signals that feed into the matching algorithm's culture component (15% weight). Extract from full job description text (상세 페이지) or listing snippet:
+
+### Culture Keywords (Korean + English)
+| Category | Keywords |
+|----------|----------|
+| **innovative** | 혁신, 도전, 창의, 크리에이티브, creative, innovation, challenge, 새로운 |
+| **collaborative** | 협업, 팀워크, 소통, 협력, collaborat*, teamwork, partnership, 함께, 공동 |
+| **fast_paced** | 빠른, agile, 실시간, 스타트업, fast-paced, rapid, 민첩 |
+| **structured** | 체계, 프로세스, systematic, process, 표준화, QA, 품질관리 |
+| **learning_focused** | 성장, 학습, learning, growth, 교육, 워크샵, 컨퍼런스, 스터디, 멘토 |
+| **autonomous** | 자율, 독립, autonomous, independent, 자기주도, 오너십, ownership, 주도적 |
+
+### Extraction (JavaScript)
+```javascript
+const CULTURE_PATTERNS = {
+  innovative: /(혁신|도전|창의|크리에이티브|creative|innovation|challenge|새로운)/i,
+  collaborative: /(협업|팀워크|소통|협력|collaborat|teamwork|communication|partnership|함께|공동)/i,
+  fast_paced: /(빠른|agile|실시간|스타트업|fast[\s-]?paced|rapid|민첩)/i,
+  structured: /(체계|프로세스|systematic|process|표준화|qa|품질관리)/i,
+  learning_focused: /(성장|학습|learning|growth|교육|워크샵|컨퍼런스|스터디|멘토)/i,
+  autonomous: /(자율|독립|autonomous|independent|자기주도|오너십|ownership|주도적)/i,
+};
+function extractCultureKeywords(text) {
+  if (!text) return [];
+  const kw = [];
+  for (const [key, re] of Object.entries(CULTURE_PATTERNS)) {
+    if (re.test(text)) kw.push(key);
+  }
+  return kw;
+}
+```
+
+Extract from: (1) 상세 페이지 `.job-description` text (best), (2) listing card textContent (partial), (3) company about page. Store as `culture_keywords` field (JSON array) in the jobs table.
 
 ---
 

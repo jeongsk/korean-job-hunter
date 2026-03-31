@@ -3,7 +3,7 @@ name: job-matching
 description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring, and primary domain alignment"
 ---
 
-# Job Matching Skill v3 (Cleaned EXP-030)
+# Job Matching Skill v3.1 (EXP-043: Culture Keywords)
 
 ## Score Weights (Validated — EXP-017)
 
@@ -76,17 +76,17 @@ Categorize job postings by technical domain:
 - **Sales**: 영업, sales, business development
 - **Research**: 연구, research, scientist, r&d
 
-## Company Culture Keywords
+## Company Culture Keywords (EXP-043)
 
-Extract cultural indicators from job descriptions:
-- **Innovative**: 혁신, creative, innovation, 도전
-- **Collaborative**: 협업, teamwork, partnership
-- **Fast-paced**: 빠른, agile, quick, 실시간
-- **Structured**: 체계, process, systematic
-- **Customer-focused**: 고객, customer, user-centric
-- **Quality-driven**: 품질, quality, excellence
-- **Learning-focused**: 학습, learning, growth
-- **Result-oriented**: 성과, results, outcome
+Culture keywords are extracted from job listing text by the scraper (see `skills/job-scraping/SKILL.md`):
+- **Innovative**: 혁신, 도전, 창의, creative, innovation
+- **Collaborative**: 협업, 팀워크, 소통, collaborat*, teamwork, 함께
+- **Fast-paced**: 빠른, agile, 실시간, 스타트업, fast-paced
+- **Structured**: 체계, 프로세스, systematic, QA, 품질관리
+- **Learning-focused**: 성장, 학습, learning, 교육, 스터디, 멘토
+- **Autonomous**: 자율, 독립, autonomous, 자기주도, 오너십
+
+When `culture_keywords` is empty/null, culture score defaults to 70 (neutral). When present, score is based on overlap with candidate's `cultural_preferences`.
 
 ## Matching Workflow
 
