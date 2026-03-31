@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-03-31T20:04:00Z",
-  "experiment_id": "EXP-046",
-  "skill": "jobkorea-salary-extraction",
-  "focus": "jobkorea-salary-field-population",
-  "hypothesis": "Adding salary line classification to JobKorea positional parsing populates the previously-empty salary field",
+  "timestamp": "2026-04-01T22:04:00Z",
+  "experiment_id": "EXP-048",
+  "skill": "culture-extraction",
+  "focus": "korean-culture-patterns-wlb",
+  "hypothesis": "Adding Korean-specific work culture patterns and work_life_balance category improves culture signal extraction from Korean job listings",
   "metrics": {
     "jobkorea_parsing_tests": "15/15 (100%)",
     "cross_source_dedup_tests": "13/13 (100%)",
@@ -16,10 +16,11 @@
     "nlp_v2_queries": "18/18 (100%)",
     "resume_nlp_tests": "44/44 (100%)",
     "deadline_urgency_tests": "24/24 (100%)",
-    "culture_extraction_tests": "14/14 (100%)",
+    "culture_extraction_tests": "25/25 (100%)",
     "company_fallback_tests": "11/11 (100%)",
     "company_boundary_tests": "16/16 (100%)",
     "e2e_parsing_tests": "7/7 (100%)",
+    "e2e_pipeline_tests": "39/39 (100%)",
     "schema_tests": "7/7 (100%)",
     "total_tests": "all pass (0 failures)",
     "all_passing": true
