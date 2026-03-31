@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v3.9
+# Job Scraping Skill v4.0 (EXP-045: Cross-Source Dedup)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
@@ -392,6 +392,41 @@ agent-browser eval "document.body.innerHTML.length"  # 페이지 로드 확인
 
 # 항상 에러 시 스크린샷
 agent-browser screenshot --annotate error.png
+```
+
+---
+
+## Cross-Source Deduplication (EXP-045)
+
+Same job posted on Wanted, JobKorea, LinkedIn has different URLs. Fuzzy matching detects duplicates:
+
+### Algorithm
+1. **Company match**: Normalize both company names (strip `(주)`, `㈜`, `주식회사`, case-insensitive). Must match exactly or one contains the other.
+2. **Title similarity**: Normalize titles, compute token-based Jaccard with Korean↔English equivalents:
+   - 프론트엔드↔frontend, 백엔드↔backend, 풀스택↔fullstack, 개발자↔developer, 엔지니어↔engineer, 데이터↔data, 데브옵스↔devops, etc.
+3. **Threshold**: Same company + title similarity ≥ 0.6 → duplicate
+
+### When merging duplicates, keep the entry with:
+- Most complete fields (prefer the one with salary, deadline, culture_keywords)
+- If tied: prefer Wanted (usually richer data)
+
+```javascript
+// Korean↔English title equivalents for token matching
+const koEnMap = {
+  '프론트엔드': 'frontend', '백엔드': 'backend', '풀스택': 'fullstack',
+  '개발자': 'developer', '엔지니어': 'engineer', '데이터': 'data',
+  '분석가': 'analyst', '디자이너': 'designer', '매니저': 'manager',
+  '데브옵스': 'devops', '모바일': 'mobile', '인프라': 'infrastructure',
+};
+```
+
+### SQL: Mark duplicates after scraping
+```sql
+-- Find potential duplicates (run after scraping)
+SELECT a.id, a.source, a.title, a.company, b.id as dup_id, b.source as dup_source
+FROM jobs a JOIN jobs b ON a.id < b.id
+WHERE replace(replace(replace(lower(a.company),'(주)',''),'㈜',''),'주식회사','')
+    = replace(replace(replace(lower(b.company),'(주)',''),'㈜',''),'주식회사','');
 ```
 
 ---

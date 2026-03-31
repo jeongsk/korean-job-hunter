@@ -86,7 +86,7 @@ Each scraped job must have these fields:
    - Wait for load (`sleep 5-8` + `wait --load networkidle`)
    - Extract using source-specific code from SKILL.md
    - Handle errors (fallback selectors, retry with different UA)
-4. Merge results, remove duplicates (by URL)
+4. Merge results, remove duplicates (by URL + fuzzy cross-source dedup via SKILL.md)
 5. Save to SQLite (`data/jobs.db`)
 
 ```bash
