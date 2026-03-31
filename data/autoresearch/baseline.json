@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-03-30T23:04:00Z",
-  "experiment_id": "EXP-032",
-  "skill": "resume-agent",
-  "focus": "korean-nlp-test-suite",
-  "hypothesis": "Creating automated tests for resume-agent Korean NLP extraction validates correctness and catches bugs in the untested extraction logic",
+  "timestamp": "2026-03-31T02:04:00Z",
+  "experiment_id": "EXP-034",
+  "skill": "commands",
+  "focus": "documentation-sync",
+  "hypothesis": "Command files contain outdated scoring weights and missing features compared to validated agent behavior",
   "metrics": {
     "parsing_tests": "12/12 (100%)",
     "context_tests": "5/5 (100%)",
@@ -11,13 +11,13 @@
     "matching_tests": "7/7 (100%)",
     "nlp_queries": "11/11 (100%)",
     "resume_nlp_tests": "44/44 (100%)",
-    "java_disambiguation": "fixed",
-    "domain_false_positives": "eliminated",
-    "hybrid_threshold": "corrected"
+    "e2e_parsing_tests": "7/7 (100%)",
+    "total_tests": "88/88 (100%)",
+    "command_docs_synced": true
   },
   "baseline_metrics": {
-    "resume_nlp_tests": "0 (no tests existed)",
-    "java_disambiguation": "broken (trailing space hack)",
-    "domain_false_positives": "present (r in spring)"
+    "job_match_weights_correct": false,
+    "korean_nlp_in_track_command": false,
+    "parsed_fields_in_search_command": false
   }
 }
