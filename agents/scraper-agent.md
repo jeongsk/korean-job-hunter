@@ -44,7 +44,7 @@ Wanted is the hardest source — title, company, experience, reward are concaten
 2. **Experience**: Korean regex (`경력 \d+~\d+년`, `무관`) + English (`\d+ years`)
 3. **Reward**: `(보상금|합격금|성과금) \d+만원`
 4. **Company** (6 strategies, ordered by reliability):
-   - Korean indicators (`(주)`, `주식회사`, `유한회사`)
+   - Korean indicators (`(주)`, `㈜`, `주식회사`, `유한회사`) — `(주)` stripped from company name
    - Known company database (~70 companies with context scoring)
    - Korean suffix patterns (`*테크`, `*솔루션`, `*랩스`)
    - English indicators (`Inc.`, `LLC`, `Corp.`)

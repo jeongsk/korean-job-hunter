@@ -98,13 +98,13 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
   t = t.replace(/합격/g, ' ').trim();
   // Company extraction
   let cm = null;
-  const kInd = ['㈜','주식회사','유한회사'];
+  const kInd = ['㈜','주식회사','유한회사','(주)'];
   for (const ind of kInd) { const m = t.match(new RegExp(escapeRegExp(ind)+'\\\\s*([^\\\\s,]+(?:\\\\s[^\\\\s,]+)?)')); if (m) { cm = m[0]; break; } }
   if (!cm) {
     const known = ['카카오','네이버','삼성','라인','우아한형제들','배달의민족','토스','당근마켓','크몽','야놀자','마이플레이스','한컴','네오위즈','넥슨','엔씨소프트','키움','미래엔','웨이브릿지','트리노드','페칭','비댁스','코어셀','키트웍스','더존','쿠팡'];
     for (const c of known) { if (new RegExp(escapeRegExp(c)).test(t)) { cm = c; t = t.replace(c, ' '); break; } }
   }
-  if (cm) { r.company = cm.replace(/^[\\s㈜]+/,''); if (!cm.includes('㈜') && !cm.includes('주식회사')) t = t.replace(new RegExp(escapeRegExp(cm),'g'),' '); }
+  if (cm) { r.company = cm.replace(/^[\\s㈜]+/,'').replace(/^\\(주\\)\\s*/,''); if (!cm.includes('㈜') && !cm.includes('주식회사') && !cm.includes('(주)')) t = t.replace(new RegExp(escapeRegExp(cm),'g'),' '); }
   r.title = t.replace(/[,·\\\\s]+/g,' ').trim() || '직무 미상';
   if (!r.company || r.company.length < 2) r.company = '회사명 미상';
   return r;

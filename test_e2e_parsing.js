@@ -39,9 +39,10 @@ function parseWantedJob(allText) {
   workingText = workingText.replace(/합격/g, ' ').trim();
   
   // Korean company indicators
-  const koreanIndicators = ['㈜', '주식회사', '유한회사'];
+  const koreanIndicators = ['㈜', '주식회사', '유한회사', '(주)'];
   for (const ind of koreanIndicators) {
-    const m = workingText.match(new RegExp(ind + '[\\s]*([^\\s,]+(?:\\s[^\\s,]+)?)'));
+    const escaped = ind.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const m = workingText.match(new RegExp(escaped + '[\\s]*([가-힣A-Za-z0-9]+)'));
     if (m) { result.company = m[1].trim(); workingText = workingText.replace(m[0], ' '); break; }
   }
   
