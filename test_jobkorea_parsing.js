@@ -9,6 +9,30 @@ const testCases = [
     raw: "프론트엔드 개발자\n㈜카카오\n경력 3~10년\n서울 영등포구\n마감일 2026.04.15\n스크랩 12",
     expect: { title: "프론트엔드 개발자", company: "카카오", experience: "경력 3~10년", location: "서울 영등포구" }
   },
+  // Salary: 연봉 range
+  {
+    name: "salary-annual-range",
+    raw: "백엔드 개발자\n㈜카카오\n경력 3~10년\n연봉 5000~8000만원\n서울 영등포구\n마감일 2026.04.15",
+    expect: { title: "백엔드 개발자", company: "카카오", experience: "경력 3~10년", salary: "연봉 5000~8000만원", location: "서울 영등포구" }
+  },
+  // Salary: 월급 range
+  {
+    name: "salary-monthly-range",
+    raw: "프론트엔드 개발자\n주식회사토스\n경력 5년 이상\n월급 300~500만원\n서울 강남구\n마감일 상시",
+    expect: { title: "프론트엔드 개발자", company: "토스", experience: "경력 5년 이상", salary: "월급 300~500만원", location: "서울 강남구" }
+  },
+  // Salary: single value
+  {
+    name: "salary-single-value",
+    raw: "데이터 엔지니어\n(주)네이버\n경력 3년 이상\n연봉 6000만원 이상\n경기 성남시 분당구",
+    expect: { title: "데이터 엔지니어", company: "네이버", experience: "경력 3년 이상", salary: "연봉 6000만원 이상", location: "경기 성남시 분당구" }
+  },
+  // Salary: 면접후결정 (no salary)
+  {
+    name: "salary-negotiable",
+    raw: "iOS 개발자\n토스뱅크\n경력 3년 이상\n면접후결정\n서울 송파구\n마감일 2026.04.12",
+    expect: { title: "iOS 개발자", company: "토스뱅크", experience: "경력 3년 이상", salary: "면접후결정", location: "서울 송파구" }
+  },
   // Company with (주) prefix
   {
     name: "company-with-prefix",
@@ -82,6 +106,7 @@ function parseJobKoreaCard(rawText) {
   let experience = '';
   let location = '';
   let deadline = '';
+  let salary = '';
   
   // Location cities regex
   const cityPattern = /(서울|경기|부산|대전|인천|광주|대구|울산|판교|강남|영등포|송파|성수|역삼|잠실|마포|용산|구로|분당|일산|평촌|수원|이천|성남|중구)/;
@@ -100,6 +125,8 @@ function parseJobKoreaCard(rawText) {
       const rest = line.replace(/^경력\s*/, '');
       if (!rest || /^무관/.test(rest) || /^\d/.test(rest)) return { type: 'experience', line, idx };
     }
+    // Salary patterns: 연봉/월급 with 만원, or 면접후결정
+    if (/^(연봉|월급)\s*\d/.test(line) || /^면접후결정/.test(line)) return { type: 'salary', line, idx };
     if (uiNoise.test(line)) return { type: 'noise', line, idx };
     return { type: 'unknown', line, idx };
   });
@@ -110,6 +137,9 @@ function parseJobKoreaCard(rawText) {
   
   const expEntry = classified.find(c => c.type === 'experience');
   if (expEntry) experience = expEntry.line;
+  
+  const salEntry = classified.find(c => c.type === 'salary');
+  if (salEntry) salary = salEntry.line;
   
   // Remaining unknown lines (in order) — these are title, company, location candidates
   const unknowns = classified.filter(c => c.type === 'unknown');
@@ -168,7 +198,7 @@ function parseJobKoreaCard(rawText) {
     }
   }
   
-  return { title, company, experience, location, deadline };
+  return { title, company, experience, location, deadline, salary };
 }
 
 // Strip prefix helper for company comparison

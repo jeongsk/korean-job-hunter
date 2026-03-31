@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v4.0 (EXP-045: Cross-Source Dedup)
+# Job Scraping Skill v4.1 (EXP-046: JobKorea Salary Extraction)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
@@ -189,17 +189,19 @@ agent-browser eval "(() => {
     const cityP = /(서울|경기|부산|대전|인천|광주|대구|울산|판교|강남|영등포|송파|성수|역삼|잠실|마포|용산|구로|분당|일산|평촌|수원|이천|성남|중구)/;
     const prefixP = /^(㈜|\\(주\\)|주식회사)/;
     const uiNoise = /스크랩\\d*|지원\\d*명|등록/;
-    let title='',company='',experience='',location='',deadline='';
+    let title='',company='',experience='',location='',deadline='',salary='';
     // Classify
     const cls = lines.map((l,i)=> {
       if (/마감/.test(l)) return {t:'dl',l,i};
       if (/^신입$/.test(l)) return {t:'exp',l,i};
       if (/^경력/.test(l)) { const r=l.replace(/^경력\\s*/,''); if(!r||/^무관/.test(r)||/^\\d/.test(r)) return {t:'exp',l,i}; }
+      if (/^(연봉|월급)\\s*\\d/.test(l) || /^면접후결정/.test(l)) return {t:'sal',l,i};
       if (uiNoise.test(l)) return {t:'noise',l,i};
       return {t:'unk',l,i};
     });
     const dl=cls.find(c=>c.t==='dl'); if(dl) deadline=dl.l;
     const ex=cls.find(c=>c.t==='exp'); if(ex) experience=ex.l;
+    const sa=cls.find(c=>c.t==='sal'); if(sa) salary=sa.l;
     const unks=cls.filter(c=>c.t==='unk');
     // Company by prefix
     let ci=-1;
@@ -213,7 +215,7 @@ agent-browser eval "(() => {
     // Title: first unknown not company/location
     if(!title){for(const u of unks){if(u.i!==ci&&u.i!==li){title=u.l;break;}}}
     const linkEl = card.querySelector('a[href*=\"Recruit\"]') || card.closest('a[href*=\"Recruit\"]');
-    return { title, company, experience, location, deadline, link: linkEl?.href || '' };
+    return { title, company, experience, location, deadline, salary, link: linkEl?.href || '' };
   });
 })()" --json > jobkorea_jobs.json
 
