@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-04-01T22:04:00Z",
-  "experiment_id": "EXP-048",
-  "skill": "culture-extraction",
-  "focus": "korean-culture-patterns-wlb",
-  "hypothesis": "Adding Korean-specific work culture patterns and work_life_balance category improves culture signal extraction from Korean job listings",
+  "timestamp": "2026-04-01T23:04:00Z",
+  "experiment_id": "EXP-049",
+  "skill": "job-matching",
+  "focus": "framework-aware-domain-detection",
+  "hypothesis": "Mapping frameworks to parent language domains in PRIMARY_DOMAINS catches cross-domain mismatches in framework-only job listings",
   "metrics": {
     "jobkorea_parsing_tests": "15/15 (100%)",
     "cross_source_dedup_tests": "13/13 (100%)",
@@ -12,7 +12,7 @@
     "linkedin_parsing_tests": "15/15 (100%)",
     "live_wanted_tests": "9/9 (100%)",
     "parsing_tests": "12/12 (100%)",
-    "matching_tests": "27/27 (100%)",
+    "matching_tests": "33/33 (100%)",
     "nlp_v2_queries": "18/18 (100%)",
     "resume_nlp_tests": "44/44 (100%)",
     "deadline_urgency_tests": "24/24 (100%)",
