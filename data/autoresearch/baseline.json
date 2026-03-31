@@ -1,23 +1,22 @@
 {
-  "timestamp": "2026-03-31T02:04:00Z",
-  "experiment_id": "EXP-034",
-  "skill": "commands",
-  "focus": "documentation-sync",
-  "hypothesis": "Command files contain outdated scoring weights and missing features compared to validated agent behavior",
+  "timestamp": "2026-03-31T06:04:00Z",
+  "experiment_id": "EXP-036",
+  "skill": "job-tracking",
+  "focus": "nlp-negation-fix",
+  "hypothesis": "Proximity-based negation fixes multi-entity negation and adds location negation support",
   "metrics": {
     "parsing_tests": "12/12 (100%)",
     "context_tests": "5/5 (100%)",
     "schema_tests": "7/7 (100%)",
     "matching_tests": "7/7 (100%)",
-    "nlp_queries": "11/11 (100%)",
+    "nlp_queries": "17/17 (100%)",
+    "nlp_v2_queries": "18/18 (100%)",
     "resume_nlp_tests": "44/44 (100%)",
     "e2e_parsing_tests": "7/7 (100%)",
-    "total_tests": "88/88 (100%)",
-    "command_docs_synced": true
-  },
-  "baseline_metrics": {
-    "job_match_weights_correct": false,
-    "korean_nlp_in_track_command": false,
-    "parsed_fields_in_search_command": false
+    "jk_fallback_tests": "14/14 (100%)",
+    "deadline_urgency_tests": "24/24 (100%)",
+    "jobkorea_parsing_tests": "11/11 (100%)",
+    "total_tests": "114/114 (100%)",
+    "all_passing": true
   }
 }
