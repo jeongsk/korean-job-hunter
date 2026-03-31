@@ -52,10 +52,20 @@ function getSimilarity(skillA, skillB) {
   return 0;
 }
 
-// === Primary Domain Detection (EXP-024) ===
+// === Primary Domain Detection (EXP-024, EXP-049: framework-aware) ===
 const PRIMARY_DOMAINS = {
+  // Languages
   'python': 'python', 'java': 'java', 'javascript': 'js/ts', 'typescript': 'js/ts',
-  'go': 'go', 'rust': 'rust', 'swift': 'swift', 'c++': 'c++', 'c#': 'c#',
+  'go': 'go', 'rust': 'rust', 'swift': 'swift', 'c++': 'c++', 'c#': 'c#', 'kotlin': 'java',
+  // Frameworks → parent language domain (EXP-049)
+  'spring': 'java', 'spring boot': 'java',
+  'django': 'python', 'flask': 'python', 'fastapi': 'python',
+  'react': 'js/ts', 'next.js': 'js/ts', 'vue': 'js/ts', 'nuxt.js': 'js/ts', 'svelte': 'js/ts',
+  'express': 'js/ts', 'nestjs': 'js/ts', 'node.js': 'js/ts',
+  'swiftui': 'swift', 'flutter': 'dart', 'dart': 'dart',
+  '.net': 'c#', 'asp.net': 'c#',
+  'ruby on rails': 'ruby', 'rails': 'ruby', 'ruby': 'ruby',
+  'php': 'php', 'laravel': 'php',
 };
 
 function detectPrimaryDomain(jobSkills) {
@@ -361,7 +371,24 @@ const domainPenalty = med001SkillScore !== undefined && med001SkillScore < 40; /
 console.log(`${domainPenalty ? '✅' : '❌'} MED-001 skill score penalized (< 40): ${med001SkillScore}`);
 domainPenalty ? passed++ : failed++;
 
-// Test 7: Similarity map correctness
+// Test 7: Framework-aware domain detection (EXP-049)
+console.log('\n=== Framework Domain Detection Tests ===');
+const frameworkDomainTests = [
+  [['Spring', 'Spring Boot', 'MySQL'], ['React', 'TypeScript'], false, 'Java frameworks vs JS candidate → no overlap'],
+  [['Django', 'PostgreSQL'], ['Python', 'Flask'], true, 'Django vs Flask → same python domain'],
+  [['React', 'Next.js'], ['Vue', 'JavaScript'], true, 'React vs Vue → same js/ts domain'],
+  [['Express', 'MongoDB'], ['Java', 'Spring'], false, 'Express (js/ts) vs Spring (java) → no overlap'],
+  [['Flutter'], ['React', 'TypeScript'], false, 'Flutter (dart) vs React (js/ts) → no overlap'],
+  [['Laravel', 'MySQL'], ['Express', 'Node.js'], false, 'Laravel (php) vs Express (js/ts) → no overlap'],
+];
+for (const [jobSkills, candSkills, expectOverlap, desc] of frameworkDomainTests) {
+  const result = hasDomainOverlap(jobSkills, candSkills);
+  const ok = result === expectOverlap;
+  console.log(`${ok ? '✅' : '❌'} ${desc}: overlap=${result} (expected ${expectOverlap})`);
+  ok ? passed++ : failed++;
+}
+
+// Test 7b: Similarity map correctness
 console.log('\n=== Similarity Map Tests ===');
 const simTests = [
   ['TypeScript', 'JavaScript', 1.0],

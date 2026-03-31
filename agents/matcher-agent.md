@@ -35,18 +35,21 @@ When skill score < 40, apply a **quadratic gate multiplier** to non-skill compon
 
 This smoothly dampens unrelated jobs instead of hard step-cuts, preventing infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflating scores.
 
-#### Primary Domain Alignment (EXP-024)
+#### Primary Domain Alignment (EXP-024, EXP-049: framework-aware)
 Detect the job's primary tech domain from the description:
 - **Python**: Django, Flask, FastAPI, pandas, NumPy, Jupyter
-- **Java**: Spring, JVM, Gradle, Maven, JPA
-- **JS/TS**: React, Vue, Angular, Node.js, Next.js, Express
+- **Java**: Spring, Spring Boot, JVM, Gradle, Maven, JPA, Kotlin
+- **JS/TS**: React, Vue, Angular, Node.js, Next.js, Express, NestJS, Svelte, Nuxt.js
 - **Go**: Gin, Echo, gRPC (Go context)
 - **Rust**: Cargo, tokio, actix
 - **Swift**: iOS, UIKit, SwiftUI
 - **C++**: Unreal, Qt, embedded
 - **C#**: .NET, Unity, ASP.NET
+- **Dart**: Flutter
+- **Ruby**: Rails, Ruby on Rails
+- **PHP**: Laravel
 
-When the job's primary domain has zero overlap (Tier 1 or Tier 2) with the candidate's skills → skill score × 0.60 (40% penalty, tuned EXP-037).
+Framework skills now map to their parent language domain. Jobs listing only frameworks (e.g., `[Spring, MySQL]`) correctly trigger domain detection even without a raw language keyword.
 
 ### Experience Fit (25%)
 

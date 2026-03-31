@@ -1,6 +1,6 @@
 ---
 name: job-matching
-description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring, and primary domain alignment"
+description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring, and framework-aware primary domain alignment (EXP-049)"
 ---
 
 # Job Matching Skill v3.2 (EXP-048: Korean Culture Patterns + WLB)
@@ -35,9 +35,11 @@ When skill score < 40, all non-skill components are dampened by a quadratic gate
 
 When the job's primary technology stack has zero overlap with the candidate's core domain skills, the skill score is penalized by **40%** (multiplied by 0.60).
 
-Primary domains detected: Python, Java, JavaScript/TypeScript, Go, Rust, Swift, C++, C#
+Primary domains detected (EXP-049: framework-aware):
+- **Languages**: Python, Java, JavaScript/TypeScript, Go, Rust, Swift, C++, C#, Kotlin, Dart, Ruby, PHP
+- **Frameworks map to parent language**: Spring/Spring Boot→Java, Django/Flask/FastAPI→Python, React/Next.js/Vue/Nuxt.js/Svelte/Express/NestJS/Node.js→JS/TS, Flutter→Dart, Laravel→PHP, Rails→Ruby, SwiftUI→Swift, .NET/ASP.NET→C#
 
-This prevents infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflating scores for jobs in completely different primary tech stacks.
+This prevents infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflating scores for jobs in completely different primary tech stacks. Framework-only job listings (e.g., `[Spring, MySQL]` with no raw `Java` keyword) now correctly trigger domain alignment.
 
 ## Technology Similarity Map
 
