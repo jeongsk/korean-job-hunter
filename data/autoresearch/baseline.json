@@ -1,16 +1,19 @@
 {
-  "timestamp": "2026-03-31T16:04:00Z",
-  "experiment_id": "EXP-042",
+  "timestamp": "2026-04-01T17:04:00Z",
+  "experiment_id": "EXP-043",
   "skill": "job-scraping",
-  "focus": "live-linkedin-validation-location-fix",
-  "hypothesis": "LinkedIn location normalization fails for standalone 대한민국, and live selectors need validation",
+  "focus": "culture-keyword-extraction",
+  "hypothesis": "Culture scoring (15% weight) returns flat 70 because scraper never extracts culture keywords from job listings",
   "metrics": {
+    "culture_extraction_tests": "14/14 (100%)",
     "linkedin_live_tests": "14/14 (100%)",
     "linkedin_parsing_tests": "15/15 (100%)",
     "live_wanted_tests": "9/9 (100%)",
     "parsing_tests": "12/12 (100%)",
     "matching_tests": "27/27 (100%)",
     "nlp_v2_queries": "18/18 (100%)",
+    "resume_nlp_tests": "44/44 (100%)",
+    "deadline_urgency_tests": "24/24 (100%)",
     "total_tests": "all pass (0 failures)",
     "all_passing": true
   }
