@@ -3,7 +3,7 @@ name: job-tracking
 description: "Job application status tracking with SQLite CRUD, Korean NLP query parsing, pipeline analytics, and smart suggestions"
 ---
 
-# Job Tracking Skill v2 (EXP-026)
+# Job Tracking Skill v2.1 (EXP-035: Deadline Urgency)
 
 ## Korean Natural Language Query Parsing
 
@@ -28,6 +28,43 @@ description: "Job application status tracking with SQLite CRUD, Korean NLP query
 | 하이브리드 | `j.work_type = 'hybrid'` |
 | 서울/판교/강남 etc. | `j.location LIKE '%{keyword}%'` |
 | 점수높은/스코어/매칭 | `ORDER BY m.score DESC` |
+| 마감임박/곧마감 | deadline ≤ 7 days (see Urgency below) |
+| 이번 주 마감 | deadline within this week |
+| 오늘 마감 / 내일 마감 | deadline = today / tomorrow |
+| N일 남은 | deadline within N days |
+| 마감순/마감 빠른순 | `ORDER BY j.deadline ASC` |
+| 기한 있는/데드라인 있는 | `j.deadline IS NOT NULL AND j.deadline != ''` |
+
+### Deadline Urgency Scoring (EXP-035)
+
+Deadlines are computed into urgency levels for prioritization:
+
+| Days Until Deadline | Urgency | Display |
+|---|---|---|
+| < 0 | 🔴 expired | "마감됨" |
+| 0–3 | 🔴 critical | "오늘/내일 마감!" |
+| 4–7 | 🟠 high | "이번 주 마감" |
+| 8–14 | 🟡 medium | "2주 이내" |
+| 15+ | 🟢 low | "여유" |
+| 상시/수시 | ⚪ none | "상시채용" |
+
+```sql
+-- Urgency-aware query: upcoming deadlines with match scores
+SELECT j.title, j.company, j.deadline,
+       CAST(julianday(j.deadline) - julianday('now') AS INTEGER) as days_left,
+       m.score
+FROM jobs j
+LEFT JOIN matches m ON j.id = m.job_id
+LEFT JOIN applications a ON j.id = a.job_id
+WHERE j.deadline IS NOT NULL AND j.deadline != ''
+  AND j.deadline NOT LIKE '%상시%'
+  AND julianday(j.deadline) - julianday('now') > 0
+  AND a.id IS NULL  -- not yet applied
+ORDER BY julianday(j.deadline) ASC, m.score DESC
+LIMIT 20
+```
+
+Deadline formats parsed: `YYYY.MM.DD`, `YYYY-MM-DD`, `MM/DD`, `상시`, `수시채용`
 
 ### Sorting
 | Korean Pattern | SQL ORDER |
@@ -213,8 +250,10 @@ sqlite3 -json data/jobs.db "
 When showing pipeline, optionally suggest:
 - **Stale applications**: `applied` status with no update in 14+ days → "서류 결과 확인해보세요"
 - **High-score unapplied**: jobs with score > 70 and no application → "이 공고 점수가 높아요"
+- **Deadline urgency**: unapplied jobs with deadline ≤ 3 days → "🔴 {title} 마감이 {N}일 남았어요!"
 - **Interview prep**: upcoming interviews → review job details, company info
 - **Follow-up needed**: `applied` > 7 days → "팔로업 메일을 보내보세요"
+- **Expired cleanup**: jobs past deadline still in `interested`/`applying` → "마감된 공고 정리할까요?"
 
 ## Known Companies for NLP Parsing
 

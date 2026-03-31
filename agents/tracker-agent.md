@@ -33,7 +33,12 @@ Users speak naturally in Korean. Parse their intent before running SQL:
 | 하이브리드 | `j.work_type = 'hybrid'` |
 | 지역 (서울, 판교, 강남...) | `j.location LIKE '%{keyword}%'` |
 | 연봉, 급여, 연수입 | `j.salary IS NOT NULL AND j.salary != ''` |
-| 마감임박, 곧마감 | `j.deadline IS NOT NULL AND j.deadline != ''` |
+| 마감임박, 곧마감 | deadline ≤ 7 days |
+| 이번 주 마감 | deadline within 7 days |
+| 오늘/내일 마감 | deadline = today/tomorrow |
+| N일 남은 | deadline within N days |
+| 마감순, 마감 빠른순 | `ORDER BY j.deadline ASC` |
+| 기한 있는, 데드라인 있는 | `j.deadline IS NOT NULL AND j.deadline != ''` |
 | 경력 (N년차, N년 이상) | `j.experience LIKE '%{keyword}%'` |
 | 점수높은, 매칭 | `ORDER BY m.score DESC` |
 | 최신순 | `ORDER BY a.updated_at DESC` |
@@ -44,6 +49,10 @@ Users speak naturally in Korean. Parse their intent before running SQL:
 - "지원한 거 중에 카카오 빼고" → `WHERE a.status = 'applied' AND j.company NOT LIKE '%카카오%'`
 - "재택으로 할 수 있는 관심 공고 점수순" → `WHERE a.status = 'interested' AND j.work_type = 'remote' ORDER BY m.score DESC`
 - "탈락한 거 빼고 다 보여줘" → `WHERE a.status NOT IN ('rejected','declined')`
+- "마감임박한 공고 있어?" → `WHERE j.deadline IS NOT NULL AND julianday(j.deadline)-julianday('now') BETWEEN 0 AND 7`
+- "오늘 마감인 거" → `WHERE CAST(julianday(j.deadline)-julianday('now') AS INTEGER) = 0`
+- "3일 남은 관심 공고" → `WHERE a.status = 'interested' AND julianday(j.deadline)-julianday('now') BETWEEN 0 AND 3`
+- "마감순으로 보여줘" → `ORDER BY j.deadline ASC`
 
 ## Application Statuses
 
@@ -130,8 +139,10 @@ sqlite3 -json data/jobs.db "
 After showing results, proactively suggest:
 - **Stale applications** (applied > 14 days): "서류 결과 확인해보세요"
 - **High-score unapplied** (score > 70, no application): "이 공고 점수가 높아요"
+- **🔴 Deadline urgency** (unapplied, deadline ≤ 3 days): "🔴 {title} 마감이 {N}일 남았어요!"
 - **Interview prep** (upcoming interviews): review job details
 - **Follow-up** (applied > 7 days): "팔로업 메일을 보내보세요"
+- **Expired cleanup** (past deadline, still interested/applying): "마감된 공고 정리할까요?"
 
 ## Output Format
 
