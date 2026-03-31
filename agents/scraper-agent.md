@@ -47,6 +47,8 @@ Wanted is the hardest source — title, company, experience, reward are concaten
    - Korean indicators (`(주)`, `㈜`, `주식회사`, `유한회사`) — `(주)` stripped from company name
    - Known company database (~70 companies with context scoring)
    - Korean suffix patterns (`*테크`, `*솔루션`, `*랩스`)
+   - NumKorean fallback (`\d+[가-힣]+`, e.g., 111퍼센트) (EXP-037)
+   - CamelCase English fallback (e.g., DeveloperVingle → Vingle) (EXP-038)
    - English indicators (`Inc.`, `LLC`, `Corp.`)
    - Relaxed indicator patterns
    - Final fallback: longest Korean word before experience/reward markers

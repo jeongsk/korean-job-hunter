@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v3.2
+# Job Scraping Skill v3.5
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
@@ -81,6 +81,10 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
   if (/전면재택|재택근무|풀리모트|full\\s*remote|원격근무|fully\\s*remote/i.test(t)) r.work_type = 'remote';
   else if (/하이브리드|주\\\\d일\\\\s*출근|hybrid/i.test(t)) r.work_type = 'hybrid';
   t = t.replace(/전면재택|재택근무|풀리모트|원격근무|fully?\\s*remote|하이브리드|주\\\\d일\\\\s*출근|hybrid/gi, ' ');
+  // EXP-037: Extract company from raw text before pre-segmentation
+  let rawCompany = null;
+  const rcm = allText.match(/([가-힣]+(?:\\\\([^)]+\\\\))?)경력/);
+  if (rcm) { rawCompany = rcm[1].replace(/^(개발자|엔지니어|매니저|디자이너|기획자|분석가|리더|컨설턴트|전문가|디렉터|과장|차장|부장|대리|사원|인턴|PD|PM|CTO|CEO|COO)/, ''); if (rawCompany.length < 2) rawCompany = null; }
   // Pre-segmentation for concatenated text (EXP-023)
   t = t.replace(/(경력)/g, ' \$1').replace(/(합격|보상금|성과금)/g, ' \$1').trim();
   // Remove brackets + slashes
@@ -101,9 +105,13 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
   const kInd = ['㈜','주식회사','유한회사','(주)'];
   for (const ind of kInd) { const m = t.match(new RegExp(escapeRegExp(ind)+'\\\\s*([^\\\\s,]+(?:\\\\s[^\\\\s,]+)?)')); if (m) { cm = m[0]; break; } }
   if (!cm) {
-    const known = ['카카오','네이버','삼성','라인','우아한형제들','배달의민족','토스','당근마켓','크몽','야놀자','마이플레이스','한컴','네오위즈','넥슨','엔씨소프트','키움','미래엔','웨이브릿지','트리노드','페칭','비댁스','코어셀','키트웍스','더존','쿠팡'];
+    const known = ['카카오','네이버','삼성','라인','우아한형제들','배달의민족','토스','당근마켓','크몽','야놀자','마이플레이스','한컴','네오위즈','넥슨','엔씨소프트','키움','미래엔','웨이브릿지','트리노드','페칭','비댁스','코어셀','키트웍스','더존','쿠팡','111퍼센트','스패이드','인터엑스','윙잇','에이엑스'];
     for (const c of known) { if (new RegExp(escapeRegExp(c)).test(t)) { cm = c; t = t.replace(c, ' '); break; } }
   }
+  // EXP-037: Fallback — number+Korean company names (e.g., 111퍼센트)
+  if (!cm) { const nk = t.match(/(\d+[가-힣]{2,}(?:\([A-Za-z0-9]+\))?)$/); if (nk) cm = nk[1]; }
+  // EXP-038: Fallback — camelCase English company name (e.g., DeveloperVingle → Vingle)
+  if (!cm) { const cc = t.match(/([a-z])([A-Z][a-z]+)\s*$/); if (cc) cm = t.substring(cc.index + 1).trim(); }
   if (cm) { r.company = cm.replace(/^[\\s㈜]+/,'').replace(/^\\(주\\)\\s*/,''); if (!cm.includes('㈜') && !cm.includes('주식회사') && !cm.includes('(주)')) t = t.replace(new RegExp(escapeRegExp(cm),'g'),' '); }
   r.title = t.replace(/[,·\\\\s]+/g,' ').trim() || '직무 미상';
   if (!r.company || r.company.length < 2) r.company = '회사명 미상';

@@ -23,16 +23,17 @@ After scoring, these rules must hold:
 - **HIGH min − MED max** gap ≥ 15
 - **LOW** group: score ≤ 25
 
-## Skill-Gated Scoring (EXP-021)
+## Skill-Gated Scoring (EXP-021, tuned EXP-037)
 
-When skill score < 40, all non-skill components are dampened by a gate multiplier:
-- Multiplier = 0.25 at skill=0, linear ramp to 1.0 at skill=40
+When skill score < 40, all non-skill components are dampened by a quadratic gate multiplier:
+- Multiplier = `(skillScore / 40)²`, minimum 0.04
+- At skill=0: gate=0.04, skill=10: gate=0.0625, skill=20: gate=0.25, skill=40: gate=1.0
 - This prevents unrelated jobs from scoring high on experience/culture/location alone
 - Experience scoring considers range upper bounds (e.g., "3~7년" with 5 years experience = 95)
 
-## Primary Domain Alignment (EXP-024)
+## Primary Domain Alignment (EXP-024, tuned EXP-037)
 
-When the job's primary technology stack has zero overlap with the candidate's core domain skills, the skill score is penalized by 25%.
+When the job's primary technology stack has zero overlap with the candidate's core domain skills, the skill score is penalized by **40%** (multiplied by 0.60).
 
 Primary domains detected: Python, Java, JavaScript/TypeScript, Go, Rust, Swift, C++, C#
 

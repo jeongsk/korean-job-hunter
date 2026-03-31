@@ -75,7 +75,7 @@ function parseWantedListingV2(raw) {
   }
   if (r.location) t = t.replace(new RegExp(escapeRegExp(r.location), 'g'), ' ').trim();
   
-  // === NEW: Pre-experience company extraction (EXP-033) ===
+  // === EXP-033+038: Pre-experience company extraction ===
   // In Wanted's format, company names appear as Korean-only segments
   // right before the 경력 marker. Must run BEFORE experience extraction!
   
@@ -94,8 +94,15 @@ function parseWantedListingV2(raw) {
       }
     }
     if (companyStart < beforeExp.length) {
-      const candidate = beforeExp.substring(companyStart);
-      if (candidate.length >= 2) {
+      let candidate = beforeExp.substring(companyStart);
+      // EXP-038: Strip Korean title suffixes from front of candidate (e.g., "개발자카카오" → "카카오")
+      const strippedCandidate = candidate.replace(/^(개발자|엔지니어|매니저|디자이너|기획자|분석가|리더|컨설턴트|전문가|디렉터|PD|PM)/, '');
+      if (strippedCandidate.length >= 2) {
+        preExpCompany = strippedCandidate;
+        // Keep the stripped prefix (e.g., "개발자") in the title
+        const suffixOffset = candidate.length - strippedCandidate.length;
+        t = beforeExp.substring(0, companyStart + suffixOffset) + t.substring(expMarkerIdx);
+      } else if (candidate.length >= 2) {
         preExpCompany = candidate;
         t = beforeExp.substring(0, companyStart) + t.substring(expMarkerIdx);
       }
