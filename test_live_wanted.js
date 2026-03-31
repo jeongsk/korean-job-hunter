@@ -9,6 +9,8 @@ const liveData = [
   { id: "343393", raw: "풀스택 개발자룰루랩(lululab)경력 3-5년합격보상금 100만원", link: "https://www.wanted.co.kr/wd/343393" },
   { id: "351042", raw: "Frontend Developer화해글로벌경력 4-10년합격보상금 100만원", link: "https://www.wanted.co.kr/wd/351042" },
   { id: "291970", raw: "Senior Front-end Software Engineer제이앤피메디(JNPMEDI)경력 8-30년합격보상금 100만원", link: "https://www.wanted.co.kr/wd/291970" },
+  // EXP-040: space between Korean company and English parenthetical name
+  { id: "EXP040", raw: "Sr. Frontend Developer버티고우게임즈 (Vertigo Games)경력 8-15년합격보상금 100만원", link: "https://www.wanted.co.kr/wd/EXP040" },
 ];
 
 function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
@@ -31,7 +33,7 @@ function parseWantedJob(raw) {
   // In Wanted raw, company is the Korean text (+optional English parens) immediately before '경력'
   // Strip known job title suffixes (개발자, 엔지니어 etc.) from the front.
   let companyFromRaw = null;
-  const rawCompanyMatch = t.match(/([가-힣]+(?:\([^)]+\))?)경력/);
+  const rawCompanyMatch = t.match(/([가-힣]+(?:\s*\([^)]+\))?)경력/);
   if (rawCompanyMatch) {
     companyFromRaw = rawCompanyMatch[1].replace(/^(개발자|엔지니어|매니저|디자이너|기획자|분석가|리더|컨설턴트|전문가|디렉터|과장|차장|부장|대리|사원|인턴|PD|PM|CTO|CEO|COO)/, '');
     if (companyFromRaw.length < 2) companyFromRaw = null;
@@ -86,6 +88,7 @@ const expected = [
   { id: "343393", company: "룰루랩", experience: "경력 3-5년", title_includes: "풀스택" },  // company from parentheses
   { id: "351042", company: "화해글로벌", experience: "경력 4-10년", title_includes: "Frontend" },
   { id: "291970", company: "제이앤피메디", experience: "경력 8-30년", title_includes: "Senior" },  // company in parentheses
+  { id: "EXP040", company: "버티고우게임즈", experience: "경력 8-15년", title_includes: "Sr." },  // EXP-040: space before English parens
 ];
 
 let passed = 0, failed = 0;

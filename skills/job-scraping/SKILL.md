@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v3.5
+# Job Scraping Skill v3.7
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
@@ -83,7 +83,7 @@ agent-browser eval "[...document.querySelectorAll('a[href*=\"/wd/\"]')].slice(0,
   t = t.replace(/전면재택|재택근무|풀리모트|원격근무|fully?\\s*remote|하이브리드|주\\\\d일\\\\s*출근|hybrid/gi, ' ');
   // EXP-037: Extract company from raw text before pre-segmentation
   let rawCompany = null;
-  const rcm = allText.match(/([가-힣]+(?:\\\\([^)]+\\\\))?)경력/);
+  const rcm = allText.match(/([가-힣]+(?:\\\\s*\\\\([^)]+\\\\))?)경력/);
   if (rcm) { rawCompany = rcm[1].replace(/^(개발자|엔지니어|매니저|디자이너|기획자|분석가|리더|컨설턴트|전문가|디렉터|과장|차장|부장|대리|사원|인턴|PD|PM|CTO|CEO|COO)/, ''); if (rawCompany.length < 2) rawCompany = null; }
   // Pre-segmentation for concatenated text (EXP-023)
   t = t.replace(/(경력)/g, ' \$1').replace(/(합격|보상금|성과금)/g, ' \$1').trim();
@@ -254,9 +254,23 @@ agent-browser eval "[...document.querySelectorAll('.jobs-search__results-list li
 agent-browser close
 ```
 
----
+### LinkedIn 카드 후처리 (v3.7)
 
-## 한국어 날짜 파싱
+LinkedIn 카드에서 추출 후 추가 파싱 필요:
+
+```javascript
+// Location normalization: strip country, map English cities to Korean
+const normalizeLocation = (loc) => {
+  if (!loc) return '';
+  let l = loc.replace(/,\s*South Korea\s*$/i, '').replace(/,\s*대한민국\s*$/, '');
+  const cities = [['Seoul','서울'],['Busan','부산'],['Suwon','수원'],['Pangyo','판교'],
+    ['Incheon','인천'],['Daegu','대구'],['Daejeon','대전'],['Gwangju','광주'],['Ulsan','울산'],['Jeju','제주']];
+  for (const [en, kr] of cities) { if (new RegExp('\\b'+en+'\\b','i').test(l)) { l = l.replace(new RegExp('\\b'+en+'\\b','i'), kr); break; } }
+  return l.replace(/,?\s*Gyeonggi-do/i,' 경기도').replace(/,?\s*Gyeonggi/i,' 경기도').replace(/,\s*/g,' ').replace(/\s+/g,' ').trim();
+};
+```
+
+---
 
 ```javascript
 const parseKoreanDate = (text) => {
