@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v3.7
+# Job Scraping Skill v3.8
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
@@ -236,6 +236,12 @@ agent-browser --user-agent "$UA" open "https://www.linkedin.com/jobs/search/?key
 sleep 5
 agent-browser wait --load networkidle
 
+# ⚠️ Authwall detection: LinkedIn may redirect to /authwall (login wall).
+# If current URL contains "/authwall", close browser, wait 10s, retry with fresh session.
+# After 2 authwall redirects, skip LinkedIn and report authwall error.
+agent-browser eval "window.location.href" --json
+# If href contains "/authwall" → retry or skip.
+
 # 2. 공고 목록 추출
 agent-browser eval "[...document.querySelectorAll('.jobs-search__results-list li, .base-card')].slice(0,20).map(el => {
   const titleEl = el.querySelector('.base-search-card__title, h3');
@@ -262,7 +268,7 @@ LinkedIn 카드에서 추출 후 추가 파싱 필요:
 // Location normalization: strip country, map English cities to Korean
 const normalizeLocation = (loc) => {
   if (!loc) return '';
-  let l = loc.replace(/,\s*South Korea\s*$/i, '').replace(/,\s*대한민국\s*$/, '');
+  let l = loc.replace(/,?\s*South Korea\s*$/i, '').replace(/,?\s*대한민국\s*$/, '');
   const cities = [['Seoul','서울'],['Busan','부산'],['Suwon','수원'],['Pangyo','판교'],
     ['Incheon','인천'],['Daegu','대구'],['Daejeon','대전'],['Gwangju','광주'],['Ulsan','울산'],['Jeju','제주']];
   for (const [en, kr] of cities) { if (new RegExp('\\b'+en+'\\b','i').test(l)) { l = l.replace(new RegExp('\\b'+en+'\\b','i'), kr); break; } }

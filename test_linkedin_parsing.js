@@ -90,7 +90,7 @@ function parseLinkedInCard(card) {
   if (location) {
     let loc = location
       .replace(/,\s*South Korea\s*$/i, '')
-      .replace(/,\s*대한민국\s*$/, '');
+      .replace(/,?\s*대한민국\s*$/, '');
     
     // City mapping (match city name at start of remaining string)
     const cityMap = [
