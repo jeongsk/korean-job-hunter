@@ -9,15 +9,15 @@ Use the matcher-agent to analyze how well your resume matches collected job post
 
 $ARGUMENTS
 
-## Scoring Weights (v2 — autoresearch optimized)
+## Scoring Weights (v4 — EXP-017 + EXP-021 + EXP-024 validated)
 
-| Component | Weight |
-|-----------|--------|
-| Skill match | **50%** |
-| Experience | **15%** |
-| Preferred quals | 10% |
-| Work type | 15% |
-| Commute | **10%** |
+| Component | Weight | Method |
+|-----------|--------|--------|
+| Skill match | **35%** | Tiered semantic matching + skill gate + domain alignment |
+| Experience fit | **25%** | Range overlap with upper-bound consideration |
+| Company culture fit | 15% | Keyword extraction from job description |
+| Career stage alignment | 15% | Seniority level comparison |
+| Location/work fit | 10% | Work type + location preference match |
 
 ## Modes
 

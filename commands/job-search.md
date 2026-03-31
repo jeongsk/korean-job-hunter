@@ -25,9 +25,10 @@ $ARGUMENTS
    - **Wanted**: `a[href*="/wd/"]` selector, text parsing
    - **JobKorea**: `[class*=dlua7o0]` selector, regex parsing
    - **LinkedIn**: `.base-card` selector, h3/h4 extraction
-4. Jobs saved to SQLite (data/jobs.db)
-5. If --min-match: run matcher-agent for scoring
-6. Display results
+4. Parsed fields: title, company, experience, salary, deadline, reward, work_type, location, source
+5. Jobs saved to SQLite (data/jobs.db) with upsert
+6. If --min-match: run matcher-agent for scoring (v4 weights)
+7. Display results
 
 ## Examples
 
