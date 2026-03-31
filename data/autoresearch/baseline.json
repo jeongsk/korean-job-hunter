@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-03-31T12:14:00Z",
-  "experiment_id": "EXP-038",
+  "timestamp": "2026-03-31T15:04:00Z",
+  "experiment_id": "EXP-041",
   "skill": "job-scraping",
-  "focus": "camelcase-english-company-title-suffix",
-  "hypothesis": "CamelCase boundary splitting for English company names and Korean title-suffix stripping fixes remaining company extraction failures",
+  "focus": "linkedin-parsing-test-suite",
+  "hypothesis": "Adding dedicated LinkedIn parsing tests reveals location normalization bugs and experience/work_type extraction gaps",
   "metrics": {
     "parsing_tests": "12/12 (100%)",
     "context_tests": "5/5 (100%)",
@@ -20,6 +20,7 @@
     "company_boundary_tests": "16/16 (100%)",
     "company_fallback_tests": "11/11 (100%)",
     "validated_matching_tests": "27/27 (100%)",
+    "linkedin_parsing_tests": "15/15 (100%)",
     "total_tests": "all pass (0 failures)",
     "all_passing": true
   }
