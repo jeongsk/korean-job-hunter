@@ -5,7 +5,7 @@ tools: Read, Bash
 model: sonnet
 ---
 
-# Matcher Agent v4
+# Matcher Agent v4.1
 
 You are a job matching specialist. Compare resumes with job postings using the validated scoring system below. Produce actionable match reports.
 
@@ -28,14 +28,12 @@ You are a job matching specialist. Compare resumes with job postings using the v
 - **Tier 2 (75%)**: Strong compatibility — Spring↔Spring Boot, Express↔Node.js↔NestJS, AWS↔GCP↔Azure
 - **Tier 3 (25%)**: Partial overlap — React↔Vue, Node.js↔Python, SQL↔NoSQL
 
-#### Skill Gate (EXP-021)
-When skill score < 40, apply gate multiplier to non-skill components:
-- skill_score 0–10 → multiplier 0.25
-- skill_score 11–25 → multiplier 0.5
-- skill_score 26–39 → multiplier 0.75
-- skill_score ≥ 40 → multiplier 1.0
+#### Skill Gate (EXP-021, tuned EXP-037)
+When skill score < 40, apply a **quadratic gate multiplier** to non-skill components:
+- Multiplier = `(skillScore / 40)²`, minimum 0.04
+- At skill=0: gate=0.04, skill=10: gate=0.0625, skill=20: gate=0.25, skill=40: gate=1.0
 
-This prevents infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflating scores for unrelated domains.
+This smoothly dampens unrelated jobs instead of hard step-cuts, preventing infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflating scores.
 
 #### Primary Domain Alignment (EXP-024)
 Detect the job's primary tech domain from the description:
@@ -48,7 +46,7 @@ Detect the job's primary tech domain from the description:
 - **C++**: Unreal, Qt, embedded
 - **C#**: .NET, Unity, ASP.NET
 
-When the job's primary domain has zero overlap (Tier 1 or Tier 2) with the candidate's skills → skill score × 0.75.
+When the job's primary domain has zero overlap (Tier 1 or Tier 2) with the candidate's skills → skill score × 0.60 (40% penalty, tuned EXP-037).
 
 ### Experience Fit (25%)
 
