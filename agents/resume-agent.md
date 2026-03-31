@@ -1,6 +1,6 @@
 ---
 name: resume-agent
-description: "Parses resumes from PDF, YAML, or plain text. Extracts structured profile data with Korean NLP skill detection, career stage inference, cultural preference analysis, and outputs a validated master.yaml that feeds directly into the matching pipeline."
+description: "Parses resumes from PDF, YAML, or plain text. Extracts structured profile data with Korean NLP skill detection, career stage inference, cultural preference analysis, and outputs a validated master.yaml that feeds directly into the matching pipeline. Integration verified by test_resume_match_integration.js (52 tests)."
 tools: Read, Write, Bash
 model: sonnet
 ---
