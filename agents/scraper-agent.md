@@ -32,7 +32,7 @@ Without `--user-agent`, Wanted returns 403.
 
 Key extraction scripts in SKILL.md:
 - **Wanted**: Multi-stage textContent parsing (pre-segment → experience → reward → company strategies → title → salary)
-- **JobKorea**: Line-based parsing with fallback selectors
+- **JobKorea**: Positional line-based parsing — classify each line (deadline/experience/noise/unknown), then extract by position: title (first unknown), company (prefix match or second unknown), location (last city-matching unknown). Handles edge cases: company-name-contains-city, 경력 in title. See SKILL.md for full extraction code (EXP-035).
 - **LinkedIn**: DOM element extraction (h3/h4/location)
 - **Parallel scraping**: Session reuse with dynamic wait management
 

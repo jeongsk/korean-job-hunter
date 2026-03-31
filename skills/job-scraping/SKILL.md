@@ -174,14 +174,36 @@ agent-browser eval "(() => {
     if (cards.length > 0) break;
   }
   
+  // JobKorea positional parsing (EXP-035): classify → extract in order
   return cards.slice(0,20).map(card => {
     const text = (card.textContent || '').trim();
     const lines = text.split(/\\n/).map(s => s.trim()).filter(Boolean);
-    const title = lines.find(l => l.length > 5 && !l.match(/스크랩|지원|등록|마감|경력|서울|경기/)) || '';
-    const company = lines.find(l => l.match(/㈜|주식회사|Corp/) || (l.length <= 8 && !l.match(/경력|지원|스크랩/))) || '';
-    const experience = lines.find(l => l.match(/경력/)) || '';
-    const location = lines.find(l => l.match(/서울|경기|부산|대전|인천/)) || '';
-    const deadline = lines.find(l => l.match(/마감/)) || '';
+    const cityP = /(서울|경기|부산|대전|인천|광주|대구|울산|판교|강남|영등포|송파|성수|역삼|잠실|마포|용산|구로|분당|일산|평촌|수원|이천|성남|중구)/;
+    const prefixP = /^(㈜|\\(주\\)|주식회사)/;
+    const uiNoise = /스크랩\\d*|지원\\d*명|등록/;
+    let title='',company='',experience='',location='',deadline='';
+    // Classify
+    const cls = lines.map((l,i)=> {
+      if (/마감/.test(l)) return {t:'dl',l,i};
+      if (/^신입$/.test(l)) return {t:'exp',l,i};
+      if (/^경력/.test(l)) { const r=l.replace(/^경력\\s*/,''); if(!r||/^무관/.test(r)||/^\\d/.test(r)) return {t:'exp',l,i}; }
+      if (uiNoise.test(l)) return {t:'noise',l,i};
+      return {t:'unk',l,i};
+    });
+    const dl=cls.find(c=>c.t==='dl'); if(dl) deadline=dl.l;
+    const ex=cls.find(c=>c.t==='exp'); if(ex) experience=ex.l;
+    const unks=cls.filter(c=>c.t==='unk');
+    // Company by prefix
+    let ci=-1;
+    for(const u of unks) { if(prefixP.test(u.l)){company=u.l.replace(prefixP,'').trim();ci=u.i;break;} }
+    // Location: last city-matching unknown (handles company-name-is-city edge)
+    const cm=unks.filter(u=>u.i!==ci&&cityP.test(u.l));
+    let li=-1;
+    if(cm.length){const e=cm[cm.length-1];location=e.l;li=e.i;if(!company&&cm.length>=2){company=cm[0].l;ci=cm[0].i;}}
+    // Company fallback: positional (first unknown after title)
+    if(!company){for(const u of unks){if(u.i!==li){if(!title)title=u.l;else{company=u.l;ci=u.i;break;}}}}
+    // Title: first unknown not company/location
+    if(!title){for(const u of unks){if(u.i!==ci&&u.i!==li){title=u.l;break;}}}
     const linkEl = card.querySelector('a[href*=\"Recruit\"]') || card.closest('a[href*=\"Recruit\"]');
     return { title, company, experience, location, deadline, link: linkEl?.href || '' };
   });
