@@ -313,29 +313,31 @@ const parseKoreanDate = (text) => {
 
 ---
 
-## Culture Keyword Extraction (EXP-043)
+## Culture Keyword Extraction (EXP-043, EXP-048)
 
 Job listings contain cultural signals that feed into the matching algorithm's culture component (15% weight). Extract from full job description text (상세 페이지) or listing snippet:
 
 ### Culture Keywords (Korean + English)
 | Category | Keywords |
 |----------|----------|
-| **innovative** | 혁신, 도전, 창의, 크리에이티브, creative, innovation, challenge, 새로운 |
-| **collaborative** | 협업, 팀워크, 소통, 협력, collaborat*, teamwork, partnership, 함께, 공동 |
-| **fast_paced** | 빠른, agile, 실시간, 스타트업, fast-paced, rapid, 민첩 |
-| **structured** | 체계, 프로세스, systematic, process, 표준화, QA, 품질관리 |
-| **learning_focused** | 성장, 학습, learning, growth, 교육, 워크샵, 컨퍼런스, 스터디, 멘토 |
-| **autonomous** | 자율, 독립, autonomous, independent, 자기주도, 오너십, ownership, 주도적 |
+| **innovative** | 혁신, 도전, 창의, 크리에이티브, creative, innovation, 실험, experiment |
+| **collaborative** | 협업, 팀워크, 소통, 협력, collaborat*, teamwork, 함께, 공동, 수평적, 가로형 |
+| **fast_paced** | 빠른, agile, 실시간, 스타트업, fast-paced, 릴리즈, 스프린트, sprint |
+| **structured** | 체계, 프로세스, systematic, 표준화, QA, 품질관리, 코드리뷰, code review, 가이드라인 |
+| **learning_focused** | 성장, 학습, learning, 교육, 스터디, 멘토링, 세미나, 사내강의, 도서지원 |
+| **autonomous** | 자율, 독립, autonomous, 자기주도, 오너십, 자유도, 주도적 |
+| **work_life_balance** | 워라밸, 워크라이프밸런스, WLB, 유연근무, 시차출근, 자유출퇴근, 연차, 리프레시, 가족친화 |
 
 ### Extraction (JavaScript)
 ```javascript
 const CULTURE_PATTERNS = {
-  innovative: /(혁신|도전|창의|크리에이티브|creative|innovation|challenge|새로운)/i,
-  collaborative: /(협업|팀워크|소통|협력|collaborat|teamwork|communication|partnership|함께|공동)/i,
-  fast_paced: /(빠른|agile|실시간|스타트업|fast[\s-]?paced|rapid|민첩)/i,
-  structured: /(체계|프로세스|systematic|process|표준화|qa|품질관리)/i,
-  learning_focused: /(성장|학습|learning|growth|교육|워크샵|컨퍼런스|스터디|멘토)/i,
-  autonomous: /(자율|독립|autonomous|independent|자기주도|오너십|ownership|주도적)/i,
+  innovative: /(혁신|도전|창의|크리에이티브|creative|innovation|challenge|새로운|실험|experiment)/i,
+  collaborative: /(협업|팀워크|소통|협력|collaborat|teamwork|communication|partnership|함께|공동|수평적|가로형|크로스\s*펑셔널|cross[\s-]?functional)/i,
+  fast_paced: /(빠른|agile|실시간|스타트업|fast[\s-]?paced|rapid|빠르게|민첩|릴리즈|release|스프린트|sprint|iterations?)/i,
+  structured: /(체계|프로세스|systematic|process|체계적|조직적|표준화|qa|품질관리|code\s*review|코드리뷰|가이드라인|guideline)/i,
+  learning_focused: /(성장|학습|learning|growth|교육|워크샵|컨퍼런스|개발자\s*커뮤니티|스터디|멘토|멘토링|mentoring|세미나|사내강의|도서지원|시험비지원)/i,
+  autonomous: /(자율|독립|autonomous|independent|자기주도|오너십|ownership|주도적|자유로운|자유도|discretion)/i,
+  work_life_balance: /(워라밸|워크라이프밸런스|work[\s_-]?life[\s_-]?balance|wlb|유연근무|flexible\s*(working|hours|time)|시차출근|자유출퇴근|자율출근|연차|휴가|sabbatical|리프레시|refresh|휴식|healing|가족친화|family[\s-]?friendly)/i,
 };
 function extractCultureKeywords(text) {
   if (!text) return [];

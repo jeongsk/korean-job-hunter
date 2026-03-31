@@ -74,7 +74,7 @@ Each scraped job must have these fields:
 | salary | | JK, LinkedIn | e.g., "5000~8000만원" |
 | reward | | Wanted | e.g., "합격보상금 100만원" |
 | deadline | | JK | Application deadline |
-| culture_keywords | | All (detail page) | JSON array: ["innovative","collaborative",...] |
+| culture_keywords | | All (detail page) | JSON array: ["innovative","collaborative","work_life_balance",...] |
 | commute_min | | All | From Kakao Map API (optional) |
 
 ## Workflow

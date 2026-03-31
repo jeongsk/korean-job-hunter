@@ -3,7 +3,7 @@ name: job-matching
 description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring, and primary domain alignment"
 ---
 
-# Job Matching Skill v3.1 (EXP-043: Culture Keywords)
+# Job Matching Skill v3.2 (EXP-048: Korean Culture Patterns + WLB)
 
 ## Score Weights (Validated — EXP-017)
 
@@ -76,15 +76,16 @@ Categorize job postings by technical domain:
 - **Sales**: 영업, sales, business development
 - **Research**: 연구, research, scientist, r&d
 
-## Company Culture Keywords (EXP-043)
+## Company Culture Keywords (EXP-043, EXP-048)
 
 Culture keywords are extracted from job listing text by the scraper (see `skills/job-scraping/SKILL.md`):
-- **Innovative**: 혁신, 도전, 창의, creative, innovation
-- **Collaborative**: 협업, 팀워크, 소통, collaborat*, teamwork, 함께
-- **Fast-paced**: 빠른, agile, 실시간, 스타트업, fast-paced
-- **Structured**: 체계, 프로세스, systematic, QA, 품질관리
-- **Learning-focused**: 성장, 학습, learning, 교육, 스터디, 멘토
-- **Autonomous**: 자율, 독립, autonomous, 자기주도, 오너십
+- **Innovative**: 혁신, 도전, 창의, 크리에이티브, creative, innovation, 실험, experiment
+- **Collaborative**: 협업, 팀워크, 소통, 협력, collaborat*, teamwork, 함께, 공동, 수평적, 가로형, 크로스 펑셔널
+- **Fast-paced**: 빠른, agile, 실시간, 스타트업, fast-paced, 릴리즈, 스프린트, sprint
+- **Structured**: 체계, 프로세스, systematic, QA, 품질관리, 코드리뷰, code review, 가이드라인
+- **Learning-focused**: 성장, 학습, learning, 교육, 스터디, 멘토링, 세미나, 사내강의, 도서지원
+- **Autonomous**: 자율, 독립, autonomous, 자기주도, 오너십, 자유도, 주도적
+- **Work-life balance**: 워라밸, 워크라이프밸런스, WLB, 유연근무, 시차출근, 자유출퇴근, 연차, 리프레시, 가족친화
 
 When `culture_keywords` is empty/null, culture score defaults to 70 (neutral). When present, score is based on overlap with candidate's `cultural_preferences`.
 

@@ -5,22 +5,25 @@
 // Culture keyword map (matching SKILL.md categories)
 const CULTURE_PATTERNS = {
   innovative: [
-    /(혁신|도전|창의|크리에이티브|creative|innovation|challenge|새로운)/i,
+    /(혁신|도전|창의|크리에이티브|creative|innovation|challenge|새로운|실험|experiment)/i,
   ],
   collaborative: [
-    /(협업|팀워크|소통|협력|collaborat|teamwork|communication|partnership|함께|공동)/i,
+    /(협업|팀워크|소통|협력|collaborat|teamwork|communication|partnership|함께|공동|수평적|가로형|크로스\s*펑셔널|cross[\s-]?functional)/i,
   ],
   fast_paced: [
-    /(빠른|agile|실시간|스타트업|fast[\s-]?paced|rapid|빠르게|민첩)/i,
+    /(빠른|agile|실시간|스타트업|fast[\s-]?paced|rapid|빠르게|민첩|릴리즈|release|스프린트|sprint|iterations?)/i,
   ],
   structured: [
-    /(체계|프로세스|systematic|process|체계적|조직적|표준화|qa|품질관리)/i,
+    /(체계|프로세스|systematic|process|체계적|조직적|표준화|qa|품질관리|code\s*review|코드리뷰|가이드라인|guideline)/i,
   ],
   learning_focused: [
-    /(성장|학습|learning|growth|교육|워크샵|컨퍼런스|개발자\s*커뮤니티|스터디|멘토)/i,
+    /(성장|학습|learning|growth|교육|워크샵|컨퍼런스|개발자\s*커뮤니티|스터디|멘토|멘토링|mentoring|세미나|사내강의|도서지원|시험비지원)/i,
   ],
   autonomous: [
-    /(자율|독립|autonomous|independent|자기주도|오너십|ownership|주도적)/i,
+    /(자율|독립|autonomous|independent|자기주도|오너십|ownership|주도적|자유로운|자유도|discretion)/i,
+  ],
+  work_life_balance: [
+    /(워라밸|워크라이프밸런스|work[\s_-]?life[\s_-]?balance|wlb|유연근무|flexible\s*(working|hours|time)|시차출근|자유출퇴근|자율출근|연차|휴가|sabbatical|리프레시|refresh|휴식|healing|가족친화|family[\s-]?friendly)/i,
   ],
 };
 
@@ -91,6 +94,47 @@ const tests = [
     expected: ["fast_paced"],
     id: "KR-007"
   },
+  // EXP-048: Korean-specific culture patterns
+  {
+    text: "워라밸을 중시하며 유연근무제를 운영합니다. 시차출근 가능하고 연차 사용이 자유롭습니다.",
+    expected: ["work_life_balance"],
+    id: "KR-WLB-001"
+  },
+  {
+    text: "수평적인 조직 문화로 소통이 자유롭고, 모든 팀원이 함께 의사결정에 참여합니다.",
+    expected: ["collaborative"],
+    id: "KR-FLAT-001"
+  },
+  {
+    text: "자율출근제와 리프레시 휴가를 제공합니다. 워크라이프밸런스를 추구합니다.",
+    expected: ["autonomous", "work_life_balance"],
+    id: "KR-WLB-002"
+  },
+  {
+    text: "사내 세미나와 멘토링 프로그램을 통해 성장을 지원합니다. 코드리뷰로 품질을 관리합니다.",
+    expected: ["learning_focused", "structured"],
+    id: "KR-LEARN-STRUCT-001"
+  },
+  {
+    text: "실험을 장려하고 새로운 기술에 도전하는 문화입니다. 스프린트 단위로 릴리즈합니다.",
+    expected: ["innovative", "fast_paced"],
+    id: "KR-INNO-FAST-001"
+  },
+  {
+    text: "자유도가 높은 업무 환경에서 주도적으로 프로젝트를 진행합니다. 자유출퇴근제 운영.",
+    expected: ["autonomous", "work_life_balance"],
+    id: "KR-AUTO-WLB-001"
+  },
+  {
+    text: "We offer flexible working hours and a strong work-life balance. Family-friendly policies included.",
+    expected: ["work_life_balance"],
+    id: "EN-WLB-001"
+  },
+  {
+    text: "카카오에서 프론트엔드 개발자를 채용합니다. 경력 3년 이상.",
+    expected: [],
+    id: "NO-CULTURE-002"
+  },
 ];
 
 let passed = 0, failed = 0;
@@ -129,6 +173,7 @@ const candidate = {
   structured: 0.4,
   fast_paced: 0.7,
   learning_focused: 0.8,
+  work_life_balance: 0.9,
 };
 
 // Test: job with culture keywords vs job without
@@ -141,6 +186,10 @@ const integrationTests = [
   { id: "CULTURE-SCORE-02", got: withoutCulture === 70, expect: true, desc: `no-culture job defaults to 70` },
   { id: "CULTURE-SCORE-03", got: mismatch < 70, expect: true, desc: `mismatched culture scores <70: got ${mismatch}` },
   { id: "CULTURE-SCORE-04", got: withCulture > mismatch, expect: true, desc: `matching culture > mismatched culture: ${withCulture} > ${mismatch}` },
+  // EXP-048: work_life_balance integration
+  { id: "CULTURE-SCORE-05", got: calculateCultureScore(["work_life_balance"], candidate) > 80, expect: true, desc: `WLB-focused job scores high for WLB-preferring candidate` },
+  { id: "CULTURE-SCORE-06", got: calculateCultureScore(["work_life_balance"], { work_life_balance: 0.2 }) < 70, expect: true, desc: `WLB-focused job scores low for WLB-averse candidate` },
+  { id: "CULTURE-SCORE-07", got: calculateCultureScore(["work_life_balance", "autonomous"], candidate) >= calculateCultureScore(["structured"], candidate), expect: true, desc: `multi-culture match > single mismatch` },
 ];
 
 for (const t of integrationTests) {

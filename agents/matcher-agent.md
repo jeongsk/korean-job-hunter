@@ -60,13 +60,14 @@ For ranges like "5–9년", the upper bound (9) matters for senior-level candida
 
 ### Culture Fit (15%)
 
-Extract cultural indicators from job description:
-- 혁신, creative, 도전 → Innovative
-- 협업, teamwork, 협력 → Collaborative
-- 빠른, agile, 실시간 → Fast-paced
-- 체계, process → Structured
-- 고객, 사용자, user → Customer-focused
-- 품질, quality → Quality-driven
+Extract cultural indicators from job description (7 categories per EXP-048):
+- 혁신, creative, 도전, 실험 → Innovative
+- 협업, teamwork, 협력, 수평적 → Collaborative
+- 빠른, agile, 실시간, 스프린트 → Fast-paced
+- 체계, process, 코드리뷰 → Structured
+- 성장, learning, 멘토링, 세미나 → Learning-focused
+- 자율, autonomous, 자유도 → Autonomous
+- 워라밸, WLB, 유연근무, 시차출근 → Work-life balance
 - 학습, 성장, growth → Learning-focused
 - 성과, results → Result-oriented
 
