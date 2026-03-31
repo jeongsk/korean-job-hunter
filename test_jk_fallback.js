@@ -24,7 +24,7 @@ function extractFromCard(text) {
     company = lines.find(l => l.match(/㈜|주식회사|Corp\.?|Inc\.?|LLC/)) || '';
   } else {
     // Short-line heuristic: only if no indicator found anywhere
-    company = lines.find(l => l.length >= 2 && l.length <= 6 && !l.match(/경력|지원|스크랩|등록|마감|개발|엔지니어|매니저|디자이너/)) || '';
+    company = lines.find(l => l.length >= 2 && l.length <= 6 && !l.match(/경력|지원|스크랩|등록|마감|개발|엔지니어|매니저|디자이너|서울|경기|부산|대전|인천|광주|대구|울산/)) || '';
   }
   const experience = lines.find(l => l.match(/경력/)) || '';
   const location = lines.find(l => l.match(/서울|경기|부산|대전|인천/)) || '';

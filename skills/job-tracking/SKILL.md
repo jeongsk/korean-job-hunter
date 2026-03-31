@@ -88,8 +88,11 @@ parse_korean_query(input):
   if matches "(탈락|거절|떨어)" → filters.push("a.status IN ('rejected','declined')")
   if matches "지원(예정|할)" → filters.push("a.status = 'applying'")
   
-  // Negation
-  if matches "(빼고|제외|말고)" + status → invert last status filter with NOT
+  // Negation (빼고/제외/말고): negate only the entity immediately before the marker
+  // e.g. "카카오 지원한 거 중에 토스 빼고" → 카카오 LIKE, 토스 NOT LIKE
+  // e.g. "지원한 거 중에 판교 빼고" → 판교 NOT LIKE location
+  if matches "(빼고|제외|말고)" + entity immediately before marker → that entity gets NOT
+  if no entity was negated → fall back to inverting status filter
   
   // Work type
   if matches "(재택|원격|리모트)" → filters.push("j.work_type = 'remote'")

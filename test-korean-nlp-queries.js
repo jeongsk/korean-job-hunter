@@ -21,6 +21,14 @@ const testCases = [
   // Company/keyword queries
   { input: "카카오 공고 있어?", expectedFilters: ["j.company LIKE '%카카오%'"], expectedOrder: "a.updated_at DESC" },
   { input: "백엔드 관심 공고", expectedFilters: ["a.status = 'interested'", "(j.title LIKE '%백엔드%' OR j.company LIKE '%백엔드%')"], expectedOrder: "a.updated_at DESC" },
+  
+  // EXP-035: Edge cases — company substring, location negation, compound queries
+  { input: "카카오뱅크 공고", expectedFilters: ["j.company LIKE '%카카오뱅크%'"], expectedOrder: "a.updated_at DESC" },
+  { input: "지원한 거 중에 판교 빼고", expectedFilters: ["a.status = 'applied'", "j.location NOT LIKE '%판교%'"], expectedOrder: "a.updated_at DESC" },
+  { input: "토스 서울 면접 공고", expectedFilters: ["a.status = 'interview'", "j.company LIKE '%토스%'", "j.location LIKE '%서울%'"], expectedOrder: "a.updated_at DESC" },
+  { input: "지원한 거 최신순", expectedFilters: ["a.status = 'applied'"], expectedOrder: "a.updated_at DESC" },
+  { input: "하이브리드 네이버 공고", expectedFilters: ["j.work_type = 'hybrid'", "j.company LIKE '%네이버%'"], expectedOrder: "a.updated_at DESC" },
+  { input: "카카오 지원한 거 중에 토스 빼고", expectedFilters: ["a.status = 'applied'", "j.company LIKE '%카카오%'", "j.company NOT LIKE '%토스%'"], expectedOrder: "a.updated_at DESC" },
 ];
 
 // Korean NLP Query Parser
@@ -56,6 +64,9 @@ function parseKoreanQuery(input) {
   
   // Negation for "빼고/제외/말고" — check if it applies to status or company
   const negationMatch = text.match(/(빼고|제외|말고)/);
+  const negationIdx = negationMatch ? text.indexOf(negationMatch[0]) : -1;
+  let appliedNegation = false; // Track if negation was consumed by a specific filter
+  
   // Work type
   if (/재택|원격|리모트/.test(text)) {
     filters.push("j.work_type = 'remote'");
@@ -69,15 +80,26 @@ function parseKoreanQuery(input) {
     order = "m.score DESC";
   }
   
-  // Known companies
-  const companies = ['카카오', '네이버', '삼성', '라인', '우아한형제들', '토스', '쿠팡', '배달의민족', '당근마켓', '야놀자', '크몽', '배민', '넥슨', '엔씨소프트', '네오위즈', '한컴', '카카오뱅크', '토스뱅크', '위메프', '마이플레이스'];
+  // Known companies — sort by length (longest first) to avoid substring collisions (카카오뱅크 vs 카카오)
+  const companies = ['카카오뱅크', '우아한형제들', '당근마켓', '배달의민족', '엔씨소프트', '네오위즈', '토스뱅크', '마이플레이스', '카카오', '네이버', '삼성', '라인', '토스', '쿠팡', '야놀자', '크몽', '배민', '넥슨', '한컴', '위메프'];
   for (const company of companies) {
+    if (consumedWords.has(company)) continue; // Skip substrings of already-consumed companies
     if (text.includes(company)) {
+      // Check if any already-consumed word contains this company as substring
+      let isSubstring = false;
+      for (const cw of consumedWords) {
+        if (cw.includes(company) && cw !== company) { isSubstring = true; break; }
+      }
+      if (isSubstring) continue;
+      
       if (negationMatch) {
-        // Check if negation applies to this company (pattern: "X 빼고")
-        const beforeNeg = text.substring(0, text.indexOf(negationMatch[0]));
-        if (beforeNeg.includes(company)) {
+        const beforeNeg = text.substring(0, negationIdx);
+        // Only negate the entity immediately preceding the negation marker
+        const segment = beforeNeg.trim();
+        const isImmediatelyBefore = segment.endsWith(company);
+        if (isImmediatelyBefore) {
           filters.push(`j.company NOT LIKE '%${company}%'`);
+          appliedNegation = true;
         } else {
           filters.push(`j.company LIKE '%${company}%'`);
         }
@@ -88,17 +110,29 @@ function parseKoreanQuery(input) {
     }
   }
   
-  // Location keywords
-  const locations = ['서울', '경기', '부산', '대전', '인천', '광주', '대구', '울산', '수원', '이천', '판교', '강남', '영등포', '송파', '성수', '역삼', '잠실', '마포', '용산', '구로', '분당', '일산', '평촌'];
+  // Location keywords — support negation like companies
+  const locations = ['영등포', '서울', '경기', '부산', '대전', '인천', '광주', '대구', '울산', '수원', '이천', '판교', '강남', '송파', '성수', '역삼', '잠실', '마포', '용산', '구로', '분당', '일산', '평촌'];
   for (const loc of locations) {
     if (text.includes(loc)) {
-      filters.push(`j.location LIKE '%${loc}%'`);
+      if (negationMatch) {
+        const beforeNeg = text.substring(0, negationIdx);
+        const segment = beforeNeg.trim();
+        const isImmediatelyBefore = segment.endsWith(loc);
+        if (isImmediatelyBefore) {
+          filters.push(`j.location NOT LIKE '%${loc}%'`);
+          appliedNegation = true;
+        } else {
+          filters.push(`j.location LIKE '%${loc}%'`);
+        }
+      } else {
+        filters.push(`j.location LIKE '%${loc}%'`);
+      }
       consumedWords.add(loc);
     }
   }
   
   // Job title keywords (remaining Korean words 2+ chars that aren't status/work/sort words)
-  const stopWords = new Set(['면접', '면접보는', '면접잡힌', '지원', '지원한', '지원할', '지원예정', '지원완료', '관심', '북마크', '찜', '찜해둔', '합격', '합격한', '오퍼', '탈락', '탈락한', '거절', '불합격', '재택', '재택으로', '원격', '리모트', '하이브리드', '점수', '점수순으로', '매칭', '최신', '빼고', '제외', '말고', '있어', '보여', '보여줘', '공고', '거', '곳', '다', '중에', '할', '한', '수', '있는', '순으로', '보는', '잡힌', '해둔', '예정', '완료', '했', '을', '를', '이', '가', '에서', '의', '에']);
+  const stopWords = new Set(['면접', '면접보는', '면접잡힌', '지원', '지원한', '지원할', '지원예정', '지원완료', '관심', '북마크', '찜', '찜해둔', '합격', '합격한', '오퍼', '탈락', '탈락한', '거절', '불합격', '재택', '재택으로', '원격', '리모트', '하이브리드', '점수', '점수순으로', '매칭', '최신', '최신순', '빼고', '제외', '말고', '있어', '보여', '보여줘', '공고', '거', '곳', '다', '중에', '할', '한', '수', '있는', '순으로', '보는', '잡힌', '해둔', '예정', '완료', '했', '을', '를', '이', '가', '에서', '의', '에']);
   const koreanWords = text.match(/[가-힣]{2,}/g) || [];
   for (const word of koreanWords) {
     if (!stopWords.has(word) && !consumedWords.has(word)) {
@@ -107,8 +141,8 @@ function parseKoreanQuery(input) {
     }
   }
   
-  // Handle "빼고" for status — if no status was set and negation exists
-  if (negationMatch && !filters.some(f => f.includes('NOT'))) {
+  // Handle "빼고" for status — only if negation wasn't consumed by company/location
+  if (negationMatch && !appliedNegation && !filters.some(f => f.includes('NOT'))) {
     // The negation wasn't applied to anything specific; apply to status if exists
     const statusIdx = filters.findIndex(f => f.includes('a.status'));
     if (statusIdx >= 0) {
