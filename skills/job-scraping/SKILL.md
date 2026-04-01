@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v4.3 (EXP-054: Cross-Source Dedup Script)
+# Job Scraping Skill v4.4 (EXP-057: Wanted Salary Extraction)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
@@ -147,6 +147,8 @@ The post-processor (`scripts/post-process-wanted.js`) applies the validated pars
 - Location from brackets and bare city names
 - Experience ranges (N-M년, N년 이상, 무관)
 - Reward extraction
+- Salary extraction: `연봉/월급/연수입` + range, single value, or `면접후결정` (EXP-057)
+- Standalone `면접후결정` captured as salary (not leaked to title) (EXP-057)
 - Title suffix stripping
 - Already-parsed pass-through (idempotent)
 

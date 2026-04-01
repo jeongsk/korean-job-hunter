@@ -99,5 +99,31 @@ test('discrimination-react-vs-java-title',
   { company: '삼성', title: /Java/ }
 );
 
+// === Salary extraction (EXP-057) ===
+test('salary-range-wanted',
+  '백엔드 개발자카카오경력 5년 이상연봉 5000~8000만원합격보상금 100만원',
+  { salary: '연봉 5000~8000만원', company: '카카오', reward: '보상금 100만원' }
+);
+
+test('salary-single-value-wanted',
+  '프론트엔드 엔지니어네이버경력 3-7년연봉 6000만원 이상합격보상금 100만원',
+  { salary: '연봉 6000만원 이상', company: '네이버' }
+);
+
+test('salary-negotiable-standalone-wanted',
+  'DevOps Engineer라인경력무관면접후결정합격보상금 50만원',
+  { salary: '면접후결정', company: '라인', reward: '보상금 50만원', title: v => !v.includes('면접후결정') }
+);
+
+test('salary-negotiable-with-prefix-wanted',
+  '백엔드 개발자토스경력 3-5년연봉 면접후결정합격보상금 100만원',
+  { salary: '연봉 면접후결정', company: '토스' }
+);
+
+test('salary-no-leak-to-title',
+  '프론트엔드 개발자카카오경력무관연봉 5000~8000만원합격보상금 70만원',
+  { salary: '연봉 5000~8000만원', title: v => !v.includes('연봉') && !v.includes('5000') }
+);
+
 console.log(`\n📊 Post-Process Wanted: ${passed}/${passed + failed} passed`);
 if (failed > 0) process.exit(1);

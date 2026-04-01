@@ -100,6 +100,11 @@ function parseWantedJob(raw) {
   // === Salary (from detail pages or inline) ===
   const sm = t.match(/(연봉|월급|연수입)[\s]*(\d{1,5}[~-]\d{1,5}만원|\d{1,5}만원\s*이상|면접후결정)/);
   if (sm) { r.salary = sm[0]; t = t.replace(sm[0], ' '); }
+  // Standalone 면접후결정 (not preceded by 연봉/월급)
+  if (!r.salary) {
+    const sm2 = t.match(/면접후결정/);
+    if (sm2) { r.salary = '면접후결정'; t = t.replace(sm2[0], ' '); }
+  }
 
   // === Noise cleanup ===
   t = t.replace(/합격/g, ' ').replace(/·/g, ' ').replace(/계약직|정규직|인턴십/g, ' ').trim();
