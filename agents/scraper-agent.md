@@ -107,6 +107,16 @@ sqlite3 data/jobs.db "INSERT OR IGNORE INTO jobs (id, source, title, company, ur
 - **Timeout**: Increase sleep time
 - Always screenshot on error: `agent-browser screenshot --annotate error.png`
 
+## Post-Processing Pipeline (EXP-053)
+
+If the eval output contains raw concatenated text (all fields merged in one string), the inline JS parsing may fail. In that case, pipe the output through the post-processor:
+
+```bash
+cat wanted_jobs.json | node scripts/post-process-wanted.js > wanted_jobs_clean.json
+```
+
+This is **idempotent** — already-parsed jobs pass through unchanged. Always run it as a safety net after scraping.
+
 ## Output
 
 After scraping, report:

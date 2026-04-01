@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v4.1 (EXP-046: JobKorea Salary Extraction)
+# Job Scraping Skill v4.2 (EXP-053: Post-Processing Pipeline)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
@@ -132,6 +132,23 @@ agent-browser close
 ```json
 {"id":"350866","title":"디지털 학습 플랫폼 백엔드 개발자 (JAVA)","company":"미래엔","experience":"경력 5년 이상","reward":"합격보상금 100만원","link":"https://www.wanted.co.kr/wd/350866"}
 ```
+
+### Post-Processing (EXP-053)
+
+If the eval output contains raw concatenated text (company/experience/reward all in one string), run the post-processor:
+
+```bash
+cat wanted_jobs.json | node scripts/post-process-wanted.js > wanted_jobs_parsed.json
+```
+
+The post-processor (`scripts/post-process-wanted.js`) applies the validated parsing logic to raw scrape output. It handles:
+- Company extraction from Korean/English names before `경력`
+- Work type detection (remote/hybrid/onsite)
+- Location from brackets and bare city names
+- Experience ranges (N-M년, N년 이상, 무관)
+- Reward extraction
+- Title suffix stripping
+- Already-parsed pass-through (idempotent)
 
 ---
 
