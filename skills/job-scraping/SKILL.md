@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v4.5 (EXP-059: Detail-Page Skill Extraction)
+# Job Scraping Skill v4.6 (EXP-060: Salary Normalization)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
@@ -490,6 +490,59 @@ Detail-extracted skills supplement `job.skills` field. Priority:
 3. Title-inferred skills (EXP-052)
 
 ---
+
+## Salary Normalization (EXP-060)
+
+Salary fields are stored as raw strings. Normalize to annual 만원 for comparison and NLP filtering.
+
+### Normalization Logic (JavaScript)
+
+```javascript
+function normalizeSalary(raw) {
+  if (!raw || typeof raw !== 'string') return null;
+  const text = raw.trim();
+  if (/면접후결정|회사내규|협의/.test(text)) return null;
+
+  let min = null, max = null, isMonthly = /월급|월\s*급|개월/.test(text);
+
+  // 만원 range: 5000~8000만원, 5000-8000만원
+  const rangeMatch = text.match(/(\d[\d,]*)\s*[~\-]\s*(\d[\d,]*)\s*만?\s*원/);
+  if (rangeMatch) {
+    min = parseInt(rangeMatch[1].replace(/,/g, ''));
+    max = parseInt(rangeMatch[2].replace(/,/g, ''));
+  } else {
+    // Single value: 6000만원 이상
+    const singleMatch = text.match(/(\d[\d,]*)\s*만?\s*원/);
+    if (singleMatch) {
+      const val = parseInt(singleMatch[1].replace(/,/g, ''));
+      min = val;
+      max = /이상|↑/.test(text) ? val : val;
+    }
+  }
+
+  // 억 patterns: 1억, 1~1.5억
+  if (min === null) {
+    const eokRange = text.match(/(\d+(?:\.\d+)?)\s*[~\-]\s*(\d+(?:\.\d+)?)\s*억/);
+    if (eokRange) {
+      min = Math.round(parseFloat(eokRange[1]) * 10000);
+      max = Math.round(parseFloat(eokRange[2]) * 10000);
+    } else {
+      const eok = text.match(/(\d+(?:\.\d+)?)\s*억/);
+      if (eok) { min = max = Math.round(parseFloat(eok[1]) * 10000); }
+    }
+  }
+
+  if (min === null) return null;
+  if (isMonthly) { min *= 12; max *= 12; }
+  return { min, max: max || min, annual: true };
+}
+```
+
+### NLP Salary Filter Usage
+
+- "연봉 6000 이상" → `normalizeSalary(salary).min >= 6000`
+- "월급 400 이상" → `normalizeSalary(salary).min >= 4800` (monthly→annual auto-convert)
+- Negotiable salaries (면접후결정) return `null` — excluded from threshold checks, pass range filters
 
 ## 디버깅
 

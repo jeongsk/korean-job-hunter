@@ -33,6 +33,8 @@ Users speak naturally in Korean. Parse their intent before running SQL:
 | 하이브리드 | `j.work_type = 'hybrid'` |
 | 지역 (서울, 판교, 강남...) | `j.location LIKE '%{keyword}%'` |
 | 연봉, 급여, 연수입 | `j.salary IS NOT NULL AND j.salary != ''` |
+| 연봉 N천 이상, 연봉 N만원+ | Normalize salary then filter `min >= threshold` (see Salary Normalization EXP-060) |
+| 월급 N 이상 | Same normalization — monthly auto-converted to annual |
 | 마감임박, 곧마감 | deadline ≤ 7 days |
 | 이번 주 마감 | deadline within 7 days |
 | 오늘/내일 마감 | deadline = today/tomorrow |
