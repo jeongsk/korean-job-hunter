@@ -144,3 +144,7 @@ See SKILL.md § "Detail-Page Skill Extraction" for the full pattern list (50+ sk
 When parsing Wanted cards, salary text (연봉 5000~8000만원, 월급 300~500만원, 연봉 1~2억) is now auto-normalized to `salary_min`/`salary_max` (만원, annual). These numeric fields go straight into the DB and enable NLP salary queries (연봉 5000 이상) without runtime normalization.
 
 The 억 pattern is also captured during salary extraction (e.g., 연봉 1~2억 → salary_min: 10000, salary_max: 20000).
+
+## JobKorea Salary Normalization (EXP-069)
+
+JobKorea cards now go through `post-process-jobkorea.js` which applies `normalizeSalary()` to the extracted salary text. This means JobKorea-sourced jobs also get `salary_min`/`salary_max` populated — previously only Wanted had this. Run the post-processor after scraping (see SKILL.md workflow step 3).

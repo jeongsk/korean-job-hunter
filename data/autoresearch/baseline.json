@@ -1,19 +1,19 @@
 {
-  "timestamp": "2026-04-01T21:04:00Z",
-  "experiment_id": "EXP-067",
+  "timestamp": "2026-04-01T23:04:00Z",
+  "experiment_id": "EXP-069",
   "skill": "job-scraping",
-  "focus": "korean_english_company_equivalents_dedup",
-  "hypothesis": "LinkedIn uses English company names (Kakao, Naver) while Wanted/JobKorea use Korean (카카오, 네이버). Adding Korean↔English company equivalence map to cross-source dedup enables LinkedIn duplicates to be detected.",
+  "focus": "jobkorea_salary_normalization_pipeline",
+  "hypothesis": "normalizeSalary() was only wired into post-process-wanted.js (EXP-068). JobKorea salary extraction (EXP-046) captured raw salary text but never normalized to salary_min/salary_max, so NLP salary queries didn't work for JobKorea-sourced jobs.",
   "metrics": {
-    "total_tests": "647 (all pass)",
+    "total_tests": "671 (all pass)",
     "npm_test": "working",
-    "test_suites": 33,
+    "test_suites": 35,
     "all_passing": true,
-    "cross_source_dedup_tests": "18 (was 13)",
-    "new_ko_en_company_tests": 5,
-    "ko_en_company_equivalents": 25,
-    "ko_en_title_equivalents_expanded": 9 new entries,
-    "regressions": 0,
-    "bug_found": "3-source dedup was silently dropping LinkedIn entries with English company names"
+    "jobkorea_salary_pipeline_tests": "12 (new)",
+    "salary_min_max_populated": true,
+    "annual_range": true,
+    "monthly_to_annual": true,
+    "eok_capture": true,
+    "regressions": 0
   }
 }

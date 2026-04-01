@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v4.9 (EXP-067: Korean↔English Company Equivalents for Cross-Source Dedup)
+# Job Scraping Skill v5.0 (EXP-069: JobKorea Salary Normalization Pipeline)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
@@ -238,7 +238,16 @@ agent-browser eval "(() => {
   });
 })()" --json > jobkorea_jobs.json
 
-# 3. 브라우저 종료
+# 3. Post-process: normalize salary_min/salary_max
+node -e "
+  const {parseJobKoreaCard} = require('./scripts/post-process-jobkorea');
+  const fs = require('fs');
+  const raw = JSON.parse(fs.readFileSync('jobkorea_jobs.json','utf8'));
+  const processed = raw.map(r => typeof r === 'string' || r.text ? parseJobKoreaCard(r) : ({...r, salary_min: null, salary_max: null}));
+  fs.writeFileSync('jobkorea_jobs.json', JSON.stringify(processed, null, 2));
+"
+
+# 4. 브라우저 종료
 agent-browser close
 ```
 
