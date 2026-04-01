@@ -12,14 +12,14 @@ import assert from 'assert';
 
 const SKILL_PATTERNS = {
   // Languages
-  'javascript': { re: /\bjavascript\b|자바스크립트|\bjs\b(?!\s*추)|자스/i, exclude: /\btype\s*script/i },
+  'javascript': { re: /\bjavascript\b|자바스크립트|(?<![\w.])\bjs\b(?!\s*추)|자스/i, exclude: /\btype\s*script/i },
   'typescript': { re: /\btypescript\b|타입스크립트|\bts\b(?!\s*(추|구|급|간|간|작|험))/i },
   'python': { re: /\bpython\b|파이썬/i },
   'java': { re: /\bjava\b(?!script)|자바(?!스크립트)/i },
   'go': { re: /\bgolang\b|\bgo\s*언어|고언어/i },
   'rust': { re: /\brust\b|러스트/i },
-  'c++': { re: /\bc\+\+\b|cpp/i },
-  'c#': { re: /\bc#\b|csharp/i },
+  'c++': { re: /c\+\+|\bcpp\b/i },
+  'c#': { re: /c#|csharp/i },
   'swift': { re: /\bswift\b(?!ui)|스위프트/i },
   'kotlin': { re: /\bkotlin\b|코틀린/i },
   'ruby': { re: /\bruby\b|루비/i },
@@ -48,7 +48,7 @@ const SKILL_PATTERNS = {
   'postgresql': { re: /\bpostgresql\b|\bpostgres\b/i },
   'mongodb': { re: /\bmongodb\b|mongo\s*db/i },
   'redis': { re: /\bredis\b|레디스/i },
-  'elasticsearch': { re: /\belasticsearch\b|elastic\s*search/i },
+  'elasticsearch': { re: /\belasticsearch\b|elastic\s*search|엘라스틱서치/i },
   'oracle': { re: /\boracle\s*db|\boracle\b/i },
   'mssql': { re: /\bmssql\b|ms\s*sql/i },
   // Infrastructure
@@ -176,6 +176,172 @@ Java, Kotlin, Spring Framework/Spring Boot 기반의 백엔드 개발 경험이 
 REST API, 데이터 모델링, 비즈니스 로직, 트랜잭션 처리
 RDBMS(MySQL, PostgreSQL, MSSQL 등) 설계 및 최적화 경험`,
     expected: ['java', 'kotlin', 'mssql', 'mysql', 'postgresql', 'rest_api', 'spring_boot'],
+  },
+  // === EXP-065: Expanded coverage for previously-untested patterns ===
+  {
+    name: 'Go/Golang backend JD',
+    text: `자격요건
+- Golang 기반 마이크로서비스 개발 경험 3년 이상
+- Docker, Kubernetes 활용 경험
+- gRPC 통신 프로토콜 경험`,
+    expected: ['docker', 'go', 'grpc', 'kubernetes'],
+  },
+  {
+    name: 'Rust systems engineer JD',
+    text: `자격요건
+- Rust 언어 기반 시스템 프로그래밍 경험
+- C++ 저수준 개발 경험
+- Linux 커널 이해`,
+    expected: ['c++', 'rust'],
+  },
+  {
+    name: 'Vue.js frontend JD',
+    text: `자격요건
+- Vue.js, Nuxt.js 기반 프론트엔드 개발 경험
+- TypeScript 숙련
+- HTML5, CSS3 경험`,
+    expected: ['typescript', 'vue'],
+  },
+  {
+    name: 'Angular enterprise JD',
+    text: `자격요건
+- Angular 프레임워크 기반 대규모 웹 애플리케이션 개발
+- RxJS, NgRx 상태관리 경험`,
+    expected: ['angular'],
+  },
+  {
+    name: 'Django backend JD',
+    text: `자격요건
+- Python, Django 기반 웹 서비스 개발 경험
+- PostgreSQL, Redis 활용
+- Celery 비동기 처리 경험`,
+    expected: ['django', 'postgresql', 'python', 'redis'],
+  },
+  {
+    name: 'FastAPI ML serving JD',
+    text: `자격요건
+- Python, FastAPI 기반 ML 모델 서빙 파이프라인
+- Docker 컨테이너 배포
+- TensorFlow 또는 PyTorch 모델 서빙 경험`,
+    expected: ['docker', 'fastapi', 'python', 'pytorch', 'tensorflow'],
+  },
+  {
+    name: 'Flask lightweight JD',
+    text: `자격요건
+- Flask 기반 REST API 개발 경험
+- SQLAlchemy ORM 경험`,
+    expected: ['flask', 'rest_api'],
+  },
+  {
+    name: 'GCP cloud engineer JD',
+    text: `자격요건
+- Google Cloud Platform 인프라 구축 및 운영
+- Docker, Kubernetes를 활용한 컨테이너 오케스트레이션
+- Terraform IaC 경험`,
+    expected: ['docker', 'gcp', 'kubernetes', 'terraform'],
+  },
+  {
+    name: 'Azure .NET JD',
+    text: `자격요건
+- Azure 클라우드 서비스 활용 경험
+- C# 기반 백엔드 개발 경험`,
+    expected: ['azure', 'c#'],
+  },
+  {
+    name: 'Swift/SwiftUI iOS JD',
+    text: `자격요건
+- Swift 언어 기반 iOS 앱 개발 경험 3년 이상
+- SwiftUI 프레임워크 활용 UI 개발`,
+    expected: ['swift', 'swiftui'],
+  },
+  {
+    name: 'Scala data engineering JD',
+    text: `자격요건
+- Scala, Spark 기반 대규모 데이터 파이프라인 개발
+- Kafka 실시간 스트리밍 처리
+- Hadoop 에코시스템 이해`,
+    expected: ['hadoop', 'kafka', 'scala', 'spark'],
+  },
+  {
+    name: 'Ruby on Rails JD',
+    text: `자격요건
+- Ruby on Rails 기반 웹 서비스 개발 경험
+- PostgreSQL 데이터베이스 경험`,
+    expected: ['postgresql', 'ruby'],
+  },
+  {
+    name: 'PHP/Laravel JD',
+    text: `자격요건
+- PHP, Laravel 프레임워크 기반 백엔드 개발
+- MySQL 데이터베이스 운영`,
+    expected: ['mysql', 'php'],
+  },
+  {
+    name: 'NestJS backend JD',
+    text: `자격요건
+- NestJS 프레임워크 기반 백엔드 개발 경험
+- TypeScript, GraphQL API 설계
+- PostgreSQL, Redis 캐싱`,
+    expected: ['graphql', 'nestjs', 'postgresql', 'redis', 'typescript'],
+  },
+  {
+    name: 'RabbitMQ messaging JD',
+    text: `자격요건
+- RabbitMQ 메시지 큐 기반 비동기 처리 아키텍처 설계
+- Node.js 백엔드 개발 경험`,
+    expected: ['node.js', 'rabbitmq'],
+  },
+  {
+    name: 'Oracle DBA JD',
+    text: `자격요건
+- Oracle DB 성능 튜닝 및 운영 경험
+- PL/SQL 프로시저 개발`,
+    expected: ['oracle'],
+  },
+  {
+    name: 'TensorFlow/PyTorch ML JD',
+    text: `자격요건
+- TensorFlow, PyTorch 기반 딥러닝 모델 개발
+- Pandas, Spark 데이터 전처리`,
+    expected: ['pandas', 'pytorch', 'spark', 'tensorflow'],
+  },
+  {
+    name: 'GraphQL + gRPC JD',
+    text: `자격요건
+- GraphQL API 개발 및 Apollo Server 운영
+- gRPC 기반 마이크로서비스 통신`,
+    expected: ['graphql', 'grpc'],
+  },
+  {
+    name: 'Korean equivalents extended',
+    text: `자격요건
+- 루비 온 레일즈 경험
+- 러스트 시스템 프로그래밍
+- 스위프트 iOS 개발
+- 코틀린 안드로이드 개발`,
+    expected: ['kotlin', 'ruby', 'rust', 'swift'],
+  },
+  {
+    name: 'Mixed Korean+English tech terms',
+    text: `자격요건
+- 파이썬 백엔드 개발 (Django/Flask)
+- 도커 컨테이너 배포
+- 엘라스틱서치 검색 엔진 운영
+- 레디스 캐싱`,
+    expected: ['django', 'docker', 'elasticsearch', 'flask', 'python', 'redis'],
+  },
+  {
+    name: 'Nuxt.js implies Vue context (explicit Vue mention)',
+    text: `자격요건
+- Nuxt.js 기반 Vue.js 프론트엔드 개발`,
+    expected: ['vue'],
+  },
+  {
+    name: 'React Native without bare React (no overlap)',
+    text: `자격요건
+- React Native 기반 하이브리드 앱 개발
+- iOS 네이티브 모듈 연동`,
+    expected: ['react', 'react_native'],
   },
 ];
 
