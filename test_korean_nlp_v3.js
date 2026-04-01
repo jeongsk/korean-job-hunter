@@ -82,6 +82,18 @@ function parseKoreanQuery(input) {
     filters.push(`j.experience LIKE '%${expMatch[1]}%'`);
     consumedWords.add(expMatch[0]);
   }
+  // N년차 pattern (e.g., "5년차" = 5th year of experience)
+  const yoeMatch = text.match(/(\d+)\s*년차/);
+  if (yoeMatch && !expMatch) {
+    filters.push(`j.experience LIKE '%${yoeMatch[1]}%'`);
+    consumedWords.add(yoeMatch[0]);
+    consumedWords.add('년차');
+  }
+  // "경력" standalone → show experienced jobs (exclude 신입-only)
+  if (/경력/.test(text) && !/신입/.test(text) && !expMatch && !yoeMatch) {
+    filters.push("(j.experience NOT LIKE '%신입%' OR j.experience LIKE '%무관%')");
+    consumedWords.add('경력');
+  }
 
   // === Deadline urgency ===
   if (/마감\s*임박|곧마감/.test(text)) {
@@ -156,7 +168,7 @@ function parseKoreanQuery(input) {
   }
 
   // === Remaining Korean keywords (title/company search) ===
-  const stopWords = new Set(['면접', '면접보는', '면접잡힌', '지원', '지원한', '지원할', '지원예정', '지원완료', '관심', '북마크', '찜', '찜해둔', '합격', '합격한', '오퍼', '탈락', '탈락한', '거절', '불합격', '재택', '재택으로', '원격', '리모트', '하이브리드', '점수', '점수순으로', '매칭', '최신', '빼고', '제외', '말고', '있어', '보여', '보여줘', '공고', '거', '곳', '다', '중에', '할', '한', '수', '있는', '순으로', '보는', '잡힌', '해둔', '예정', '완료', '했', '을', '를', '이', '가', '에서', '의', '에', '연봉', '급여', '연수입', '마감임박', '곧마감', '마감순', '오늘', '내일', '마감', '기한', '데드라인', '경력', '년', '이상', '남은', '빠른순']);
+  const stopWords = new Set(['면접', '면접보는', '면접잡힌', '지원', '지원한', '지원할', '지원예정', '지원완료', '관심', '북마크', '찜', '찜해둔', '합격', '합격한', '오퍼', '탈락', '탈락한', '거절', '불합격', '재택', '재택으로', '원격', '리모트', '하이브리드', '점수', '점수순으로', '매칭', '최신', '빼고', '제외', '말고', '있어', '보여', '보여줘', '공고', '거', '곳', '다', '중에', '할', '한', '수', '있는', '순으로', '보는', '잡힌', '해둔', '예정', '완료', '했', '을', '를', '이', '가', '에서', '의', '에', '연봉', '급여', '연수입', '마감임박', '곧마감', '마감순', '오늘', '내일', '마감', '기한', '데드라인', '경력', '년', '년차', '이상', '남은', '빠른순']);
   const koreanWords = text.match(/[가-힣]{2,}/g) || [];
   for (const word of koreanWords) {
     if (!stopWords.has(word) && !consumedWords.has(word)) {
@@ -254,6 +266,15 @@ const testCases = [
   // 마감순 should still be sort order, not trigger deadline filter
   { id: 35, input: "관심 공고 마감순", expectedFilters: ["a.status = 'interested'"], expectedOrder: "j.deadline ASC",
     note: "마감순 is sort order, 마감 should not leak into deadline filter" },
+  // EXP-056: N년차 and 경력 standalone patterns
+  { id: 36, input: "5년차 공고 있어?", expectedFilters: ["j.experience LIKE '%5%'"], expectedOrder: "a.updated_at DESC",
+    note: "N년차 should trigger experience filter without keyword leak" },
+  { id: 37, input: "3년차 관심 공고", expectedFilters: ["a.status = 'interested'", "j.experience LIKE '%3%'"], expectedOrder: "a.updated_at DESC",
+    note: "N년차 + status composite without keyword leak" },
+  { id: 38, input: "경력 공고 있어?", expectedFilters: ["(j.experience NOT LIKE '%신입%' OR j.experience LIKE '%무관%')"], expectedOrder: "a.updated_at DESC",
+    note: "standalone 경력 excludes 신입-only jobs" },
+  { id: 39, input: "경력 5년 이상 서울", expectedFilters: ["j.experience LIKE '%5%'", "j.location LIKE '%서울%'"], expectedOrder: "a.updated_at DESC",
+    note: "경력 N년 + location composite (경력 is stopword, not leaked)" },
 ];
 
 // Run tests

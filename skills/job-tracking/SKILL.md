@@ -3,7 +3,7 @@ name: job-tracking
 description: "Job application status tracking with SQLite CRUD, Korean NLP query parsing, pipeline analytics, and smart suggestions"
 ---
 
-# Job Tracking Skill v2.3 (EXP-051: NLP Parser v3.1 — 신입/마감 Bug Fixes)
+# Job Tracking Skill v2.4 (EXP-056: N년차/경력 Experience NLP Patterns)
 
 ## Korean Natural Language Query Parsing
 
@@ -39,6 +39,9 @@ description: "Job application status tracking with SQLite CRUD, Korean NLP query
 | 마감 (standalone) | `j.deadline IS NOT NULL AND j.deadline != ''` |
 | 마감 임박 (with space) | deadline ≤ 7 days |
 | 신입 | `j.experience LIKE '%신입%' OR j.experience LIKE '%무관%'` |
+| N년 이상 | `j.experience LIKE '%N%'` |
+| N년차 | `j.experience LIKE '%N%'` |
+| 경력 (standalone) | `j.experience NOT LIKE '%신입%' OR j.experience LIKE '%무관%'` |
 
 ### Deadline Urgency Scoring (EXP-035)
 
