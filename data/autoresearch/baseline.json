@@ -1,10 +1,12 @@
 {
-  "timestamp": "2026-04-01T23:04:00Z",
-  "experiment_id": "EXP-049",
-  "skill": "job-matching",
-  "focus": "framework-aware-domain-detection",
-  "hypothesis": "Mapping frameworks to parent language domains in PRIMARY_DOMAINS catches cross-domain mismatches in framework-only job listings",
+  "timestamp": "2026-04-01T01:04:00Z",
+  "experiment_id": "EXP-050",
+  "skill": "job-tracking",
+  "focus": "nlp-parser-v3-bugfixes-new-filters",
+  "hypothesis": "NLP parser v2 had 3 bugs (missing SQL quote, company substring conflict, 최신순 keyword spill) and lacked documented filter features",
   "metrics": {
+    "nlp_v3_tests": "30/30 (100%)",
+    "nlp_v2_regression": "18/18 (100%)",
     "jobkorea_parsing_tests": "15/15 (100%)",
     "cross_source_dedup_tests": "13/13 (100%)",
     "resume_match_integration_tests": "52/52 (100%)",
