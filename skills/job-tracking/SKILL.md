@@ -30,7 +30,10 @@ description: "Job application status tracking with SQLite CRUD, Korean NLP query
 | 점수높은/스코어/매칭 | `ORDER BY m.score DESC` |
 | 최신순 | `ORDER BY a.updated_at DESC` |
 | 마감순/마감 빠른순 | `ORDER BY j.deadline ASC` |
-| 연봉/급여/연수입 | `j.salary IS NOT NULL AND j.salary != ''` |
+| 연봉/급여/연수입 | `j.salary IS NOT NULL AND j.salary != '' AND j.salary_min IS NOT NULL` |
+| 연봉 NNNN 이상/부터 | `j.salary_min >= NNNN` (만원 단위) |
+| 연봉 NNNN~MMMM | `(j.salary_min <= MMMM AND j.salary_max >= NNNN)` (range overlap) |
+| 연봉 N억 이상 | `j.salary_min >= N*10000` (억→만원 auto-convert) |
 | 마감임박/곧마감 | deadline ≤ 7 days |
 | 오늘 마감 | deadline = today |
 | 내일 마감 | deadline = tomorrow |

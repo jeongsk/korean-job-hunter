@@ -19,6 +19,8 @@ CREATE TABLE jobs (
   work_type TEXT,
   experience TEXT,
   salary TEXT,
+  salary_min INTEGER,
+  salary_max INTEGER,
   deadline TEXT,
   reward TEXT,
   commute_min INTEGER,

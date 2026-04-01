@@ -72,6 +72,8 @@ Each scraped job must have these fields:
 | work_type | | All | `remote`, `hybrid`, `onsite` |
 | location | | All | City/district |
 | salary | | JK, LinkedIn | e.g., "5000~8000만원" |
+| salary_min | INTEGER | all | normalized minimum (만원, annual) — populated by normalizeSalary() |
+| salary_max | INTEGER | all | normalized maximum (만원, annual) — populated by normalizeSalary() |
 | reward | | Wanted | e.g., "합격보상금 100만원" |
 | deadline | | JK | Application deadline |
 | culture_keywords | | All (detail page) | JSON array: ["innovative","collaborative","work_life_balance",...] |
@@ -91,7 +93,8 @@ Each scraped job must have these fields:
 6. Run cross-source dedup: `node scripts/dedup-jobs.js --dry-run` (preview) or `node scripts/dedup-jobs.js` (apply)
 
 ```bash
-sqlite3 data/jobs.db "INSERT OR IGNORE INTO jobs (id, source, title, company, url, content, location, work_type, experience, salary, deadline, reward, commute_min) VALUES (...)"
+sqlite3 data/jobs.db "INSERT OR IGNORE INTO jobs (id, source, title, company, url, content, location, work_type, experience, salary, salary_min, salary_max, deadline, reward, commute_min) VALUES (...)"
+# salary_min/salary_max: use normalizeSalary(salary) → {min, max} in 만원 (annual)
 ```
 
 ## Rate Limiting
