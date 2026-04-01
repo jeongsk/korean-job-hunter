@@ -3,7 +3,7 @@ name: job-tracking
 description: "Job application status tracking with SQLite CRUD, Korean NLP query parsing, pipeline analytics, and smart suggestions"
 ---
 
-# Job Tracking Skill v2.1 (EXP-035: Deadline Urgency)
+# Job Tracking Skill v2.2 (EXP-050: NLP Parser v3 — Bug Fixes + New Filters)
 
 ## Korean Natural Language Query Parsing
 
@@ -28,11 +28,13 @@ description: "Job application status tracking with SQLite CRUD, Korean NLP query
 | 하이브리드 | `j.work_type = 'hybrid'` |
 | 서울/판교/강남 etc. | `j.location LIKE '%{keyword}%'` |
 | 점수높은/스코어/매칭 | `ORDER BY m.score DESC` |
-| 마감임박/곧마감 | deadline ≤ 7 days (see Urgency below) |
-| 이번 주 마감 | deadline within this week |
-| 오늘 마감 / 내일 마감 | deadline = today / tomorrow |
-| N일 남은 | deadline within N days |
+| 최신순 | `ORDER BY a.updated_at DESC` |
 | 마감순/마감 빠른순 | `ORDER BY j.deadline ASC` |
+| 연봉/급여/연수입 | `j.salary IS NOT NULL AND j.salary != ''` |
+| 마감임박/곧마감 | deadline ≤ 7 days |
+| 오늘 마감 | deadline = today |
+| 내일 마감 | deadline = tomorrow |
+| N일 남은 | deadline within N days |
 | 기한 있는/데드라인 있는 | `j.deadline IS NOT NULL AND j.deadline != ''` |
 
 ### Deadline Urgency Scoring (EXP-035)
@@ -80,6 +82,13 @@ parse_korean_query(input):
   filters = []
   order = "a.updated_at DESC"
   
+  consumedWords = set()
+  
+  // Sorting (consume keywords early to avoid keyword spill)
+  if matches "최신순" → order = "a.updated_at DESC", consume
+  if matches "(점수|매칭)순" → order = "m.score DESC", consume
+  if matches "마감순|마감 빠른순" → order = "j.deadline ASC", consume
+  
   // Status detection
   if matches "면접" → filters.push("a.status = 'interview'")
   if matches "지원(완료|한|했)" → filters.push("a.status = 'applied'")
@@ -88,28 +97,40 @@ parse_korean_query(input):
   if matches "(탈락|거절|떨어)" → filters.push("a.status IN ('rejected','declined')")
   if matches "지원(예정|할)" → filters.push("a.status = 'applying'")
   
-  // Negation (빼고/제외/말고): negate only the entity immediately before the marker
-  // e.g. "카카오 지원한 거 중에 토스 빼고" → 카카오 LIKE, 토스 NOT LIKE
-  // e.g. "지원한 거 중에 판교 빼고" → 판교 NOT LIKE location
-  if matches "(빼고|제외|말고)" + entity immediately before marker → that entity gets NOT
-  if no entity was negated → fall back to inverting status filter
+  // Salary filter (EXP-050)
+  if matches "(연봉|급여|연수입)" → filters.push("j.salary IS NOT NULL AND j.salary != ''")
+  
+  // Deadline urgency (EXP-050)
+  if matches "마감임박|곧마감" → filters.push("deadline within 7 days")
+  if matches "오늘 마감" → filters.push("deadline = today")
+  if matches "내일 마감" → filters.push("deadline = tomorrow")
+  if matches "(\d+)일 남은" → filters.push("deadline within N days")
+  if matches "기한 있는|데드라인 있는" → filters.push("j.deadline IS NOT NULL AND j.deadline != ''")
   
   // Work type
   if matches "(재택|원격|리모트)" → filters.push("j.work_type = 'remote'")
   if matches "하이브리드" → filters.push("j.work_type = 'hybrid'")
   
-  // Company/Title keyword (any 2+ char Korean word not matching above)
-  for each remaining Korean word (2+ chars):
-    if known_company(word) → filters.push("j.company LIKE '%{word}%'")
-    else → filters.push("(j.title LIKE '%{word}%' OR j.company LIKE '%{word}%' )")
+  // Negation (빼고/제외/말고): negate only the entity immediately before the marker
+  if matches "(빼고|제외|말고)" + entity immediately before marker → that entity gets NOT
+  if no entity was negated → fall back to inverting status filter
+  
+  // Companies (sort by length DESC — prevents 카카오 matching 카카오뱅크)
+  companies.sort((a,b) => b.length - a.length)
+  for each company:
+    if consumed by longer company → skip
+    apply with negation if immediately before 빼고/제외/말고
   
   // Location
   for each location keyword:
-    filters.push("j.location LIKE '%{keyword}%'")
+    apply with negation if immediately before 빼고/제외/말고
   
-  // Sorting
-  if matches "(점수|매칭)순" → order = "m.score DESC"
-  if matches "최신순" → order = "a.updated_at DESC"
+  // Remaining Korean keywords — BALANCED SQL QUOTES!
+  for each remaining Korean word (2+ chars) not in stopwords:
+    filters.push("(j.title LIKE '%{word}%' OR j.company LIKE '%{word}%')")
+  
+  // Negation fallback
+  if negation marker present but no entity negated → invert status filter
   
   return { filters, order }
 ```
