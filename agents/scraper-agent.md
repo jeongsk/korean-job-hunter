@@ -124,3 +124,14 @@ After scraping, report:
 - Total jobs collected per source
 - Jobs skipped (errors, duplicates)
 - Work type distribution (remote/hybrid/onsite)
+
+## Detail-Page Skill Extraction (EXP-059)
+
+When you open a job detail page, extract explicit tech skills from the qualification/requirements text. This is more accurate than title-based inference (EXP-052) for the matching algorithm.
+
+Priority for populating `job.skills`:
+1. Explicit skill tags from the listing (if available)
+2. **Detail-page extracted skills** (this step) — richest source
+3. Title-inferred skills (EXP-052) — fallback only
+
+See SKILL.md § "Detail-Page Skill Extraction" for the full pattern list (50+ skills covering languages, frameworks, DBs, infrastructure, data/ML).

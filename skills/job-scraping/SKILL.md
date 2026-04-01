@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v4.4 (EXP-057: Wanted Salary Extraction)
+# Job Scraping Skill v4.5 (EXP-059: Detail-Page Skill Extraction)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
@@ -463,6 +463,31 @@ node scripts/dedup-jobs.js
 # JSON output for programmatic use
 node scripts/dedup-jobs.js --json
 ```
+
+---
+
+## Detail-Page Skill Extraction (EXP-059)
+
+상세 페이지 본문에서 기술 스택을 자동 추출. Listing의 title-based inference (EXP-052)와互补적으로 동작.
+
+### When to use
+- 상세 페이지 열었을 때 (`.job-description`, 본문 전체)
+- Listing에서 skills 필드가 비어있을 때
+
+### Extraction
+```javascript
+// 50+ skill patterns: languages, frameworks, DBs, infra, data/ML
+// Handles Korean equivalents, disambiguation (Java≠JavaScript, Spring vs Spring Boot)
+// See test_detail_skill_extraction.js for full pattern list
+const detailSkills = extractSkillsFromDetail(pageText);
+// Merge with title-inferred skills, prefer detail skills when available
+```
+
+### Integration with Matching
+Detail-extracted skills supplement `job.skills` field. Priority:
+1. Explicit skills from API/scraped skill tags
+2. Detail-page extracted skills (EXP-059)
+3. Title-inferred skills (EXP-052)
 
 ---
 
