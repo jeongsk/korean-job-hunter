@@ -125,5 +125,36 @@ test('salary-no-leak-to-title',
   { salary: '연봉 5000~8000만원', title: v => !v.includes('연봉') && !v.includes('5000') }
 );
 
+// === Live data: English parenthetical cleanup (EXP-066) ===
+test('live-company-english-parens-in-company',
+  '풀스택 개발자룰루랩(lululab)경력 3-5년합격보상금 100만원',
+  { title: '풀스택 개발자', company: '룰루랩' }
+);
+
+test('live-company-english-parens-adjacent',
+  'Sr. Frontend Developer버티고우게임즈 (Vertigo Games)경력 8-15년합격보상금 100만원',
+  { title: 'Sr. Frontend Developer', company: '버티고우게임즈' }
+);
+
+test('live-company-english-parens-no-space',
+  'Senior Front-end Software Engineer제이앤피메디(JNPMEDI)경력 8-30년합격보상금 100만원',
+  { title: 'Senior Front-end Software Engineer', company: '제이앤피메디' }
+);
+
+test('live-company-english-parens-liner',
+  'Frontend Engineer Lead라이너(Liner)경력 7년 이상합격보상금 100만원',
+  { title: 'Frontend Engineer Lead', company: '라이너' }
+);
+
+test('live-title-keeps-tech-parens',
+  'Senior Web3 Engineer (DEX/Smart Contract)알에프디코리아경력 4-7년합격보상금 100만원',
+  { title: 'Senior Web3 Engineer (DEX/Smart Contract)', company: '알에프디코리아' }
+);
+
+test('live-title-keeps-cto-parens',
+  '글로벌 패션 파트너 사업_CTO(Chief Technology Officer)페칭경력 8년 이상합격보상금 100만원',
+  { title: '글로벌 패션 파트너 사업_CTO(Chief Technology Officer)', company: '페칭' }
+);
+
 console.log(`\n📊 Post-Process Wanted: ${passed}/${passed + failed} passed`);
 if (failed > 0) process.exit(1);

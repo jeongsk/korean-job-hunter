@@ -47,6 +47,9 @@ function titleSimilarity(a, b) {
     '개발자': 'developer', '엔지니어': 'engineer', '데이터': 'data',
     '분석가': 'analyst', '디자이너': 'designer', '매니저': 'manager',
     '데브옵스': 'devops', '모바일': 'mobile', '인프라': 'infrastructure',
+    '임베디드': 'embedded', '시니어': 'senior', '주니어': 'junior',
+    '플랫폼': 'platform', '솔루션': 'solution', '서버': 'server',
+    '시큐리티': 'security', '보안': 'security', '클라우드': 'cloud',
   };
   // Build reverse map too
   const enKoMap = {};
@@ -81,6 +84,37 @@ function titleSimilarity(a, b) {
   return intersection / union;
 }
 
+// Korean↔English company name equivalents (EXP-067)
+const companyKoEnMap = {
+  '카카오': 'kakao', '네이버': 'naver', '라인': 'line', '토스': 'toss',
+  '당근마켓': 'danggeun', '배달의민족': 'baemin', '우아한형제들': 'woowa',
+  '삼성': 'samsung', '쿠팡': 'coupang', '다음': 'daum', ' SK ': 'sk',
+  '현대': 'hyundai', '엘지': 'lg', '케이티': 'kt', 'SK': 'sk',
+  '카카오뱅크': 'kakaobank', '카카오페이': 'kakaopay', '네이버클라우드': 'navercloud',
+  '삼성전자': 'samsungelectronics', '토스뱅크': 'tossbank',
+  '리멤버': 'remember', '야놀자': 'yanolja', '직방': 'zigbang',
+  '스마일게이트': 'smilegate', '펄플닷': 'purpledot', '그린랩스': 'greenlabs',
+  '마켓컬리': 'kurly', '블라인드': 'blind', '리디': 'ridi', '야놀자': 'yanolja',
+};
+// Build reverse map (English → Korean)
+const companyEnKoMap = {};
+for (const [k, v] of Object.entries(companyKoEnMap)) {
+  if (!companyEnKoMap[v]) companyEnKoMap[v] = [];
+  companyEnKoMap[v].push(k);
+}
+
+function companyToCanonical(name) {
+  const n = companyNormalize(name);
+  if (!n) return '';
+  // Direct Korean match
+  if (companyKoEnMap[n]) return companyKoEnMap[n];
+  // Check if English name matches a value
+  for (const [ko, en] of Object.entries(companyKoEnMap)) {
+    if (n === en) return en;
+  }
+  return n; // fallback to normalized form
+}
+
 function companyMatch(a, b) {
   const na = companyNormalize(a);
   const nb = companyNormalize(b);
@@ -88,6 +122,10 @@ function companyMatch(a, b) {
   if (na === nb) return true;
   // One contains the other (e.g., "삼성" vs "삼성sds")
   if (na.includes(nb) || nb.includes(na)) return true;
+  // Korean↔English company name equivalents (EXP-067)
+  const ca = companyToCanonical(a);
+  const cb = companyToCanonical(b);
+  if (ca && cb && ca === cb) return true;
   return false;
 }
 
@@ -189,7 +227,7 @@ const testCases = [
     ],
     expectedDuplicates: 1,
   },
-  // Three sources, same job
+  // Three sources, same job (all 3 should be in one group)
   {
     name: "three-sources-same-job",
     jobs: [
@@ -198,6 +236,7 @@ const testCases = [
       { title: "Data Engineer", company: "LINE", source: "linkedin", url: "l2" },
     ],
     expectedDuplicates: 1, // one group of 3
+    expectedGroupSize: 3,  // all 3 sources should be in the group
   },
   // Partial overlap: Java/Spring vs Backend (should NOT match)
   {
@@ -246,6 +285,48 @@ const testCases = [
     ],
     expectedDuplicates: 1,
   },
+  // Korean↔English company equivalents (EXP-067)
+  {
+    name: "korean-english-company-kakao",
+    jobs: [
+      { title: "백엔드 개발자", company: "카카오", source: "wanted", url: "w12" },
+      { title: "Backend Developer", company: "Kakao", source: "linkedin", url: "l6" },
+    ],
+    expectedDuplicates: 1,
+  },
+  {
+    name: "korean-english-company-naver",
+    jobs: [
+      { title: "프론트엔드 개발자", company: "네이버", source: "jobkorea", url: "j12" },
+      { title: "Frontend Developer", company: "Naver", source: "linkedin", url: "l7" },
+    ],
+    expectedDuplicates: 1,
+  },
+  {
+    name: "korean-english-company-toss",
+    jobs: [
+      { title: "iOS 개발자", company: "토스", source: "wanted", url: "w13" },
+      { title: "iOS Developer", company: "Toss", source: "linkedin", url: "l8" },
+    ],
+    expectedDuplicates: 1,
+  },
+  {
+    name: "korean-english-company-samsung",
+    jobs: [
+      { title: "임베디드 개발자", company: "삼성", source: "wanted", url: "w14" },
+      { title: "Embedded Developer", company: "Samsung", source: "linkedin", url: "l9" },
+    ],
+    expectedDuplicates: 1,
+  },
+  // Korean↔English company NOT matching (false positive prevention)
+  {
+    name: "korean-english-no-false-positive-different-companies",
+    jobs: [
+      { title: "백엔드 개발자", company: "카카오", source: "wanted", url: "w15" },
+      { title: "백엔드 개발자", company: "Naver", source: "linkedin", url: "l10" },
+    ],
+    expectedDuplicates: 0,
+  },
 ];
 
 // ── Run tests ──
@@ -260,6 +341,14 @@ for (const tc of testCases) {
   if (tc.expectedDuplicates > 0) {
     for (const g of groups) {
       if (g.length < 2) detailOk = false;
+    }
+    // Check expected group size if specified (EXP-067)
+    if (tc.expectedGroupSize) {
+      const maxSize = Math.max(...groups.map(g => g.length));
+      if (maxSize < tc.expectedGroupSize) {
+        detailOk = false;
+        console.log(`   Group size ${maxSize} < expected ${tc.expectedGroupSize}`);
+      }
     }
   }
 

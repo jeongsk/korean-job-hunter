@@ -1,16 +1,19 @@
 {
-  "timestamp": "2026-04-01T18:04:00Z",
-  "experiment_id": "EXP-064",
-  "skill": "job-matching",
-  "focus": "detail_skill_similarity_map_expansion",
-  "hypothesis": "Extending similarity map with pairs for detail-extracted skills (GraphQL, Jenkins, Kafka, TensorFlow, etc.) improves matching accuracy for real scraped jobs that use these technologies",
+  "timestamp": "2026-04-01T21:04:00Z",
+  "experiment_id": "EXP-067",
+  "skill": "job-scraping",
+  "focus": "korean_english_company_equivalents_dedup",
+  "hypothesis": "LinkedIn uses English company names (Kakao, Naver) while Wanted/JobKorea use Korean (카카오, 네이버). Adding Korean↔English company equivalence map to cross-source dedup enables LinkedIn duplicates to be detected.",
   "metrics": {
-    "total_tests": "616 (all pass)",
+    "total_tests": "647 (all pass)",
     "npm_test": "working",
     "test_suites": 33,
     "all_passing": true,
-    "similarity_pairs": "40+",
-    "new_detail_skill_pairs": "11",
-    "discrimination": "PASS"
+    "cross_source_dedup_tests": "18 (was 13)",
+    "new_ko_en_company_tests": 5,
+    "ko_en_company_equivalents": 25,
+    "ko_en_title_equivalents_expanded": 9 new entries,
+    "regressions": 0,
+    "bug_found": "3-source dedup was silently dropping LinkedIn entries with English company names"
   }
 }

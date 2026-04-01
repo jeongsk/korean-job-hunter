@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v4.7 (EXP-063: Culture Extraction in Post-Processor)
+# Job Scraping Skill v4.9 (EXP-067: Korean↔English Company Equivalents for Cross-Source Dedup)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
@@ -419,15 +419,29 @@ agent-browser screenshot --annotate error.png
 
 ---
 
-## Cross-Source Deduplication (EXP-045)
+## Cross-Source Deduplication (EXP-045, EXP-067)
 
 Same job posted on Wanted, JobKorea, LinkedIn has different URLs. Fuzzy matching detects duplicates:
 
 ### Algorithm
-1. **Company match**: Normalize both company names (strip `(주)`, `㈜`, `주식회사`, case-insensitive). Must match exactly or one contains the other.
+1. **Company match**: Normalize both company names (strip `(주)`, `㈜`, `주식회사`, case-insensitive). Match exactly, substring, or via Korean↔English company equivalents (EXP-067).
 2. **Title similarity**: Normalize titles, compute token-based Jaccard with Korean↔English equivalents:
-   - 프론트엔드↔frontend, 백엔드↔backend, 풀스택↔fullstack, 개발자↔developer, 엔지니어↔engineer, 데이터↔data, 데브옵스↔devops, etc.
+   - 프론트엔드↔frontend, 백엔드↔backend, 풀스택↔fullstack, 개발자↔developer, 엔지니어↔engineer, 데이터↔data, 데브옵스↔devops, 임베디드↔embedded, 보안↔security, 클라우드↔cloud, etc.
 3. **Threshold**: Same company + title similarity ≥ 0.6 → duplicate
+
+### Korean↔English Company Equivalents (EXP-067)
+
+LinkedIn uses English company names (Kakao, Naver, LINE) while Wanted/JobKorea use Korean (카카오, 네이버, 라인). Map bridges this gap:
+
+```javascript
+const companyKoEnMap = {
+  '카카오': 'kakao', '네이버': 'naver', '라인': 'line', '토스': 'toss',
+  '당근마켓': 'danggeun', '배달의민족': 'baemin', '우아한형제들': 'woowa',
+  '삼성': 'samsung', '쿠팡': 'coupang', '현대': 'hyundai', '엘지': 'lg',
+  '카카오뱅크': 'kakaobank', '토스뱅크': 'tossbank', '마켓컬리': 'kurly',
+  // ... see test_cross_source_dedup.js for full list
+};
+```
 
 ### When merging duplicates, keep the entry with:
 - Most complete fields (prefer the one with salary, deadline, culture_keywords)
@@ -440,6 +454,9 @@ const koEnMap = {
   '개발자': 'developer', '엔지니어': 'engineer', '데이터': 'data',
   '분석가': 'analyst', '디자이너': 'designer', '매니저': 'manager',
   '데브옵스': 'devops', '모바일': 'mobile', '인프라': 'infrastructure',
+  '임베디드': 'embedded', '시니어': 'senior', '주니어': 'junior',
+  '플랫폼': 'platform', '솔루션': 'solution', '서버': 'server',
+  '시큐리티': 'security', '보안': 'security', '클라우드': 'cloud',
 };
 ```
 

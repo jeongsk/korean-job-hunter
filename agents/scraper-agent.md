@@ -88,7 +88,7 @@ Each scraped job must have these fields:
    - Wait for load (`sleep 5-8` + `wait --load networkidle`)
    - Extract using source-specific code from SKILL.md
    - Handle errors (fallback selectors, retry with different UA)
-4. Merge results, remove duplicates (by URL + fuzzy cross-source dedup)
+4. Merge results, remove duplicates (by URL + fuzzy cross-source dedup with Korean↔English company equivalents: 카카오↔Kakao, 네이버↔Naver, etc.)
 5. Save to SQLite (`data/jobs.db`)
 6. Run cross-source dedup: `node scripts/dedup-jobs.js --dry-run` (preview) or `node scripts/dedup-jobs.js` (apply)
 

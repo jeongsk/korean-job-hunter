@@ -98,7 +98,7 @@ function parseWantedJob(raw) {
   t = t.replace(/(경력)/g, ' $1').replace(/(합격|보상금|성과금)/g, ' $1').trim();
 
   // === Remove brackets ===
-  t = t.replace(/\[.*?\]/g, '').replace(/\//g, ' ').trim();
+  t = t.replace(/\[.*?\]/g, '').replace(/(?!\([^)]*)\/(?![^(]*\))/g, ' ').trim();
 
   // === Bare location ===
   if (!r.location) {
@@ -172,6 +172,28 @@ function parseWantedJob(raw) {
     r.company = cm.replace(/^[\s㈜]+/, '').replace(/^\(주\)\s*/, '');
     if (!cm.includes('㈜') && !cm.includes('주식회사') && !cm.includes('(주)')) {
       t = t.replace(new RegExp(escapeRegExp(cm), 'g'), ' ');
+    }
+  }
+
+  // === Strip English parenthetical from company name (EXP-066) ===
+  // e.g., "룰루랩(lululab)" → "룰루랩", "라이너(Liner)" → "라이너"
+  const engParenInCompany = r.company.match(/^(.+?)\s*\(([A-Za-z][A-Za-z0-9\s&.\-]+)\)$/);
+  if (engParenInCompany) {
+    const engName = engParenInCompany[2].trim();
+    r.company = engParenInCompany[1].trim();
+    // Also remove the English name from text
+    t = t.replace(new RegExp('\\(\\s*' + escapeRegExp(engName) + '\\s*\\)', 'g'), ' ');
+  }
+
+  // === Remove adjacent English parenthetical after company removal (EXP-066) ===
+  // e.g., "버티고우게임즈 (Vertigo Games)" → company extracted as "버티고우게임즈",
+  // but "(Vertigo Games)" still in text. Remove it.
+  if (r.company && r.company !== '회사명 미상' && r.company.length >= 2) {
+    const escCmp = escapeRegExp(r.company);
+    // Match: company name (removed → spaces) followed by optional spaces then (English)
+    const adjParen = t.match(new RegExp('\\s+\\(\\s*([A-Z][A-Za-z0-9\\s&.\\-]+)\\s*\\)'));
+    if (adjParen && !/\//.test(adjParen[0]) && adjParen[1].trim().length > 2) {
+      t = t.replace(adjParen[0], ' ');
     }
   }
 
