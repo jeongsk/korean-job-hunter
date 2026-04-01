@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v4.2 (EXP-053: Post-Processing Pipeline)
+# Job Scraping Skill v4.3 (EXP-054: Cross-Source Dedup Script)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
@@ -448,6 +448,18 @@ SELECT a.id, a.source, a.title, a.company, b.id as dup_id, b.source as dup_sourc
 FROM jobs a JOIN jobs b ON a.id < b.id
 WHERE replace(replace(replace(lower(a.company),'(주)',''),'㈜',''),'주식회사','')
     = replace(replace(replace(lower(b.company),'(주)',''),'㈜',''),'주식회사','');
+```
+
+### CLI: Run dedup script (EXP-054)
+```bash
+# Dry run (show duplicates without modifying DB)
+node scripts/dedup-jobs.js --dry-run
+
+# Actually remove duplicates (keeps entry with most complete fields)
+node scripts/dedup-jobs.js
+
+# JSON output for programmatic use
+node scripts/dedup-jobs.js --json
 ```
 
 ---

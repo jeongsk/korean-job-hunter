@@ -86,8 +86,9 @@ Each scraped job must have these fields:
    - Wait for load (`sleep 5-8` + `wait --load networkidle`)
    - Extract using source-specific code from SKILL.md
    - Handle errors (fallback selectors, retry with different UA)
-4. Merge results, remove duplicates (by URL + fuzzy cross-source dedup via SKILL.md)
+4. Merge results, remove duplicates (by URL + fuzzy cross-source dedup)
 5. Save to SQLite (`data/jobs.db`)
+6. Run cross-source dedup: `node scripts/dedup-jobs.js --dry-run` (preview) or `node scripts/dedup-jobs.js` (apply)
 
 ```bash
 sqlite3 data/jobs.db "INSERT OR IGNORE INTO jobs (id, source, title, company, url, content, location, work_type, experience, salary, deadline, reward, commute_min) VALUES (...)"
