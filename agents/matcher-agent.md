@@ -161,10 +161,10 @@ These must hold after scoring:
 
 ```bash
 # Save match
-sqlite3 data/jobs.db "INSERT OR REPLACE INTO matches (id, job_id, score, skills, experience, culture, career, location, created_at) VALUES (lower(hex(randomblob(16))), '{job_id}', {score}, {skills}, {experience}, {culture}, {career}, {location}, datetime('now'))"
+sqlite3 data/jobs.db "INSERT OR REPLACE INTO matches (id, job_id, resume_id, overall_score, skill_score, experience_score, culture_score, career_score, location_score, match_details, created_at) VALUES (lower(hex(randomblob(16))), '{job_id}', 'master', {overall}, {skill}, {exp}, {culture}, {career}, {location}, '{json_details}', datetime('now'))"
 
-# Query top matches
-sqlite3 -json data/jobs.db "SELECT j.title, j.company, m.score FROM jobs j JOIN matches m ON j.id = m.job_id ORDER BY m.score DESC LIMIT 10"
+# Query top matches with component breakdown
+sqlite3 -json data/jobs.db "SELECT j.title, j.company, m.overall_score, m.skill_score, m.experience_score, m.culture_score, m.career_score, m.location_score FROM jobs j JOIN matches m ON j.id = m.job_id ORDER BY m.overall_score DESC LIMIT 10"
 ```
 
 ## Error Handling

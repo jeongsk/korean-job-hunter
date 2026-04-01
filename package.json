@@ -9,6 +9,11 @@
       "./extensions/index.ts"
     ]
   },
+  "scripts": {
+    "test": "node run_all_tests.js",
+    "test:verbose": "node run_all_tests.js --verbose",
+    "test:filter": "node run_all_tests.js --filter"
+  },
   "dependencies": {
     "playwright": "^1.58.2",
     "sqlite3": "^6.0.1"
