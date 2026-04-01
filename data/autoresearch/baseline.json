@@ -1,15 +1,16 @@
 {
-  "timestamp": "2026-04-01T12:04:00Z",
-  "experiment_id": "EXP-058",
-  "skill": "job-matching",
-  "focus": "schema_alignment",
-  "hypothesis": "Matches table schema drifted from matcher v4.2 — missing culture/career/location score columns. No unified test runner existed for 29+ test files.",
+  "timestamp": "2026-04-01T13:04:00Z",
+  "experiment_id": "EXP-059",
+  "skill": "job-scraping",
+  "focus": "detail_skill_extraction",
+  "hypothesis": "Detail pages contain rich qualification text with explicit tech mentions not captured by title-based inference. Extracting skills from detail body text provides significantly better data for matching.",
   "metrics": {
-    "matches_scoring_columns": "6/6",
-    "schema_alignment_tests": "9/9",
-    "total_tests": "511 (all pass)",
+    "detail_skill_patterns": "50+",
+    "detail_extraction_tests": "12/12",
+    "live_wanted_validation": "PASS (7 skills from 누리미디어 backend)",
+    "total_tests": "523 (all pass)",
     "npm_test": "working",
-    "test_suites": 29,
+    "test_suites": 30,
     "all_passing": true
   }
 }
