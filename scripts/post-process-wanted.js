@@ -58,10 +58,10 @@ function parseWantedJob(raw) {
   }
 
   if (!allText || allText.length < 3) {
-    return { id, title: '', company: '', experience: '', salary: '', work_type: 'onsite', location: '', reward: '', skills: '', deadline: '', culture_keywords: [], link };
+    return { id, title: '', company: '', experience: '', salary: '', salary_min: null, salary_max: null, work_type: 'onsite', location: '', reward: '', skills: '', deadline: '', culture_keywords: [], link };
   }
 
-  let r = { id, title: '', company: '', experience: '', salary: '', work_type: 'onsite', location: '', reward: '', skills: '', deadline: '', culture_keywords: [], link };
+  let r = { id, title: '', company: '', experience: '', salary: '', salary_min: null, salary_max: null, work_type: 'onsite', location: '', reward: '', skills: '', deadline: '', culture_keywords: [], link };
 
   let t = allText;
 
@@ -119,7 +119,7 @@ function parseWantedJob(raw) {
   if (rm) { r.reward = rm[0]; t = t.replace(rm[0], ' '); }
 
   // === Salary (from detail pages or inline) ===
-  const sm = t.match(/(연봉|월급|연수입)[\s]*(\d{1,5}[~-]\d{1,5}만원|\d{1,5}만원\s*이상|면접후결정)/);
+  const sm = t.match(/(연봉|월급|연수입)[\s]*(\d{1,5}[~-]\d{1,5}만원|\d{1,5}만원\s*이상|면접후결정|\d+(?:\.\d+)?[~-]\d+(?:\.\d+)?억|\d+(?:\.\d+)?억)/);
   if (sm) { r.salary = sm[0]; t = t.replace(sm[0], ' '); }
   // Standalone 면접후결정 (not preceded by 연봉/월급)
   if (!r.salary) {
@@ -197,14 +197,66 @@ function parseWantedJob(raw) {
     }
   }
 
-  // === Culture keywords from full text (EXP-063) ===
   r.culture_keywords = extractCultureKeywords(allText);
+
+  // === Normalize salary to salary_min/salary_max (EXP-068) ===
+  const salaryNorm = normalizeSalary(r.salary);
+  if (salaryNorm) {
+    r.salary_min = salaryNorm.min;
+    r.salary_max = salaryNorm.max;
+  } else {
+    r.salary_min = null;
+    r.salary_max = null;
+  }
 
   // === Title = whatever remains ===
   r.title = t.replace(/[,·\s]+/g, ' ').trim() || '직무 미상';
   if (!r.company || r.company.length < 2) r.company = '회사명 미상';
 
   return r;
+}
+
+// === Salary Normalization (EXP-068) ===
+// Converts raw salary text to numeric salary_min/salary_max (만원, annual)
+function normalizeSalary(raw) {
+  if (!raw || typeof raw !== 'string') return null;
+  const text = raw.trim();
+
+  if (/면접후결정|회사내규|협의|상여|별도/.test(text)) return null;
+
+  let min = null, max = null, isMonthly = false;
+
+  if (/월급|월\s*급|개월/.test(text)) isMonthly = true;
+
+  const rangeMatch = text.match(/(\d[\d,]*)\s*[~\-]\s*(\d[\d,]*)\s*만?\s*원/);
+  if (rangeMatch) {
+    min = parseInt(rangeMatch[1].replace(/,/g, ''));
+    max = parseInt(rangeMatch[2].replace(/,/g, ''));
+  } else {
+    const singleMatch = text.match(/(\d[\d,]*)\s*만?\s*원/);
+    if (singleMatch) {
+      const val = parseInt(singleMatch[1].replace(/,/g, ''));
+      if (/이상|↑/.test(text)) { min = val; } else { min = val; max = val; }
+    }
+  }
+
+  if (min === null) {
+    const eokRangeMatch = text.match(/(\d+(?:\.\d+)?)\s*[~\-]\s*(\d+(?:\.\d+)?)\s*억/);
+    if (eokRangeMatch) {
+      min = Math.round(parseFloat(eokRangeMatch[1]) * 10000);
+      max = Math.round(parseFloat(eokRangeMatch[2]) * 10000);
+    } else {
+      const eokMatch = text.match(/(\d+(?:\.\d+)?)\s*억/);
+      if (eokMatch) {
+        const manwon = Math.round(parseFloat(eokMatch[1]) * 10000);
+        if (/이상|↑/.test(text)) { min = manwon; } else { min = manwon; max = manwon; }
+      }
+    }
+  }
+
+  if (min === null) return null;
+  if (isMonthly) { min *= 12; if (max) max *= 12; }
+  return { min, max: max || min };
 }
 
 // CLI: read JSON array from stdin, parse each, output to stdout
@@ -218,4 +270,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { parseWantedJob, extractCultureKeywords, escapeRegExp };
+module.exports = { parseWantedJob, extractCultureKeywords, normalizeSalary, escapeRegExp };

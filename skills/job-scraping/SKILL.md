@@ -561,6 +561,14 @@ function normalizeSalary(raw) {
 - "월급 400 이상" → `normalizeSalary(salary).min >= 4800` (monthly→annual auto-convert)
 - Negotiable salaries (면접후결정) return `null` — excluded from threshold checks, pass range filters
 
+### Salary Pipeline Integration (EXP-068)
+
+`post-process-wanted.js` now auto-populates `salary_min`/`salary_max` from parsed salary text:
+- `normalizeSalary()` is called on `r.salary` after extraction
+- `salary_min`/`salary_max` are numeric (만원, annual) — ready for DB INSERT and NLP queries
+- 억 patterns captured by expanded salary regex: `(연봉|월급|연수입)[\s]*(...|억 patterns)`
+- Exported: `const { normalizeSalary } = require('./scripts/post-process-wanted')`
+
 ## 디버깅
 
 ```bash

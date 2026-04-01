@@ -138,3 +138,9 @@ Priority for populating `job.skills`:
 3. Title-inferred skills (EXP-052) — fallback only
 
 See SKILL.md § "Detail-Page Skill Extraction" for the full pattern list (50+ skills covering languages, frameworks, DBs, infrastructure, data/ML).
+
+## Salary Normalization (EXP-068)
+
+When parsing Wanted cards, salary text (연봉 5000~8000만원, 월급 300~500만원, 연봉 1~2억) is now auto-normalized to `salary_min`/`salary_max` (만원, annual). These numeric fields go straight into the DB and enable NLP salary queries (연봉 5000 이상) without runtime normalization.
+
+The 억 pattern is also captured during salary extraction (e.g., 연봉 1~2억 → salary_min: 10000, salary_max: 20000).
