@@ -4,106 +4,15 @@
  * 
  * This tests the complete data flow from raw scraped text through to queryable results,
  * catching integration gaps between individual component tests.
+ *
+ * EXP-056: parseWantedJob now imported from production (scripts/post-process-wanted.js)
  */
 
 const fs = require('fs');
 const path = require('path');
+const { parseWantedJob } = require('./scripts/post-process-wanted');
 
-// ─── Parse functions (synced from SKILL.md v4.1) ───
-
-function parseWantedJob(allText) {
-  let result = { title: '', company: '', experience: '', reward: '', salary: '', work_type: '', location: '' };
-
-  let workingText = allText
-    .replace(/(경력)/g, ' $1')
-    .replace(/(합격|보상금|성과금)/g, ' $1')
-    .replace(/\[.*?\]/g, '')
-    .replace(/\//g, ' ')
-    .trim();
-
-  const expMatchKorean = workingText.match(/경력[\s]*(\d+[~-]\d+년|\d+년\s*이상|\d+년↑|무관)/);
-  if (expMatchKorean) {
-    result.experience = '경력 ' + expMatchKorean[1];
-    workingText = workingText.replace(expMatchKorean[0], ' ').trim();
-  }
-
-  const rewardMatch = workingText.match(/(보상금|합격금|성과금)[\s]*(\d[\d,]*만원|\d[\d,]*(?:천)?원)/);
-  if (rewardMatch) {
-    result.reward = rewardMatch[0];
-    workingText = workingText.replace(rewardMatch[0], ' ').trim();
-  }
-
-  // Clean noise
-  workingText = workingText.replace(/\s*합격\s*/g, ' ').replace(/\s+/g, ' ').trim();
-
-  // Work type detection (EXP-025)
-  const workTypeMap = { '원격': 'remote', '재택': 'remote', '리모트': 'remote', '하이브리드': 'hybrid', '혼합': 'hybrid' };
-  for (const [kw, wt] of Object.entries(workTypeMap)) {
-    if (workingText.includes(kw)) {
-      result.work_type = wt;
-      workingText = workingText.replace(new RegExp(kw, 'g'), ' ').trim();
-    }
-  }
-
-  // Location detection (EXP-025)
-  const cityKeywords = ['서울', '판교', '강남', '영등포', '성수', '마포', '용산', '부산', '대전', '분당', '일산'];
-  for (const city of cityKeywords) {
-    if (workingText.includes(city)) {
-      result.location = city;
-      break;
-    }
-  }
-
-  // Company extraction
-  const companyStrategies = [
-    () => { const m = workingText.match(/(주식회사|유한회사|㈜)\s*([가-힣]+)/); return m ? m[0].replace(/(주식회사|유한회사|㈜)\s*/, '') : null; },
-    () => { const m = workingText.match(/\(주\)\s*([가-힣]+)/); return m ? m[1] : null; },
-    () => { const m = workingText.match(/㈜([가-힣]+)/); return m ? m[1] : null; },
-  ];
-
-  for (const strategy of companyStrategies) {
-    const company = strategy();
-    if (company) { result.company = company; break; }
-  }
-
-  // Backward-walk company extraction (EXP-033/EXP-038)
-  // Walk backward from title+company boundary using known suffixes and indicators
-  if (!result.company) {
-    // Known company database (subset)
-    const knownCompanies = ['카카오', '네이버', '토스', '라인', '쿠팡', '배달의민족', '당근마켓'];
-    for (const co of knownCompanies) {
-      if (workingText.includes(co)) {
-        result.company = co;
-        workingText = workingText.replace(co, ' ').trim();
-        break;
-      }
-    }
-  }
-
-  // Fallback: NumKorean pattern or longest Korean suffix
-  if (!result.company) {
-    // Try to split title+company at known title suffixes
-    const titleSuffixes = ['개발자', '엔지니어', '매니저', '디자이너'];
-    for (const suffix of titleSuffixes) {
-      const idx = workingText.lastIndexOf(suffix);
-      if (idx >= 0) {
-        const after = workingText.slice(idx + suffix.length).trim();
-        if (after.length >= 2) {
-          result.company = after;
-          workingText = workingText.slice(0, idx + suffix.length).trim();
-          break;
-        }
-      }
-    }
-  }
-
-  // Title: remaining text minus company
-  result.title = workingText.replace(result.company || '', '').replace(/\s+/g, ' ').trim();
-  // Clean up title
-  result.title = result.title.replace(/^\s+|\s+$/g, '');
-
-  return result;
-}
+// ─── JobKorea Parse function (no production module yet) ───
 
 function parseJobKoreaJob(lines) {
   let result = { title: '', company: '', experience: '', location: '', deadline: '', salary: '' };
