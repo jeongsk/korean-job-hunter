@@ -32,12 +32,14 @@ const TIER2 = { // 75%
   'fastapi': ['python'], 'python': ['fastapi', 'django', 'flask'],
   'django': ['python'], 'flask': ['python'],
   'aws': ['gcp', 'azure', 'cloud'], 'gcp': ['aws', 'azure', 'cloud'], 'azure': ['aws', 'gcp', 'cloud'],
+  'java': ['kotlin'], 'kotlin': ['java'], // JVM interoperable (EXP-062)
+  'react': ['react native'], 'react native': ['react'], // shared React paradigm (EXP-062)
 };
 
 const TIER3 = { // 25%
-  'react': ['vue'], 'vue': ['react'],
+  'react': ['vue', 'svelte'], 'vue': ['react', 'svelte'], 'svelte': ['react', 'vue'],
   'node.js': ['python'], 'python': ['node.js'],
-  'aws': ['docker'], 'docker': ['aws'],
+  'aws': ['docker'], 'docker': ['aws', 'kubernetes'], 'kubernetes': ['docker'], // container ecosystem (EXP-062)
   'kubernetes': ['container'], 'container': ['kubernetes'],
   'sql': ['mongodb'], 'mongodb': ['sql'],
 };
@@ -397,7 +399,11 @@ const simTests = [
   ['Python', 'Django', 0.75],
   ['React', 'Vue', 0.25],
   ['React', 'Java', 0],
-  ['Docker', 'Kubernetes', 0], // not in any tier together directly
+  ['Docker', 'Kubernetes', 0.25], // container ecosystem (EXP-062)
+  ['Java', 'Kotlin', 0.75], // JVM interoperable (EXP-062)
+  ['React', 'React Native', 0.75], // shared React paradigm (EXP-062)
+  ['Svelte', 'Vue', 0.25], // component frameworks (EXP-062)
+  ['Svelte', 'React', 0.25], // component frameworks (EXP-062)
 ];
 for (const [a, b, expected] of simTests) {
   const actual = getSimilarity(a, b);

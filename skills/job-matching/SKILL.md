@@ -56,11 +56,14 @@ This prevents infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflati
 - FastAPI ↔ Python
 - Django ↔ Python
 - AWS ↔ GCP ↔ Azure ↔ Cloud
+- Java ↔ Kotlin (JVM interoperable — EXP-062)
+- React ↔ React Native (shared React paradigm — EXP-062)
 
 ### Tier 3: Partial Overlap (25%)
-- React ↔ Vue (frontend frameworks)
+- React ↔ Vue ↔ Svelte (frontend frameworks — EXP-062)
 - Node.js ↔ Python (server-side)
 - AWS ↔ Docker (cloud/containers)
+- Docker ↔ Kubernetes (container ecosystem — EXP-062)
 - Kubernetes ↔ Container
 - SQL ↔ NoSQL (data handling)
 
