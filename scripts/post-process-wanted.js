@@ -1,10 +1,11 @@
 // Post-processing module for raw Wanted scrape data
 // Takes raw concatenated text from agent-browser output and applies
 // the validated parsing logic to produce clean structured fields.
+// EXP-063: Added culture keyword extraction (extractCultureKeywords)
 //
 // Usage:
 //   node scripts/post-process-wanted.js < input.json > output.json
-//   const { parseWantedJob } = require('./scripts/post-process-wanted');
+//   const { parseWantedJob, extractCultureKeywords } = require('./scripts/post-process-wanted');
 
 function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
@@ -18,6 +19,26 @@ const KNOWN_COMPANIES = [
   '111퍼센트'
 ];
 const TITLE_SUFFIXES = /^(개발자|엔지니어|매니저|디자이너|기획자|분석가|리더|리드|컨설턴트|전문가|디렉터|과장|차장|부장|대리|사원|인턴|정규직|계약직|PD|PM|CTO|CEO|COO|모집|채용|공채|급구|급충|담당|연구원|설계자|운영자)/;
+
+// === Culture keyword extraction (EXP-063) ===
+const CULTURE_PATTERNS = {
+  innovative: /(혁신|도전|창의|크리에이티브|creative|innovation|challenge|새로운|실험|experiment)/i,
+  collaborative: /(협업|팀워크|소통|협력|collaborat|teamwork|communication|partnership|함께|공동|수평적|가로형|크로스\s*펑셔널|cross[\s-]?functional)/i,
+  fast_paced: /(빠른|agile|실시간|스타트업|fast[\s-]?paced|rapid|빠르게|민첩|릴리즈|release|스프린트|sprint|iterations?)/i,
+  structured: /(체계|프로세스|systematic|process|체계적|조직적|표준화|qa|품질관리|code\s*review|코드리뷰|가이드라인|guideline)/i,
+  learning_focused: /(성장|학습|learning|growth|교육|워크샵|컨퍼런스|개발자\s*커뮤니티|스터디|멘토|멘토링|mentoring|세미나|사내강의|도서지원|시험비지원)/i,
+  autonomous: /(자율|독립|autonomous|independent|자기주도|오너십|ownership|주도적|자유로운|자유도|discretion)/i,
+  work_life_balance: /(워라밸|워크라이프밸런스|work[\s_-]?life[\s_-]?balance|wlb|유연근무|flexible\s*(working|hours|time)|시차출근|자유출퇴근|자율출근|연차|휴가|sabbatical|리프레시|refresh|휴식|healing|가족친화|family[\s-]?friendly)/i,
+};
+
+function extractCultureKeywords(text) {
+  if (!text) return [];
+  const keywords = [];
+  for (const [keyword, pattern] of Object.entries(CULTURE_PATTERNS)) {
+    if (pattern.test(text)) keywords.push(keyword);
+  }
+  return keywords;
+}
 
 function parseWantedJob(raw) {
   // Handle both single raw text string and structured raw object
@@ -37,10 +58,10 @@ function parseWantedJob(raw) {
   }
 
   if (!allText || allText.length < 3) {
-    return { id, title: '', company: '', experience: '', salary: '', work_type: 'onsite', location: '', reward: '', skills: '', deadline: '', link };
+    return { id, title: '', company: '', experience: '', salary: '', work_type: 'onsite', location: '', reward: '', skills: '', deadline: '', culture_keywords: [], link };
   }
 
-  let r = { id, title: '', company: '', experience: '', salary: '', work_type: 'onsite', location: '', reward: '', skills: '', deadline: '', link };
+  let r = { id, title: '', company: '', experience: '', salary: '', work_type: 'onsite', location: '', reward: '', skills: '', deadline: '', culture_keywords: [], link };
 
   let t = allText;
 
@@ -141,7 +162,8 @@ function parseWantedJob(raw) {
 
   // Fallback: trailing Korean word that looks like a company (2-6 chars)
   // Block common non-company words that appear in job listings (EXP-055)
-  const NOT_COMPANY = /^(모집|채용|공채|경력|신입|리드|담당|급구|급충|정규직|계약직|인턴|임원|사원|연구원|분석가|설계자|기획자|운영자|매니저|디렉터|개발자|엔지니어|프로그래머|디자이너|리더|컨설턴트|전문가|과장|차장|부장|대리|어시스턴트)$/;  if (!cm) {
+    const NOT_COMPANY = /^(모집|채용|공채|경력|신입|리드|담당|급구|급충|정규직|계약직|인턴|임원|사원|연구원|분석가|설계자|기획자|운영자|매니저|디렉터|개발자|엔지니어|프로그래머|디자이너|리더|컨설턴트|전문가|과장|차장|부장|대리|어시스턴트)$/;
+  if (!cm) {
     const tk = t.match(/([가-힣]{2,6})\s*$/);
     if (tk && !NOT_COMPANY.test(tk[1])) cm = tk[1];
   }
@@ -152,6 +174,9 @@ function parseWantedJob(raw) {
       t = t.replace(new RegExp(escapeRegExp(cm), 'g'), ' ');
     }
   }
+
+  // === Culture keywords from full text (EXP-063) ===
+  r.culture_keywords = extractCultureKeywords(allText);
 
   // === Title = whatever remains ===
   r.title = t.replace(/[,·\s]+/g, ' ').trim() || '직무 미상';
@@ -171,4 +196,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { parseWantedJob, escapeRegExp };
+module.exports = { parseWantedJob, extractCultureKeywords, escapeRegExp };

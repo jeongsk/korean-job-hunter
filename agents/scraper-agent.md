@@ -76,7 +76,7 @@ Each scraped job must have these fields:
 | salary_max | INTEGER | all | normalized maximum (만원, annual) — populated by normalizeSalary() |
 | reward | | Wanted | e.g., "합격보상금 100만원" |
 | deadline | | JK | Application deadline |
-| culture_keywords | | All (detail page) | JSON array: ["innovative","collaborative","work_life_balance",...] |
+| culture_keywords | | All (card + detail page) | JSON array: ["innovative","collaborative","work_life_balance",...] — now auto-extracted from card text via post-processor (EXP-063) |
 | commute_min | | All | From Kakao Map API (optional) |
 
 ## Workflow

@@ -156,7 +156,7 @@ for (const tc of tests) {
 
 // === Integration test: culture score with extracted keywords ===
 function calculateCultureScore(jobCultureKeywords, candidatePreferences) {
-  if (!jobCultureKeywords || jobCultureKeywords.length === 0) return 70;
+  if (!jobCultureKeywords || jobCultureKeywords.length === 0) return 50; // EXP-063: aligned with test_validated_matching.js
   let matches = 0;
   for (const kw of jobCultureKeywords) {
     const pref = candidatePreferences[kw];
@@ -183,7 +183,7 @@ const mismatch = calculateCultureScore(["structured"], candidate);
 
 const integrationTests = [
   { id: "CULTURE-SCORE-01", got: withCulture > 70, expect: true, desc: `culture-rich job scores >70: got ${withCulture}` },
-  { id: "CULTURE-SCORE-02", got: withoutCulture === 70, expect: true, desc: `no-culture job defaults to 70` },
+  { id: "CULTURE-SCORE-02", got: withoutCulture === 50, expect: true, desc: `no-culture job defaults to 50 (neutral)` },
   { id: "CULTURE-SCORE-03", got: mismatch < 70, expect: true, desc: `mismatched culture scores <70: got ${mismatch}` },
   { id: "CULTURE-SCORE-04", got: withCulture > mismatch, expect: true, desc: `matching culture > mismatched culture: ${withCulture} > ${mismatch}` },
   // EXP-048: work_life_balance integration

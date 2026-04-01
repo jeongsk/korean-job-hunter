@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-04-01T16:04:00Z",
-  "experiment_id": "EXP-062",
-  "skill": "job-matching",
-  "focus": "similarity_map_expansion",
-  "hypothesis": "Adding missing technology similarity entries (java↔kotlin, docker↔k8s, react↔react-native, svelte) improves matching for commonly co-occurring tech in Korean job listings",
+  "timestamp": "2026-04-01T17:04:00Z",
+  "experiment_id": "EXP-063",
+  "skill": "job-scraping",
+  "focus": "culture_extraction_postprocessor",
+  "hypothesis": "Adding culture keyword extraction to post-process-wanted.js activates the 15% culture weight in matching for real scraped jobs; also fixes default score inconsistency (50 vs 70)",
   "metrics": {
-    "similarity_entries": 24,
-    "new_entries": 7,
-    "similarity_tests": "12/12",
-    "total_tests": "590 (all pass)",
+    "culture_postprocess_tests": "16/16",
+    "culture_extraction_tests": "12/12",
+    "total_tests": "606 (all pass)",
     "npm_test": "working",
-    "test_suites": 32,
+    "test_suites": 33,
     "all_passing": true,
-    "discrimination": "PASS"
+    "discrimination": "PASS",
+    "default_culture_score": "50 (aligned across all test files)"
   }
 }
