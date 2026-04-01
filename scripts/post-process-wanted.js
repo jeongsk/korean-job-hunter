@@ -17,7 +17,7 @@ const KNOWN_COMPANIES = [
   '그린랩스','스타일쉐어','버티고우게임즈','제이앤피메디','화해글로벌','유모스원','케이투스코리아',
   '111퍼센트'
 ];
-const TITLE_SUFFIXES = /^(개발자|엔지니어|매니저|디자이너|기획자|분석가|리더|컨설턴트|전문가|디렉터|과장|차장|부장|대리|사원|인턴|PD|PM|CTO|CEO|COO)/;
+const TITLE_SUFFIXES = /^(개발자|엔지니어|매니저|디자이너|기획자|분석가|리더|리드|컨설턴트|전문가|디렉터|과장|차장|부장|대리|사원|인턴|정규직|계약직|PD|PM|CTO|CEO|COO|모집|채용|공채|급구|급충|담당|연구원|설계자|운영자)/;
 
 function parseWantedJob(raw) {
   // Handle both single raw text string and structured raw object
@@ -68,6 +68,10 @@ function parseWantedJob(raw) {
     rawCompany = rcm[1].replace(TITLE_SUFFIXES, '');
     if (rawCompany.length < 2) rawCompany = null;
   }
+
+  // === Extract experience from brackets BEFORE removing them ===
+  const bracketExpMatch = t.match(/\[[^\]]*?경력[\s]*(\d+[~-]\d+년|\d+년\s*이상|\d+년↑|무관)/);
+  if (bracketExpMatch) { r.experience = '경력 ' + bracketExpMatch[1]; }
 
   // === Pre-segmentation ===
   t = t.replace(/(경력)/g, ' $1').replace(/(합격|보상금|성과금)/g, ' $1').trim();
@@ -131,7 +135,11 @@ function parseWantedJob(raw) {
   if (!cm) { const cc = t.match(/([a-z])([A-Z][a-z]+)\s*$/); if (cc) cm = t.substring(cc.index + 1).trim(); }
 
   // Fallback: trailing Korean word that looks like a company (2-6 chars)
-  if (!cm) { const tk = t.match(/([가-힣]{2,6})\s*$/); if (tk) cm = tk[1]; }
+  // Block common non-company words that appear in job listings (EXP-055)
+  const NOT_COMPANY = /^(모집|채용|공채|경력|신입|리드|담당|급구|급충|정규직|계약직|인턴|임원|사원|연구원|분석가|설계자|기획자|운영자|매니저|디렉터|개발자|엔지니어|프로그래머|디자이너|리더|컨설턴트|전문가|과장|차장|부장|대리|어시스턴트)$/;  if (!cm) {
+    const tk = t.match(/([가-힣]{2,6})\s*$/);
+    if (tk && !NOT_COMPANY.test(tk[1])) cm = tk[1];
+  }
 
   if (cm) {
     r.company = cm.replace(/^[\s㈜]+/, '').replace(/^\(주\)\s*/, '');
