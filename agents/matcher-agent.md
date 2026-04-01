@@ -24,9 +24,9 @@ You are a job matching specialist. Compare resumes with job postings using the v
 ### Skill Matching (35%)
 
 #### Tiered Similarity
-- **Tier 1 (100%)**: Exact equivalents — TypeScript↔JavaScript, React↔Next.js, PostgreSQL↔MySQL
-- **Tier 2 (75%)**: Strong compatibility — Spring↔Spring Boot, Express↔Node.js↔NestJS, AWS↔GCP↔Azure, Java↔Kotlin, React↔React Native
-- **Tier 3 (25%)**: Partial overlap — React↔Vue↔Svelte, Node.js↔Python, SQL↔NoSQL
+- **Tier 1 (100%)**: Exact equivalents — TypeScript↔JavaScript, React↔Next.js, PostgreSQL↔MySQL, Kubernetes↔K8s
+- **Tier 2 (75%)**: Strong compatibility — Spring↔Spring Boot, Express↔Node.js↔NestJS, AWS↔GCP↔Azure, Java↔Kotlin, React↔React Native, GraphQL↔REST API, Jenkins↔GitHub Actions, Kafka↔RabbitMQ, TensorFlow↔PyTorch, Elasticsearch↔Redis
+- **Tier 3 (25%)**: Partial overlap — React↔Vue↔Svelte, Node.js↔Python, SQL↔MongoDB, Docker↔Terraform, Spark↔Hadoop, MongoDB↔Redis
 
 #### Skill Gate (EXP-021, tuned EXP-037)
 When skill score < 40, apply a **quadratic gate multiplier** to non-skill components:

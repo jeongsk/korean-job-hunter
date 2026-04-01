@@ -24,24 +24,39 @@ const TIER1 = { // 100%
   'vue': ['nuxt.js'], 'nuxt.js': ['vue'],
   'postgresql': ['mysql', 'sql'], 'mysql': ['postgresql', 'sql'], 'sql': ['postgresql', 'mysql'],
   'docker': ['container'], 'container': ['docker'],
+  'kubernetes': ['k8s'], 'k8s': ['kubernetes'], // alias (EXP-064)
+  'spring_boot': ['spring boot'], 'spring boot': ['spring_boot'], // alias (EXP-064)
 };
 
 const TIER2 = { // 75%
-  'spring': ['spring boot'], 'spring boot': ['spring'],
+  'spring': ['spring boot', 'spring_boot'], 'spring boot': ['spring'], 'spring_boot': ['spring'],
   'express': ['node.js', 'nestjs'], 'node.js': ['express', 'nestjs'], 'nestjs': ['node.js', 'express'],
   'fastapi': ['python'], 'python': ['fastapi', 'django', 'flask'],
   'django': ['python'], 'flask': ['python'],
   'aws': ['gcp', 'azure', 'cloud'], 'gcp': ['aws', 'azure', 'cloud'], 'azure': ['aws', 'gcp', 'cloud'],
   'java': ['kotlin'], 'kotlin': ['java'], // JVM interoperable (EXP-062)
   'react': ['react native'], 'react native': ['react'], // shared React paradigm (EXP-062)
+  // EXP-064: Detail-skill similarity pairs
+  'graphql': ['rest_api'], 'rest_api': ['graphql'], // API paradigms
+  'jenkins': ['github_actions'], 'github_actions': ['jenkins'], // CI/CD
+  'terraform': ['ansible'], 'ansible': ['terraform'], // IaC/config management
+  'kafka': ['rabbitmq'], 'rabbitmq': ['kafka'], // message queues
+  'tensorflow': ['pytorch'], 'pytorch': ['tensorflow'], // ML frameworks
+  'elasticsearch': ['redis'], 'redis': ['elasticsearch'], // real-time data stores
+  'oracle': ['mssql'], 'mssql': ['oracle'], // enterprise RDBMS
 };
 
 const TIER3 = { // 25%
   'react': ['vue', 'svelte'], 'vue': ['react', 'svelte'], 'svelte': ['react', 'vue'],
   'node.js': ['python'], 'python': ['node.js'],
-  'aws': ['docker'], 'docker': ['aws', 'kubernetes'], 'kubernetes': ['docker'], // container ecosystem (EXP-062)
+  'aws': ['docker'], 'docker': ['aws', 'kubernetes', 'terraform', 'nginx'], 'kubernetes': ['docker'], // container ecosystem (EXP-062) + DevOps (EXP-064)
   'kubernetes': ['container'], 'container': ['kubernetes'],
   'sql': ['mongodb'], 'mongodb': ['sql'],
+  // EXP-064: Detail-skill partial overlaps
+  'terraform': ['docker'], 'nginx': ['docker'], // DevOps provisioning/infra
+  'spark': ['hadoop', 'pandas'], 'hadoop': ['spark'], 'pandas': ['spark'], // big data + data processing (EXP-064)
+  'graphql': ['grpc'], 'grpc': ['graphql'], // modern API protocols
+  'mongodb': ['redis'], 'redis': ['mongodb'], // NoSQL stores
 };
 
 // Merge all tiers for lookup
@@ -404,6 +419,17 @@ const simTests = [
   ['React', 'React Native', 0.75], // shared React paradigm (EXP-062)
   ['Svelte', 'Vue', 0.25], // component frameworks (EXP-062)
   ['Svelte', 'React', 0.25], // component frameworks (EXP-062)
+  // EXP-064: Detail-skill similarity pairs
+  ['GraphQL', 'REST_API', 0.75], // API paradigms
+  ['Jenkins', 'GITHUB_ACTIONS', 0.75], // CI/CD
+  ['Terraform', 'Docker', 0.25], // DevOps provisioning
+  ['Kafka', 'RabbitMQ', 0.75], // message queues
+  ['TensorFlow', 'PyTorch', 0.75], // ML frameworks
+  ['Elasticsearch', 'Redis', 0.75], // real-time data stores
+  ['Spark', 'Hadoop', 0.25], // big data ecosystem
+  ['MongoDB', 'Redis', 0.25], // NoSQL stores
+  ['GraphQL', 'gRPC', 0.25], // modern API protocols
+  ['Kubernetes', 'K8s', 1.0], // alias
 ];
 for (const [a, b, expected] of simTests) {
   const actual = getSimilarity(a, b);

@@ -49,6 +49,8 @@ This prevents infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflati
 - Vue ↔ Nuxt.js
 - PostgreSQL ↔ MySQL ↔ SQL
 - Docker ↔ Container
+- Kubernetes ↔ K8s (alias)
+- spring_boot ↔ Spring Boot (alias)
 
 ### Tier 2: Strong Compatibility (75%)
 - Spring ↔ Spring Boot
@@ -58,6 +60,13 @@ This prevents infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflati
 - AWS ↔ GCP ↔ Azure ↔ Cloud
 - Java ↔ Kotlin (JVM interoperable — EXP-062)
 - React ↔ React Native (shared React paradigm — EXP-062)
+- GraphQL ↔ REST API (API paradigms — EXP-064)
+- Jenkins ↔ GitHub Actions (CI/CD — EXP-064)
+- Terraform ↔ Ansible (IaC/config management — EXP-064)
+- Kafka ↔ RabbitMQ (message queues — EXP-064)
+- TensorFlow ↔ PyTorch (ML frameworks — EXP-064)
+- Elasticsearch ↔ Redis (real-time data stores — EXP-064)
+- Oracle ↔ MSSQL (enterprise RDBMS — EXP-064)
 
 ### Tier 3: Partial Overlap (25%)
 - React ↔ Vue ↔ Svelte (frontend frameworks — EXP-062)
@@ -65,7 +74,13 @@ This prevents infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflati
 - AWS ↔ Docker (cloud/containers)
 - Docker ↔ Kubernetes (container ecosystem — EXP-062)
 - Kubernetes ↔ Container
-- SQL ↔ NoSQL (data handling)
+- SQL ↔ MongoDB (data handling)
+- Docker ↔ Terraform (DevOps provisioning — EXP-064)
+- Nginx ↔ Docker (infrastructure/deployment — EXP-064)
+- Spark ↔ Hadoop (big data ecosystem — EXP-064)
+- Pandas ↔ Spark (data processing — EXP-064)
+- GraphQL ↔ gRPC (modern API protocols — EXP-064)
+- MongoDB ↔ Redis (NoSQL stores — EXP-064)
 
 ### Tier 4: Context-Based Matches (50%)
 - Domain-specific associations

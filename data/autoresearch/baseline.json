@@ -1,17 +1,16 @@
 {
-  "timestamp": "2026-04-01T17:04:00Z",
-  "experiment_id": "EXP-063",
-  "skill": "job-scraping",
-  "focus": "culture_extraction_postprocessor",
-  "hypothesis": "Adding culture keyword extraction to post-process-wanted.js activates the 15% culture weight in matching for real scraped jobs; also fixes default score inconsistency (50 vs 70)",
+  "timestamp": "2026-04-01T18:04:00Z",
+  "experiment_id": "EXP-064",
+  "skill": "job-matching",
+  "focus": "detail_skill_similarity_map_expansion",
+  "hypothesis": "Extending similarity map with pairs for detail-extracted skills (GraphQL, Jenkins, Kafka, TensorFlow, etc.) improves matching accuracy for real scraped jobs that use these technologies",
   "metrics": {
-    "culture_postprocess_tests": "16/16",
-    "culture_extraction_tests": "12/12",
-    "total_tests": "606 (all pass)",
+    "total_tests": "616 (all pass)",
     "npm_test": "working",
     "test_suites": 33,
     "all_passing": true,
-    "discrimination": "PASS",
-    "default_culture_score": "50 (aligned across all test files)"
+    "similarity_pairs": "40+",
+    "new_detail_skill_pairs": "11",
+    "discrimination": "PASS"
   }
 }
