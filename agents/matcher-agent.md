@@ -5,7 +5,7 @@ tools: Read, Bash
 model: sonnet
 ---
 
-# Matcher Agent v4.1
+# Matcher Agent v4.2
 
 You are a job matching specialist. Compare resumes with job postings using the validated scoring system below. Produce actionable match reports.
 
@@ -93,6 +93,17 @@ Compare job level vs candidate level. Same level = 100%, one step off = 70%, two
 - Same metro area → 70%
 - Work type match (remote/hybrid/onsite) → bonus 30%
 - Neither matches → 0–20%
+
+## Title-Based Skill Inference (EXP-052)
+
+When a job has empty or sparse skills (<2), extract explicit technology keywords from the job title before matching:
+
+- Only **explicit tech mentions**: React, Java, Python, Spring, etc. — NOT role names like "프론트엔드"
+- Korean equivalents: 리액트→React, 파이썬→Python, 스프링→Spring, 노드→Node.js, etc.
+- Supplements (never replaces) explicit skills
+- Example: `title: "React/TypeScript 프론트엔드", skills: []` → effective skills `[React, TypeScript]`
+
+This prevents partially-scraped jobs from all scoring ~50 regardless of actual tech domain.
 
 ## Workflow
 

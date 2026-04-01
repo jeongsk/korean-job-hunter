@@ -155,7 +155,7 @@ assert("culture-values-numeric", requiredDims.every(d => typeof cultPrefs[d] ===
 
 // Culture score computation
 function calcCultureScore(candidatePrefs, jobKeywords) {
-  if (!jobKeywords || jobKeywords.length === 0) return 70; // neutral
+  if (!jobKeywords || jobKeywords.length === 0) return 50; // EXP-051: neutral
   let total = 0;
   for (const kw of jobKeywords) {
     const dim = kw.toLowerCase();
@@ -165,7 +165,7 @@ function calcCultureScore(candidatePrefs, jobKeywords) {
 }
 
 assert("culture-score-with-keywords", calcCultureScore(cultPrefs, ["innovative", "fast_paced"]) === 75);
-assert("culture-score-no-keywords", calcCultureScore(cultPrefs, []) === 70);
+assert("culture-score-no-keywords", calcCultureScore(cultPrefs, []) === 50);
 assert("culture-score-mismatch", calcCultureScore(cultPrefs, ["structured", "autonomous"]) === 50);
 
 // --- 6. Primary Domain → Domain Alignment ---

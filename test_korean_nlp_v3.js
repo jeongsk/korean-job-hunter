@@ -73,6 +73,10 @@ function parseKoreanQuery(input) {
   }
 
   // === Experience filter ===
+  if (/신입/.test(text)) {
+    filters.push("(j.experience LIKE '%신입%' OR j.experience LIKE '%무관%')");
+    consumedWords.add('신입');
+  }
   const expMatch = text.match(/(\d+)\s*년\s*(이상|이상의)?/);
   if (expMatch) {
     filters.push(`j.experience LIKE '%${expMatch[1]}%'`);
@@ -80,17 +84,19 @@ function parseKoreanQuery(input) {
   }
 
   // === Deadline urgency ===
-  if (/마감임박|곧마감/.test(text)) {
+  if (/마감\s*임박|곧마감/.test(text)) {
     filters.push("j.deadline IS NOT NULL AND j.deadline != '' AND julianday(j.deadline) - julianday('now') BETWEEN 0 AND 7");
-    consumedWords.add('마감임박'); consumedWords.add('곧마감');
-  }
-  if (/오늘\s*마감/.test(text)) {
+    consumedWords.add('마감임박'); consumedWords.add('곧마감'); consumedWords.add('마감'); consumedWords.add('임박');
+  } else if (/오늘\s*마감/.test(text)) {
     filters.push("CAST(julianday(j.deadline) - julianday('now') AS INTEGER) = 0");
-    consumedWords.add('오늘');
-  }
-  if (/내일\s*마감/.test(text)) {
+    consumedWords.add('오늘'); consumedWords.add('마감'); consumedWords.add('마감인');
+  } else if (/내일\s*마감/.test(text)) {
     filters.push("CAST(julianday(j.deadline) - julianday('now') AS INTEGER) = 1");
-    consumedWords.add('내일');
+    consumedWords.add('내일'); consumedWords.add('마감');
+  } else if (/마감/.test(text) && !/마감순|마감 빠른순/.test(text)) {
+    // Standalone 마감 (not 마감순 sort) → show jobs with deadlines
+    filters.push("j.deadline IS NOT NULL AND j.deadline != ''");
+    consumedWords.add('마감');
   }
   const daysLeftMatch = text.match(/(\d+)\s*일\s*남은/);
   if (daysLeftMatch) {
@@ -130,7 +136,7 @@ function parseKoreanQuery(input) {
   }
 
   // === Locations ===
-  const locations = ['영등포', '당근마켓'].concat(['서울', '경기', '부산', '대전', '인천', '광주', '대구', '울산', '수원', '이천', '판교', '강남', '송파', '성수', '역삼', '잠실', '마포', '용산', '구로', '분당', '일산', '평촌']);
+  const locations = ['영등포', '서울', '경기', '부산', '대전', '인천', '광주', '대구', '울산', '수원', '이천', '판교', '강남', '송파', '성수', '역삼', '잠실', '마포', '용산', '구로', '분당', '일산', '평촌'];
   for (const loc of locations) {
     if (consumedWords.has(loc)) continue;
     if (text.includes(loc)) {
@@ -227,6 +233,27 @@ const testCases = [
   // SQL quote fix: 백엔드 filter must have balanced quotes
   { id: 30, input: "프론트엔드 관심 공고", expectedFilters: ["a.status = 'interested'", "(j.title LIKE '%프론트엔드%' OR j.company LIKE '%프론트엔드%')"], expectedOrder: "a.updated_at DESC",
     note: "SQL must have balanced quotes" },
+
+  // --- EXP-051: Bug fixes ---
+
+  // 마감 alone should trigger deadline filter (not swallowed by stopWords)
+  { id: 31, input: "마감 공고 있어?", expectedFilters: ["j.deadline IS NOT NULL AND j.deadline != ''"], expectedOrder: "a.updated_at DESC",
+    note: "마감 alone should show deadline-filtered jobs, not empty filters" },
+
+  // 마감 임박 with space should work same as 마감임박
+  { id: 32, input: "마감 임박 공고", expectedFilters: ["j.deadline IS NOT NULL AND j.deadline != '' AND julianday(j.deadline) - julianday('now') BETWEEN 0 AND 7"], expectedOrder: "a.updated_at DESC",
+    note: "마감 임박 with space should match 마감임박 pattern" },
+
+  // 신입 should be detected as experience filter
+  { id: 33, input: "신입 공고 있어?", expectedFilters: ["(j.experience LIKE '%신입%' OR j.experience LIKE '%무관%')"], expectedOrder: "a.updated_at DESC",
+    note: "신입 should trigger experience filter, not generic keyword search" },
+
+  // 신입 + status combined
+  { id: 34, input: "신입 관심 공고", expectedFilters: ["a.status = 'interested'", "(j.experience LIKE '%신입%' OR j.experience LIKE '%무관%')"], expectedOrder: "a.updated_at DESC" },
+
+  // 마감순 should still be sort order, not trigger deadline filter
+  { id: 35, input: "관심 공고 마감순", expectedFilters: ["a.status = 'interested'"], expectedOrder: "j.deadline ASC",
+    note: "마감순 is sort order, 마감 should not leak into deadline filter" },
 ];
 
 // Run tests

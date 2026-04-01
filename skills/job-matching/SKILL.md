@@ -89,7 +89,21 @@ Culture keywords are extracted from job listing text by the scraper (see `skills
 - **Autonomous**: 자율, 독립, autonomous, 자기주도, 오너십, 자유도, 주도적
 - **Work-life balance**: 워라밸, 워크라이프밸런스, WLB, 유연근무, 시차출근, 자유출퇴근, 연차, 리프레시, 가족친화
 
-When `culture_keywords` is empty/null, culture score defaults to 70 (neutral). When present, score is based on overlap with candidate's `cultural_preferences`.
+When `culture_keywords` is empty/null, culture score defaults to 50 (neutral). When present, score is based on overlap with candidate's `cultural_preferences`. Unknown experience, career_stage, and location/work_type also default to 50 — missing data should not inflate scores (EXP-051).
+
+## Title-Based Skill Inference (EXP-052)
+
+When `job.skills` is empty or has <2 entries (common from LinkedIn/partial scrapes), explicit technology keywords are extracted from the job title to improve matching accuracy.
+
+**Rules:**
+- Only extract **explicit technology mentions** (React, Java, Python, etc.) — do NOT infer from role names
+- Korean equivalents supported: 리액트→React, 파이썬→Python, 스프링→Spring, etc.
+- Title-inferred skills **supplement** (not replace) explicit skills
+- Not used when `job.skills` already has ≥2 entries
+
+**Example:** A job with `title: "React/TypeScript 프론트엔드"` and `skills: []` gets effective skills `[React, TypeScript]` — matching score reflects actual domain alignment instead of defaulting to neutral 50.
+
+**Discrimination impact:** Without title inference, a React job with no skills and a Java job with no skills both score ~50. With inference, the React job scores HIGH and the Java job scores LOW for a JS candidate — correct discrimination is restored.
 
 ## Matching Workflow
 

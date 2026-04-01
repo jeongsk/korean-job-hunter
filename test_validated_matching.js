@@ -133,19 +133,19 @@ function calculateExperienceScore(jobExpRange, candidateYears) {
       return Math.max(0, 90 - (req - candidateYears) * 20);
     }
   }
-  return 70; // default
+  return 50; // default (EXP-051: neutral, not generous)
 }
 
 // === Culture Score ===
 function calculateCultureScore(jobCultureKeywords, candidatePreferences) {
-  if (!jobCultureKeywords || jobCultureKeywords.length === 0) return 70;
+  if (!jobCultureKeywords || jobCultureKeywords.length === 0) return 50; // EXP-051
   let matches = 0;
   for (const kw of jobCultureKeywords) {
     const pref = candidatePreferences[kw];
     if (pref !== undefined && pref >= 0.6) matches++;
     else if (pref !== undefined && pref >= 0.3) matches += 0.5;
   }
-  if (jobCultureKeywords.length === 0) return 70;
+  if (jobCultureKeywords.length === 0) return 50; // EXP-051
   return Math.round(Math.min(100, (matches / jobCultureKeywords.length) * 100));
 }
 
@@ -153,7 +153,7 @@ function calculateCultureScore(jobCultureKeywords, candidatePreferences) {
 function calculateCareerStageScore(jobStage, candidateYears) {
   const stages = ['entry', 'junior', 'mid', 'senior', 'lead'];
   const candidateStage = candidateYears <= 1 ? 'entry' : candidateYears <= 3 ? 'junior' : candidateYears <= 7 ? 'mid' : candidateYears <= 12 ? 'senior' : 'lead';
-  if (!jobStage) return 70;
+  if (!jobStage) return 50; // EXP-051
   const gap = Math.abs(stages.indexOf(jobStage) - stages.indexOf(candidateStage));
   if (gap === 0) return 95;
   if (gap === 1) return 75;
