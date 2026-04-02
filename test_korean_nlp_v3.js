@@ -66,10 +66,50 @@ function parseKoreanQuery(input) {
     consumedWords.add('하이브리드');
   }
 
-  // === Salary filter ===
+  // === Salary filter (EXP-082: threshold + range + 억 support) ===
+  const salaryWords = ['연봉', '급여', '연수입', '만원', '이상', '부터'];
+  for (const w of salaryWords) consumedWords.add(w);
+
+  let salaryThresholdApplied = false;
   if (/(연봉|급여|연수입)/.test(text)) {
-    filters.push("j.salary IS NOT NULL AND j.salary != ''");
-    consumedWords.add('연봉'); consumedWords.add('급여'); consumedWords.add('연수입');
+    // Try 억 range first: 연봉 1~2억
+    const eokRange = text.match(/(연봉|급여|연수입)\s*(\d+(?:\.\d+)?)\s*[~\-]\s*(\d+(?:\.\d+)?)\s*억/);
+    const eokSingle = !eokRange && text.match(/(연봉|급여|연수입)\s*(\d+(?:\.\d+)?)\s*억/);
+    // 만원 range: 연봉 5000~8000만원
+    const manRange = !eokRange && !eokSingle && text.match(/(연봉|급여|연수입)\s*(\d[\d,]*)\s*[~\-]\s*(\d[\d,]*)\s*(만원)?/);
+    // 만원 threshold: 연봉 6000 이상
+    const manThreshold = !manRange && !eokRange && !eokSingle && text.match(/(연봉|급여|연수입)\s*(\d[\d,]*)\s*(만원)?\s*(이상|부터|↑)?/);
+
+    if (eokRange) {
+      const min = Math.round(parseFloat(eokRange[2]) * 10000);
+      const max = Math.round(parseFloat(eokRange[3]) * 10000);
+      filters.push(`(j.salary_min <= ${max} AND j.salary_max >= ${min})`);
+      consumedWords.add(eokRange[0]);
+      salaryThresholdApplied = true;
+    } else if (eokSingle) {
+      const val = Math.round(parseFloat(eokSingle[2]) * 10000);
+      filters.push(`j.salary_min >= ${val}`);
+      consumedWords.add(eokSingle[0]);
+      salaryThresholdApplied = true;
+    } else if (manRange) {
+      const min = parseInt(manRange[2].replace(/,/g, ''));
+      const max = parseInt(manRange[3].replace(/,/g, ''));
+      filters.push(`(j.salary_min <= ${max} AND j.salary_max >= ${min})`);
+      consumedWords.add(manRange[0]);
+      salaryThresholdApplied = true;
+    } else if (manThreshold) {
+      const val = parseInt(manThreshold[2].replace(/,/g, ''));
+      if (/이상|부터|↑/.test(text)) {
+        filters.push(`j.salary_min >= ${val}`);
+      } else {
+        filters.push("j.salary IS NOT NULL AND j.salary != ''");
+      }
+      consumedWords.add(manThreshold[0]);
+      salaryThresholdApplied = true;
+    } else {
+      // Fallback: just has salary
+      filters.push("j.salary IS NOT NULL AND j.salary != ''");
+    }
   }
 
   // === Experience filter ===
@@ -362,6 +402,18 @@ const testCases = [
     note: "Two skills + status composite" },
   { id: 50, input: "react native TypeScript 공고", expectedFilters: ["j.skills LIKE '%react native%'", "j.skills LIKE '%typescript%'"], expectedOrder: "a.updated_at DESC",
     note: "Multi-word skill (react native) + second skill, no double-react" },
+  { id: 51, input: "연봉 6000 이상 공고", expectedFilters: ["j.salary_min >= 6000"], expectedOrder: "a.updated_at DESC",
+    note: "Salary threshold 만원 이상" },
+  { id: 52, input: "연봉 5000~8000 공고", expectedFilters: ["(j.salary_min <= 8000 AND j.salary_max >= 5000)"], expectedOrder: "a.updated_at DESC",
+    note: "Salary range 만원" },
+  { id: 53, input: "연봉 1억 이상", expectedFilters: ["j.salary_min >= 10000"], expectedOrder: "a.updated_at DESC",
+    note: "Salary threshold 억" },
+  { id: 54, input: "연봉 1~2억 공고", expectedFilters: ["(j.salary_min <= 20000 AND j.salary_max >= 10000)"], expectedOrder: "a.updated_at DESC",
+    note: "Salary range 억" },
+  { id: 55, input: "급여 8000부터 관심 공고", expectedFilters: ["j.salary_min >= 8000", "a.status = 'interested'"], expectedOrder: "a.updated_at DESC",
+    note: "Salary threshold + status" },
+  { id: 56, input: "연봉 5000~7000 서울", expectedFilters: ["(j.salary_min <= 7000 AND j.salary_max >= 5000)", "j.location LIKE '%서울%'"], expectedOrder: "a.updated_at DESC",
+    note: "Salary range + location" },
 ];
 
 // Run tests

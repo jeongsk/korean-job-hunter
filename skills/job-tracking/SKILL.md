@@ -3,7 +3,7 @@ name: job-tracking
 description: "Job application status tracking with SQLite CRUD, Korean NLP query parsing, pipeline analytics, and smart suggestions"
 ---
 
-# Job Tracking Skill v2.6 (EXP-079: Multi-Skill NLP Queries)
+# Job Tracking Skill v2.7 (EXP-082: Salary Threshold NLP Queries)
 
 ## Korean Natural Language Query Parsing
 
