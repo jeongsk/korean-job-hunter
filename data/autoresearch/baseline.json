@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-04-02T07:04:00Z",
-  "experiment_id": "EXP-076",
-  "skill": "job-matching",
-  "focus": "sinip_experience_scoring",
-  "hypothesis": "신입 (entry-level) was unhandled in experience scoring — scored 50 default for ~30% of Korean job postings",
+  "timestamp": "2026-04-02T10:04:00Z",
+  "experiment_id": "EXP-077",
+  "skill": "job-scraping",
+  "focus": "skills_column_persistence",
+  "hypothesis": "Skills field was parsed by all 3 post-processors but never persisted to DB — matcher had to re-extract or infer every time",
   "metrics": {
-    "total_tests": "758 (all pass)",
+    "total_tests": "845 (all pass)",
     "npm_test": "working",
-    "test_suites": 38,
+    "test_suites": 41,
     "all_passing": true,
-    "sinip_handling": "graduated (40-95)",
-    "sinip_career_handling": "85 (broad match)",
-    "n년_이상": "explicit",
+    "skills_column": "TEXT DEFAULT ''",
+    "skills_in_insert": true,
+    "skills_queryable": true,
     "regressions": 0
   }
 }
