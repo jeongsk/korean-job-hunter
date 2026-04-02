@@ -3,7 +3,7 @@ name: job-tracking
 description: "Job application status tracking with SQLite CRUD, Korean NLP query parsing, pipeline analytics, and smart suggestions"
 ---
 
-# Job Tracking Skill v2.5 (EXP-078: Skill-based NLP Query Filtering)
+# Job Tracking Skill v2.6 (EXP-079: Multi-Skill NLP Queries)
 
 ## Korean Natural Language Query Parsing
 
@@ -131,12 +131,14 @@ parse_korean_query(input):
   if matches "(재택|원격|리모트)" → filters.push("j.work_type = 'remote'")
   if matches "하이브리드" → filters.push("j.work_type = 'hybrid'")
   
-  // Skill-based filtering (EXP-078)
+  // Skill-based filtering (EXP-078, EXP-079 multi-skill)
   // Matches tech skill names (English + Korean aliases) against j.skills column
+  // Multiple skills are AND-combined: "React TypeScript 공고" → react AND typescript
+  // Longer skills block substrings: "spring boot" consumed → "spring" skipped
   // Korean aliases: 파이썬→python, 도커→docker, 스프링→spring, 쿠버네티스→kubernetes, etc.
   // Aliases: k8s→kubernetes, golang→go, JS→javascript
   // "React 공고" → j.skills LIKE '%react%'
-  // "파이썬 쓰는 공고" → j.skills LIKE '%python%'
+  // "파이썬 장고 공고" → j.skills LIKE '%python%' AND j.skills LIKE '%django%'
   // "k8s 서울" → j.skills LIKE '%kubernetes%' AND j.location LIKE '%서울%'
   
   // Negation (빼고/제외/말고): negate only the entity immediately before the marker

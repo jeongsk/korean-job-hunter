@@ -42,6 +42,41 @@ function companyNormalize(text) {
     .trim();
 }
 
+// ── Korean↔English company equivalents (synced from test_cross_source_dedup.js) ──
+
+const companyKoEnMap = {
+  '카카오': 'kakao', '네이버': 'naver', '라인': 'line', '토스': 'toss',
+  '당근마켓': 'danggeun', '배달의민족': 'baemin', '우아한형제들': 'woowa',
+  '삼성': 'samsung', '쿠팡': 'coupang', '다음': 'daum',
+  '현대': 'hyundai', '엘지': 'lg', '케이티': 'kt', 'sk': 'sk',
+  '카카오뱅크': 'kakaobank', '카카오페이': 'kakaopay', '네이버클라우드': 'navercloud',
+  '삼성전자': 'samsungelectronics', '토스뱅크': 'tossbank',
+  '리멤버': 'remember', '야놀자': 'yanolja', '직방': 'zigbang',
+  '스마일게이트': 'smilegate', '펄플닷': 'purpledot', '그린랩스': 'greenlabs',
+  '마켓컬리': 'kurly', '리디': 'ridi',
+};
+
+function companyToCanonical(name) {
+  const n = companyNormalize(name);
+  if (!n) return '';
+  if (companyKoEnMap[n]) return companyKoEnMap[n];
+  for (const [, en] of Object.entries(companyKoEnMap)) {
+    if (n === en) return en;
+  }
+  return n;
+}
+
+function companyMatch(a, b) {
+  const na = companyNormalize(a);
+  const nb = companyNormalize(b);
+  if (!na || !nb) return false;
+  if (na === nb || na.includes(nb) || nb.includes(na)) return true;
+  // Korean↔English company equivalents
+  const ca = companyToCanonical(a);
+  const cb = companyToCanonical(b);
+  return ca === cb;
+}
+
 // ── Similarity scoring ──
 
 const koEnMap = {
@@ -82,13 +117,6 @@ function titleSimilarity(a, b) {
   let intersection = 0;
   for (const t of ta) if (tb.has(t)) intersection++;
   return intersection / new Set([...ta, ...tb]).size;
-}
-
-function companyMatch(a, b) {
-  const na = companyNormalize(a);
-  const nb = companyNormalize(b);
-  if (!na || !nb) return false;
-  return na === nb || na.includes(nb) || nb.includes(na);
 }
 
 function isDuplicate(jobA, jobB) {

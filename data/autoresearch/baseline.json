@@ -1,14 +1,16 @@
 {
-  "timestamp": "2026-04-02T12:04:00Z",
-  "experiment_id": "EXP-078",
-  "skill": "job-tracking",
-  "focus": "deadline_date_comparison_fix",
-  "hypothesis": "julianday('now') returns fractional UTC timestamp causing deadline day-boundary mismatches; julianday(date('now')) compares midnight-to-midnight",
+  "timestamp": "2026-04-02T14:04:00Z",
+  "experiment_id": "EXP-080",
+  "skill": "job-scraping+job-matching",
+  "focus": "production_pipeline_parity",
+  "hypothesis": "Production dedup missing Korean↔English company equivalents; Wanted/JobKorea post-processors not using shared skill-inference",
   "metrics": {
-    "total_tests": "856 (all pass)",
+    "total_tests": "870 (all pass)",
     "npm_test": "working",
-    "test_suites": 41,
+    "test_suites": 42,
     "all_passing": true,
-    "regressions": 0
+    "regressions": 0,
+    "dedup_ko_en_equivalents": 25,
+    "skill_inference_coverage": "3/3 post-processors"
   }
 }

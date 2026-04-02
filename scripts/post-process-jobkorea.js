@@ -3,6 +3,9 @@
 // positional parsing + salary normalization.
 // EXP-069: Created to normalize salary_min/salary_max for JobKorea-sourced jobs.
 // EXP-077: Added career_stage derivation.
+// EXP-080: Added skill inference from shared skill-inference module.
+
+const { inferSkills } = require('./skill-inference');
 
 // === Career Stage Derivation (EXP-077) ===
 function deriveCareerStage(experience) {
@@ -132,10 +135,14 @@ function parseJobKoreaCard(raw) {
   if (/전면재택|재택근무|풀리모트|원격근무|fully?\s*remote|100%\s*remote/i.test(allText)) work_type = 'remote';
   else if (/하이브리드|주\d일\s*출근|hybrid/i.test(allText)) work_type = 'hybrid';
 
+  // Skill inference from title (EXP-080)
+  const skills = inferSkills(title).join(', ');
+
   return {
     title, company, experience, salary, salary_min, salary_max,
     location, deadline, work_type, culture_keywords, source: 'jobkorea',
-    career_stage: deriveCareerStage(experience)
+    career_stage: deriveCareerStage(experience),
+    skills
   };
 }
 

@@ -212,20 +212,20 @@ function parseKoreanQuery(input) {
     { canonical: 'figma', patterns: [/figma|피그마/i] },
   ];
 
-  let skillMatched = false;
   for (const { canonical, patterns } of skillPatterns) {
+    if (consumedWords.has(canonical)) continue;
+    // Skip if a longer canonical already consumed that contains this one
+    if ([...consumedWords].some(c => c !== canonical && c.includes(canonical))) continue;
     for (const p of patterns) {
       if (p.test(text)) {
         filters.push(`j.skills LIKE '%${canonical}%'`);
         consumedWords.add(canonical);
         // Add Korean alias to consumed words
-        const koMatch = text.match(/[가-힣]+/);
+        const koMatch = text.match(new RegExp(p.source.includes('가-힣') ? '[가-힣]+' : ''));
         if (koMatch && p.source.includes('가-힣')) consumedWords.add(koMatch[0]);
-        skillMatched = true;
         break;
       }
     }
-    if (skillMatched) break;
   }
 
   // === Remaining Korean keywords (title/company search) ===
@@ -350,6 +350,18 @@ const testCases = [
     note: "k8s alias maps to kubernetes canonical" },
   { id: 45, input: "코틀린 관심 공고", expectedFilters: ["a.status = 'interested'", "j.skills LIKE '%kotlin%'"], expectedOrder: "a.updated_at DESC",
     note: "Korean 코틀린 maps to kotlin + status" },
+
+  // --- EXP-079: Multi-skill queries ---
+  { id: 46, input: "React TypeScript 공고", expectedFilters: ["j.skills LIKE '%react%'", "j.skills LIKE '%typescript%'"], expectedOrder: "a.updated_at DESC",
+    note: "Two English skills should both generate skill filters" },
+  { id: 47, input: "파이썬 장고 공고", expectedFilters: ["j.skills LIKE '%python%'", "j.skills LIKE '%django%'"], expectedOrder: "a.updated_at DESC",
+    note: "Two Korean skill aliases should both match" },
+  { id: 48, input: "도커 k8s 서울 공고", expectedFilters: ["j.skills LIKE '%docker%'", "j.skills LIKE '%kubernetes%'", "j.location LIKE '%서울%'"], expectedOrder: "a.updated_at DESC",
+    note: "Two skills + location composite" },
+  { id: 49, input: "React Python 지원한 공고", expectedFilters: ["a.status = 'applied'", "j.skills LIKE '%react%'", "j.skills LIKE '%python%'"], expectedOrder: "a.updated_at DESC",
+    note: "Two skills + status composite" },
+  { id: 50, input: "react native TypeScript 공고", expectedFilters: ["j.skills LIKE '%react native%'", "j.skills LIKE '%typescript%'"], expectedOrder: "a.updated_at DESC",
+    note: "Multi-word skill (react native) + second skill, no double-react" },
 ];
 
 // Run tests

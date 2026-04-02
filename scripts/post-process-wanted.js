@@ -2,10 +2,13 @@
 // Takes raw concatenated text from agent-browser output and applies
 // the validated parsing logic to produce clean structured fields.
 // EXP-063: Added culture keyword extraction (extractCultureKeywords)
+// EXP-080: Added skill inference from shared skill-inference module
 //
 // Usage:
 //   node scripts/post-process-wanted.js < input.json > output.json
 //   const { parseWantedJob, extractCultureKeywords } = require('./scripts/post-process-wanted');
+
+const { inferSkills } = require('./skill-inference');
 
 function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
@@ -215,6 +218,10 @@ function parseWantedJob(raw) {
 
   // === Career Stage (EXP-077) ===
   r.career_stage = deriveCareerStage(r.experience);
+
+  // === Skill inference from title (EXP-080) ===
+  const inferred = inferSkills(r.title);
+  if (inferred.length > 0) r.skills = inferred.join(', ');
 
   return r;
 }

@@ -170,18 +170,18 @@ function parseKoreanQuery(input) {
     { canonical: 'graphql', patterns: [/graphql/i] },
   ];
 
-  let skillMatched = false;
   for (const { canonical, patterns } of skillPatterns) {
+    if (consumedWords.has(canonical)) continue;
+    if ([...consumedWords].some(c => c !== canonical && c.includes(canonical))) continue;
     for (const p of patterns) {
-      if (p.test(text) && !consumedWords.has(canonical)) {
+      if (p.test(text)) {
         filters.push(`j.skills LIKE '%${canonical}%'`);
         consumedWords.add(canonical);
         const koMatch = text.match(new RegExp(p.source.includes('가-힣') ? '[가-힣]+' : ''));
-        skillMatched = true;
+        if (koMatch && p.source.includes('가-힣')) consumedWords.add(koMatch[0]);
         break;
       }
     }
-    if (skillMatched) break;
   }
 
   // === Keyword / title filter (fallback) ===
@@ -455,6 +455,29 @@ test('k8s 서울 공고 - alias + location', () => {
   const rows = executeNLPQuery('k8s 서울 공고');
   assert(rows.length === 2, `expected 2, got ${rows.length}`);
   assert(rows.every(r => r.location.includes('서울')), 'all should be 서울');
+});
+
+// ── EXP-079: Multi-skill SQL integration ──
+test('React TypeScript 공고 - two skill filters combined', () => {
+  const rows = executeNLPQuery('React TypeScript 공고');
+  // j2 has react/typescript/next.js
+  assert(rows.length === 1, `expected 1 (j2 only), got ${rows.length}: ${JSON.stringify(rows.map(r=>r.title))}`);
+  assert(rows[0].title === '프론트엔드 개발자', `expected 프론트엔드 개발자, got ${rows[0].title}`);
+  assert(rows[0].skills === undefined, 'j.id not in SELECT - use title');
+});
+
+test('도커 k8s 서울 공고 - multi-skill + location', () => {
+  const rows = executeNLPQuery('도커 k8s 서울 공고');
+  // j4 has docker,kubernetes,terraform,aws at 서울 영등포구
+  assert(rows.length === 1, `expected 1 (j4 only), got ${rows.length}: ${JSON.stringify(rows.map(r=>r.title))}`);
+  assert(rows[0].title === 'DevOps Engineer', `expected DevOps Engineer, got ${rows[0].title}`);
+  assert(rows[0].location.includes('서울'), 'should be 서울');
+});
+
+test('파이썬 장고 공고 - two Korean skill aliases', () => {
+  const rows = executeNLPQuery('파이썬 장고 공고');
+  // j3 has python,kafka,redis,postgresql - has python but not django
+  assert(rows.length === 0, `expected 0 (no job has both python AND django), got ${rows.length}: ${JSON.stringify(rows.map(r=>r.title))}`);
 });
 
 // ── Run ──
