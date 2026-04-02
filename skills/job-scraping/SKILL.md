@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v5.1 (EXP-070: LinkedIn Post-Processor)
+# Job Scraping Skill v5.2 (EXP-077: Skills Column Persistence)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
@@ -577,6 +577,15 @@ function normalizeSalary(raw) {
 - `salary_min`/`salary_max` are numeric (만원, annual) — ready for DB INSERT and NLP queries
 - 억 patterns captured by expanded salary regex: `(연봉|월급|연수입)[\s]*(...|억 patterns)`
 - Exported: `const { normalizeSalary } = require('./scripts/post-process-wanted')`
+
+### Skills Persistence (EXP-077)
+
+All post-processors output a `skills` field (comma-separated). This must be persisted to the DB `skills` column:
+- **Wanted**: `inferSkillsFromTitle()` from title + detail-page extraction
+- **JobKorea**: Detail-page extraction only
+- **LinkedIn**: `inferSkillsFromText()` from title+description + detail-page extraction
+- **INSERT**: Include `skills` in column list and VALUES
+- **UPDATE after detail extraction**: `UPDATE jobs SET skills = '...' WHERE id = '...'`
 
 ## 디버깅
 

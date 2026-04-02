@@ -93,7 +93,10 @@ Each scraped job must have these fields:
 6. Run cross-source dedup: `node scripts/dedup-jobs.js --dry-run` (preview) or `node scripts/dedup-jobs.js` (apply)
 
 ```bash
-sqlite3 data/jobs.db "INSERT OR IGNORE INTO jobs (id, source, title, company, url, content, location, work_type, experience, salary, salary_min, salary_max, deadline, reward, commute_min) VALUES (...)"
+sqlite3 data/jobs.db "INSERT OR IGNORE INTO jobs (id, source, title, company, url, content, location, work_type, experience, salary, salary_min, salary_max, deadline, reward, skills, commute_min) VALUES (...)"
+
+After detail-page skill extraction, UPDATE the skills column:
+sqlite3 data/jobs.db "UPDATE jobs SET skills = 'React,TypeScript,AWS,...' WHERE id = '...'"
 # salary_min/salary_max: use normalizeSalary(salary) → {min, max} in 만원 (annual)
 ```
 

@@ -23,6 +23,7 @@ CREATE TABLE jobs (
   salary_max INTEGER,
   deadline TEXT,
   reward TEXT,
+  skills TEXT DEFAULT '',
   commute_min INTEGER,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -85,7 +86,7 @@ console.log(`\n${passed}/${tests.length} passed`);
 
 // Also verify the actual DB has the new columns
 const actualCols = execSync(`sqlite3 "${path.join(__dirname, 'data', 'jobs.db')}" "PRAGMA table_info(jobs)"`).toString();
-const requiredCols = ['experience', 'salary', 'deadline', 'reward', 'culture_keywords'];
+const requiredCols = ['experience', 'salary', 'deadline', 'reward', 'culture_keywords', 'skills'];
 let schemaOk = true;
 for (const col of requiredCols) {
   if (!actualCols.includes(col)) {
@@ -93,7 +94,7 @@ for (const col of requiredCols) {
     schemaOk = false;
   }
 }
-if (schemaOk) console.log('✅ jobs.db has all columns (experience, salary, deadline, reward, culture_keywords)');
+if (schemaOk) console.log('✅ jobs.db has all columns (experience, salary, deadline, reward, culture_keywords, skills)');
 
 // Cleanup
 execSync(`rm -f "${dbPath}"`);

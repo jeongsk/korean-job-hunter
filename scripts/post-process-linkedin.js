@@ -8,6 +8,7 @@
 //   const { parseLinkedInCard } = require('./scripts/post-process-linkedin');
 
 const { normalizeSalary, extractCultureKeywords } = require('./post-process-wanted');
+const { inferSkills } = require('./skill-inference');
 
 // === Location normalization ===
 function normalizeLocation(loc) {
@@ -160,6 +161,7 @@ function parseLinkedInCard(raw) {
     salary_min: salaryInfo.salary_min,
     salary_max: salaryInfo.salary_max,
     culture_keywords,
+    career_stage: deriveCareerStage(level, minYears),
     source: 'linkedin',
   };
 }
@@ -181,4 +183,22 @@ if (require.main === module) {
   });
 }
 
-module.exports = { parseLinkedInCard, normalizeLocation, extractExperienceLevel, inferSkillsFromText, extractSalary, detectWorkType };
+module.exports = { parseLinkedInCard, normalizeLocation, extractExperienceLevel, inferSkillsFromText, extractSalary, detectWorkType, deriveCareerStage };
+
+// === Career Stage Derivation (EXP-077) ===
+// LinkedIn uses extracted level + minYears, not Korean experience text
+function deriveCareerStage(level, minYears) {
+  if (level === 'senior') return 'senior';
+  if (level === 'mid') return 'mid';
+  if (level === 'junior') return 'junior';
+  if (level === 'intern') return 'entry';
+  // For empty level, try minYears
+  if (minYears !== null && minYears !== undefined) {
+    if (minYears <= 1) return 'entry';
+    if (minYears <= 3) return 'junior';
+    if (minYears <= 7) return 'mid';
+    if (minYears <= 12) return 'senior';
+    return 'lead';
+  }
+  return null;
+}
