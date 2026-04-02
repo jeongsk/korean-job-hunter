@@ -105,6 +105,15 @@ When a job has empty or sparse skills (<2), extract explicit technology keywords
 
 This prevents partially-scraped jobs from all scoring ~50 regardless of actual tech domain.
 
+## Experience Scoring (EXP-076)
+
+- `신입` → 0-1yr: 95, 2-3yr: 65, 4+yr: 40 (overqualified penalty)
+- `신입·경력` / `신입/경력` → 85 (broad match, both welcome)
+- `경력무관` → 80 (neutral-high)
+- `N~M년` → in range: 95, below: -15/yr, above: -10/yr (floor 50)
+- `N년 이상` → meets: 90, below: -20/yr
+- unknown → 50 (neutral)
+
 ## Workflow
 
 ### Single Job Match

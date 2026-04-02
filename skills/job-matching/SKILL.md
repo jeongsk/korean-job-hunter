@@ -108,6 +108,20 @@ Culture keywords are extracted from job listing text by the scraper (see `skills
 
 When `culture_keywords` is empty/null, culture score defaults to 50 (neutral). When present, score is based on overlap with candidate's `cultural_preferences`. Unknown experience, career_stage, and location/work_type also default to 50 — missing data should not inflate scores (EXP-051).
 
+## Experience Scoring (EXP-076)
+
+| Job Experience | Candidate Years | Score | Notes |
+|---|---|---|---|
+| `신입` | 0-1 | 95 | Perfect: new graduate |
+| `신입` | 2-3 | 65 | Junior: overqualified |
+| `신입` | 4+ | 40 | Senior: poor fit |
+| `신입·경력` / `신입/경력` | any | 85 | Both welcome — broad match |
+| `경력무관` | any | 80 | Experience not a factor |
+| `3~7년` | 5 | 95 | In range |
+| `3년 이상` | 5 | 90 | Meets minimum |
+| `3년 이상` | 2 | 70 | Below minimum |
+| unknown | any | 50 | Neutral default |
+
 ## Title-Based Skill Inference (EXP-052)
 
 When `job.skills` is empty or has <2 entries (common from LinkedIn/partial scrapes), explicit technology keywords are extracted from the job title to improve matching accuracy.

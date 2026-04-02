@@ -134,9 +134,32 @@ function computeMatch(job, candidate) {
   const adjustedSkill = Math.round(skillScore * domainPenalty);
 
   // Experience score
-  let expScore = 70;
-  if (candidate.experience_years <= 1) expScore = 40;
-  else if (candidate.experience_years >= 5) expScore = 90;
+  // EXP-076: Synced with calculateExperienceScore from test_validated_matching.js
+  let expScore = 50; // default neutral
+  const jobExp = job.experience || '';
+  if (/신입[·/].*경력|경력[·/].*신입/.test(jobExp)) expScore = 85;
+  else if (/신입/.test(jobExp) && !/경력/.test(jobExp)) {
+    if (candidate.experience_years <= 1) expScore = 95;
+    else if (candidate.experience_years <= 3) expScore = 65;
+    else expScore = 40;
+  } else if (/무관/.test(jobExp)) expScore = 80;
+  else {
+    const rangeMatch = jobExp.match(/(\d+)\s*[~-~]\s*(\d+)/);
+    if (rangeMatch) {
+      const min = +rangeMatch[1], max = +rangeMatch[2];
+      if (candidate.experience_years >= min && candidate.experience_years <= max) expScore = 95;
+      else if (candidate.experience_years < min) expScore = Math.max(0, 95 - (min - candidate.experience_years) * 15);
+      else expScore = Math.max(50, 95 - (candidate.experience_years - max) * 10);
+    } else {
+      const minMatch = jobExp.match(/(\d+)\s*년?\s*이상/);
+      const singleMatch = jobExp.match(/(\d+)/);
+      const req = minMatch ? +minMatch[1] : singleMatch ? +singleMatch[1] : null;
+      if (req !== null) {
+        if (candidate.experience_years >= req) expScore = 90;
+        else expScore = Math.max(0, 90 - (req - candidate.experience_years) * 20);
+      }
+    }
+  }
 
   // Culture score
   let cultureScore = 50; // default aligned (EXP-063)

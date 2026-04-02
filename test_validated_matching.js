@@ -133,8 +133,16 @@ function skillGate(skillScore) {
 
 // === Experience Score ===
 function calculateExperienceScore(jobExpRange, candidateYears) {
-  // jobExpRange: "3~5년" or "경력무관" or {min, max}
+  // jobExpRange: "3~5년", "신입", "신입·경력", "경력무관", "3년 이상", or {min, max}
   if (typeof jobExpRange === 'string') {
+    // 신입·경력 / 신입/경력 (both entry and experienced welcome) — very common in Korean job market
+    if (/신입[·/].*경력|경력[·/].*신입/.test(jobExpRange)) return 85; // broad match
+    // 신입 (entry-level / new graduate)
+    if (/신입/.test(jobExpRange) && !/경력/.test(jobExpRange)) {
+      if (candidateYears <= 1) return 95;  // perfect: new grad
+      if (candidateYears <= 3) return 65;  // junior overqualified
+      return 40;                           // senior overqualified — poor fit
+    }
     if (jobExpRange.includes('무관') || jobExpRange.includes('不限') || jobExpRange === 'any') return 80;
     const match = jobExpRange.match(/(\d+)\s*[~-~]\s*(\d+)/);
     if (match) {
@@ -142,6 +150,13 @@ function calculateExperienceScore(jobExpRange, candidateYears) {
       if (candidateYears >= min && candidateYears <= max) return 95;
       if (candidateYears < min) return Math.max(0, 95 - (min - candidateYears) * 15);
       return Math.max(50, 95 - (candidateYears - max) * 10);
+    }
+    // "N년 이상" (N+ years) — explicitly minimum
+    const minMatch = jobExpRange.match(/(\d+)\s*년?\s*이상/);
+    if (minMatch) {
+      const req = parseInt(minMatch[1]);
+      if (candidateYears >= req) return 90;
+      return Math.max(0, 90 - (req - candidateYears) * 20);
     }
     const singleMatch = jobExpRange.match(/(\d+)/);
     if (singleMatch) {
@@ -451,6 +466,19 @@ const expTests = [
   ['3~7년', 2, 'less'], // below range
   ['3~7년', 8, 'less'], // above range but close
   ['경력무관', 5, 80], // any experience
+  // EXP-076: 신입 (entry-level) tests
+  ['신입', 0, 95],   // new grad → perfect
+  ['신입', 1, 95],   // 1 year → still perfect
+  ['신입', 3, 65],   // junior → overqualified
+  ['신입', 7, 40],   // senior → poor fit
+  // 신입·경력 (both welcome)
+  ['신입·경력', 0, 85],  // new grad → good match
+  ['신입·경력', 5, 85],  // experienced → good match
+  ['신입/경력', 3, 85],  // alt separator
+  // N년 이상 (minimum years)
+  ['3년 이상', 5, 90],  // meets minimum
+  ['3년 이상', 2, 70],  // below minimum (90 - 1*20)
+  ['5년 이상', 3, 50],  // well below (90 - 2*20 = 50)
 ];
 for (const [range, years, expected] of expTests) {
   const score = calculateExperienceScore(range, years);

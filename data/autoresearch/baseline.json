@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-04-02T06:04:00Z",
-  "experiment_id": "EXP-075",
-  "skill": "job-scraping+job-matching",
-  "focus": "cross_source_culture_parity",
-  "hypothesis": "Culture keyword extraction was only in Wanted post-processor. JobKorea and LinkedIn had no culture extraction, making 15% culture weight dead for those sources. Also innovat* regex missed 'innovative' English word.",
+  "timestamp": "2026-04-02T07:04:00Z",
+  "experiment_id": "EXP-076",
+  "skill": "job-matching",
+  "focus": "sinip_experience_scoring",
+  "hypothesis": "신입 (entry-level) was unhandled in experience scoring — scored 50 default for ~30% of Korean job postings",
   "metrics": {
-    "total_tests": "748 (all pass)",
+    "total_tests": "758 (all pass)",
     "npm_test": "working",
     "test_suites": 38,
     "all_passing": true,
-    "sources_with_culture": "3/3 (was 1/3)",
-    "innovative_english_match": "fixed",
-    "jobkorea_work_type": "added (remote/hybrid/onsite)",
+    "sinip_handling": "graduated (40-95)",
+    "sinip_career_handling": "85 (broad match)",
+    "n년_이상": "explicit",
     "regressions": 0
   }
 }
