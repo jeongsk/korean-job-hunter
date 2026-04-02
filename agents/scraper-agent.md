@@ -148,3 +148,14 @@ The 억 pattern is also captured during salary extraction (e.g., 연봉 1~2억 �
 ## JobKorea Salary Normalization (EXP-069)
 
 JobKorea cards now go through `post-process-jobkorea.js` which applies `normalizeSalary()` to the extracted salary text. This means JobKorea-sourced jobs also get `salary_min`/`salary_max` populated — previously only Wanted had this. Run the post-processor after scraping (see SKILL.md workflow step 3).
+
+## LinkedIn Post-Processor (EXP-070)
+
+LinkedIn cards now go through `post-process-linkedin.js` which enriches raw `{title, company, location, link}` data with:
+- **Experience level**: senior/lead/principal → senior, mid-senior → mid, junior/신입 → junior, intern → intern
+- **Skills**: 50+ tech patterns inferred from title + description
+- **Salary**: 연봉/월급/억/면접후결정 via shared normalizeSalary()
+- **Work type**: remote/hybrid/onsite detection
+- **Location**: Korean↔English city normalization
+
+Usage: `const { parseLinkedInCard } = require('./scripts/post-process-linkedin');`

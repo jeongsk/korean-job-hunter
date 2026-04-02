@@ -1,19 +1,18 @@
 {
-  "timestamp": "2026-04-01T23:04:00Z",
-  "experiment_id": "EXP-069",
+  "timestamp": "2026-04-02T00:04:00Z",
+  "experiment_id": "EXP-070",
   "skill": "job-scraping",
-  "focus": "jobkorea_salary_normalization_pipeline",
-  "hypothesis": "normalizeSalary() was only wired into post-process-wanted.js (EXP-068). JobKorea salary extraction (EXP-046) captured raw salary text but never normalized to salary_min/salary_max, so NLP salary queries didn't work for JobKorea-sourced jobs.",
+  "focus": "linkedin_post_processor",
+  "hypothesis": "LinkedIn had no post-processor unlike Wanted/JobKorea. Creating post-process-linkedin.js with experience, skills, salary, work_type brings LinkedIn pipeline to parity.",
   "metrics": {
-    "total_tests": "671 (all pass)",
+    "total_tests": "703 (all pass)",
     "npm_test": "working",
-    "test_suites": 35,
+    "test_suites": 36,
     "all_passing": true,
-    "jobkorea_salary_pipeline_tests": "12 (new)",
-    "salary_min_max_populated": true,
-    "annual_range": true,
-    "monthly_to_annual": true,
-    "eok_capture": true,
+    "linkedin_postprocess_tests": "32 (new)",
+    "linkedin_experience_levels": 5,
+    "linkedin_skill_patterns": "50+",
+    "linkedin_salary_extraction": true,
     "regressions": 0
   }
 }

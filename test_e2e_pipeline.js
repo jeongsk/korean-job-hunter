@@ -5,122 +5,141 @@
  * This tests the complete data flow from raw scraped text through to queryable results,
  * catching integration gaps between individual component tests.
  *
- * EXP-056: parseWantedJob now imported from production (scripts/post-process-wanted.js)
+ * EXP-071: All 3 source parsers now imported from production modules.
+ * Matching algorithm synced with validated test_validated_matching.js (EXP-049, -052, -064).
+ * Dedup synced with EXP-067 Korean↔English company equivalents.
  */
 
 const fs = require('fs');
 const path = require('path');
 const { parseWantedJob } = require('./scripts/post-process-wanted');
+const { parseJobKoreaCard } = require('./scripts/post-process-jobkorea');
+const { parseLinkedInCard } = require('./scripts/post-process-linkedin');
 
-// ─── JobKorea Parse function (no production module yet) ───
-
+// JobKorea: adapt production parseJobKoreaCard to accept lines array (e2e compat)
 function parseJobKoreaJob(lines) {
-  let result = { title: '', company: '', experience: '', location: '', deadline: '', salary: '' };
-  const unknowns = [];
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-
-    // Deadline
-    if (/~\d{2}\.\d{2}/.test(trimmed) || /마감/.test(trimmed)) {
-      result.deadline = trimmed;
-      continue;
-    }
-    // Experience
-    if (/경력\s*(무관|\d+년?|\d+~\d+년?)/.test(trimmed)) {
-      result.experience = trimmed;
-      continue;
-    }
-    // Salary (EXP-046)
-    if (/연봉|월급|면접후결정/.test(trimmed)) {
-      result.salary = trimmed;
-      continue;
-    }
-    // Noise lines
-    if (/^(기업|채용|D-|스크랩|열람|지원자)/.test(trimmed)) continue;
-
-    unknowns.push(trimmed);
-  }
-
-  if (unknowns.length > 0) result.title = unknowns[0];
-  if (unknowns.length > 1) result.company = unknowns[1];
-  // Location from last city-matching unknown
-  const cities = ['서울', '경기', '부산', '대전', '인천'];
-  for (const u of unknowns) {
-    for (const c of cities) {
-      if (u.includes(c)) result.location = u;
-    }
-  }
-
-  return result;
+  const text = Array.isArray(lines) ? lines.join('\n') : lines;
+  return parseJobKoreaCard(text);
 }
 
-// ─── Matching Algorithm (synced from SKILL.md v3.1) ───
+// ─── Matching Algorithm (synced from test_validated_matching.js) ───
+// Includes: EXP-021 skill gate, EXP-024 domain alignment, EXP-049 framework-aware domains,
+// EXP-052 title skill inference, EXP-064 expanded similarity map
 
-const tier1 = { 'typescript': 'javascript', 'javascript': 'typescript', 'react': 'next.js', 'next.js': 'react', 'postgresql': 'mysql', 'mysql': 'postgresql' };
-const tier2Pairs = [['spring', 'spring boot'], ['express', 'node.js'], ['node.js', 'nestjs'], ['aws', 'gcp'], ['aws', 'azure']];
-const tier3Pairs = [['react', 'vue'], ['node.js', 'python']];
+const TIER1 = { // 100% — aliases / near-identical
+  'typescript': 'javascript', 'javascript': 'typescript',
+  'react': 'next.js', 'next.js': 'react',
+  'postgresql': 'mysql', 'mysql': 'postgresql',
+  'kubernetes': 'k8s', 'k8s': 'kubernetes',
+  'spring boot': 'spring_boot', 'spring_boot': 'spring boot',
+};
 
-function getTierScore(skillA, skillB) {
+const TIER2 = { // 75%
+  'spring': ['spring boot', 'spring_boot'], 'spring boot': ['spring'], 'spring_boot': ['spring'],
+  'express': ['node.js', 'nestjs'], 'node.js': ['express', 'nestjs'], 'nestjs': ['node.js', 'express'],
+  'fastapi': ['python'], 'python': ['fastapi', 'django', 'flask'],
+  'django': ['python'], 'flask': ['python'],
+  'aws': ['gcp', 'azure', 'cloud'], 'gcp': ['aws', 'azure', 'cloud'], 'azure': ['aws', 'gcp', 'cloud'],
+  'java': ['kotlin'], 'kotlin': ['java'],
+  'react': ['react native'], 'react native': ['react'],
+  'graphql': ['rest_api'], 'rest_api': ['graphql'],
+  'jenkins': ['github_actions'], 'github_actions': ['jenkins'],
+  'terraform': ['ansible'], 'ansible': ['terraform'],
+  'kafka': ['rabbitmq'], 'rabbitmq': ['kafka'],
+  'tensorflow': ['pytorch'], 'pytorch': ['tensorflow'],
+  'elasticsearch': ['redis'], 'redis': ['elasticsearch'],
+  'oracle': ['mssql'], 'mssql': ['oracle'],
+};
+
+const TIER3 = { // 25%
+  'react': ['vue', 'svelte'], 'vue': ['react', 'svelte'], 'svelte': ['react', 'vue'],
+  'node.js': ['python'], 'python': ['node.js'],
+  'aws': ['docker'], 'docker': ['aws', 'kubernetes', 'terraform', 'nginx'], 'kubernetes': ['docker'],
+  'kubernetes': ['container'], 'container': ['kubernetes'],
+  'sql': ['mongodb'], 'mongodb': ['sql'],
+  'terraform': ['docker'], 'nginx': ['docker'],
+  'spark': ['hadoop', 'pandas'], 'hadoop': ['spark'], 'pandas': ['spark'],
+  'graphql': ['grpc'], 'grpc': ['graphql'],
+  'mongodb': ['redis'], 'redis': ['mongodb'],
+};
+
+function getSimilarity(skillA, skillB) {
   const a = skillA.toLowerCase(), b = skillB.toLowerCase();
-  if (a === b) return 100;
-  if (tier1[a] === b || tier1[b] === a) return 100;
-  for (const [x, y] of tier2Pairs) {
-    if ((a === x && b === y) || (a === y && b === x)) return 75;
-  }
-  for (const [x, y] of tier3Pairs) {
-    if ((a === x && b === y) || (a === y && b === x)) return 25;
-  }
+  if (a === b) return 1.0;
+  if (TIER1[a] === b || TIER1[b] === a) return 1.0;
+  if (TIER2[a]?.includes(b)) return 0.75;
+  if (TIER3[a]?.includes(b)) return 0.25;
   return 0;
 }
 
 function computeSkillScore(jobSkills, candidateSkills) {
-  if (jobSkills.length === 0 || candidateSkills.length === 0) return 0;
+  if (jobSkills.length === 0) return 50; // neutral (EXP-052)
+  if (candidateSkills.length === 0) return 0;
   let totalScore = 0;
-  let matched = 0;
   for (const js of jobSkills) {
     let bestTier = 0;
     for (const cs of candidateSkills) {
-      const tier = getTierScore(js, cs);
-      if (tier > bestTier) bestTier = tier;
+      const sim = getSimilarity(js, cs);
+      const pct = sim * 100;
+      if (pct > bestTier) bestTier = pct;
     }
     totalScore += bestTier;
-    if (bestTier > 0) matched++;
   }
-  return Math.round((totalScore / jobSkills.length));
+  return Math.round(totalScore / jobSkills.length);
+}
+
+// EXP-049: Framework-aware domain detection
+const PRIMARY_DOMAINS = {
+  'python': 'python', 'java': 'java', 'javascript': 'js/ts', 'typescript': 'js/ts',
+  'go': 'go', 'rust': 'rust', 'swift': 'swift', 'c++': 'c++', 'c#': 'c#', 'kotlin': 'java',
+  'spring': 'java', 'spring boot': 'java',
+  'django': 'python', 'flask': 'python', 'fastapi': 'python',
+  'react': 'js/ts', 'next.js': 'js/ts', 'vue': 'js/ts', 'nuxt.js': 'js/ts', 'svelte': 'js/ts',
+  'express': 'js/ts', 'nestjs': 'js/ts', 'node.js': 'js/ts',
+  'swiftui': 'swift', 'flutter': 'dart', 'dart': 'dart',
+  '.net': 'c#', 'asp.net': 'c#',
+  'ruby on rails': 'ruby', 'rails': 'ruby', 'ruby': 'ruby',
+  'php': 'php', 'laravel': 'php',
+};
+
+function detectPrimaryDomains(skills) {
+  const domains = new Set();
+  for (const s of skills) {
+    const d = PRIMARY_DOMAINS[s.toLowerCase()];
+    if (d) domains.add(d);
+  }
+  return domains;
+}
+
+function hasDomainOverlap(jobSkills, candidateSkills) {
+  const jobDomains = detectPrimaryDomains(jobSkills);
+  const candDomains = detectPrimaryDomains(candidateSkills);
+  if (jobDomains.size === 0) return true; // no domain detected = no penalty
+  for (const d of jobDomains) {
+    if (candDomains.has(d)) return true;
+  }
+  return false;
 }
 
 function computeMatch(job, candidate) {
   // Skill score
   const skillScore = computeSkillScore(job.skills || [], candidate.skills || []);
 
-  // Skill gate (EXP-021)
+  // Skill gate (EXP-021: quadratic dampening)
   const gate = skillScore < 40 ? Math.max(0.04, (skillScore / 40) ** 2) : 1.0;
 
-  // Domain alignment (EXP-024)
-  const primaryDomains = { python: ['django', 'flask', 'fastapi', 'pandas'], java: ['spring', 'jvm', 'gradle', 'jpa'], js: ['react', 'vue', 'angular', 'node.js', 'next.js', 'express'], go: ['gin', 'echo', 'grpc'] };
-  let domainPenalty = 1.0;
-  for (const [domain, indicators] of Object.entries(primaryDomains)) {
-    const jobHas = (job.skills || []).some(s => indicators.includes(s.toLowerCase()));
-    if (jobHas) {
-      const candidateHas = (candidate.skills || []).some(s => {
-        const sl = s.toLowerCase();
-        return sl === domain || indicators.includes(sl);
-      });
-      if (!candidateHas) { domainPenalty = 0.60; break; }
-    }
-  }
+  // Domain alignment (EXP-024 + EXP-049: framework-aware, 40% penalty)
+  const domainPenalty = hasDomainOverlap(job.skills || [], candidate.skills || []) ? 1.0 : 0.60;
 
   const adjustedSkill = Math.round(skillScore * domainPenalty);
 
   // Experience score
-  let expScore = 70; // default
+  let expScore = 70;
   if (candidate.experience_years <= 1) expScore = 40;
   else if (candidate.experience_years >= 5) expScore = 90;
 
   // Culture score
-  let cultureScore = 70;
+  let cultureScore = 50; // default aligned (EXP-063)
   if (job.culture_keywords && candidate.cultural_preferences) {
     const matched = job.culture_keywords.filter(k => candidate.cultural_preferences[k] > 0.5).length;
     cultureScore = Math.min(100, 50 + matched * 15);
@@ -132,9 +151,9 @@ function computeMatch(job, candidate) {
   const careerScore = stageDiff === 0 ? 100 : stageDiff === 1 ? 70 : 30;
 
   // Location/work
-  const locScore = 80; // simplified
+  const locScore = 80;
 
-  // Weighted with gate
+  // Weighted (EXP-017 v4: 35/25/15/15/10)
   const weights = { skill: 0.35, exp: 0.25, culture: 0.15, career: 0.15, loc: 0.10 };
   const total = Math.round(
     adjustedSkill * weights.skill +
@@ -197,13 +216,27 @@ function parseKoreanQuery(input) {
   return { filters, order };
 }
 
-// ─── Cross-Source Dedup (synced from SKILL.md v4.0) ───
+// ─── Cross-Source Dedup (synced with EXP-067: Korean↔English company equivalents) ───
 
-const koEnMap = { '프론트엔드': 'frontend', '백엔드': 'backend', '풀스택': 'fullstack', '개발자': 'developer', '시니어': 'senior', '주니어': 'junior' };
+const titleKoEn = { '프론트엔드': 'frontend', '백엔드': 'backend', '풀스택': 'fullstack', '개발자': 'developer', '시니어': 'senior', '주니어': 'junior' };
+
+const companyKoEn = {
+  '카카오': 'kakao', '네이버': 'naver', '라인': 'line', '토스': 'toss',
+  '배달의민족': 'woowahan', '우아한형제들': 'woowahan', '쿠팡': 'coupang',
+  '당근마켓': 'karrot', '야놀자': 'yanolja', '리디': 'ridi',
+};
+
+function companyToCanonical(name) {
+  const lower = name.toLowerCase().trim();
+  // Direct Korean→English mapping
+  if (companyKoEn[lower]) return companyKoEn[lower];
+  // Already English — lowercase as-is
+  return lower;
+}
 
 function normalizeTitle(title) {
   let t = title.toLowerCase().trim();
-  for (const [ko, en] of Object.entries(koEnMap)) {
+  for (const [ko, en] of Object.entries(titleKoEn)) {
     t = t.replace(new RegExp(ko, 'g'), en);
   }
   return t;
@@ -221,8 +254,9 @@ function titleSimilarity(a, b) {
 function isDuplicate(jobA, jobB) {
   if (jobA.source === jobB.source) return false;
   const ts = titleSimilarity(jobA.title, jobB.title);
-  const sameCompany = jobA.company.toLowerCase().replace(/\s/g, '') === jobB.company.toLowerCase().replace(/\s/g, '');
-  return ts >= 0.6 && sameCompany;
+  const ca = companyToCanonical(jobA.company || '');
+  const cb = companyToCanonical(jobB.company || '');
+  return ts >= 0.6 && ca === cb;
 }
 
 // ─── Test Runner ───
@@ -315,6 +349,10 @@ const jkJob = { title: 'Frontend Developer', company: '카카오', source: 'jobk
 const diffJob = { title: '백엔드 개발자', company: '카카오', source: 'jobkorea' };
 
 assert(isDuplicate(wantedJob, jkJob), 'Dedup: same job cross-source detected');
+// Also test Korean↔English company dedup
+const linkedinKakao = { title: 'Frontend Developer', company: 'Kakao', source: 'linkedin' };
+assert(isDuplicate(wantedJob, linkedinKakao), 'Dedup: 카카오 ↔ Kakao cross-source detected');
+
 assert(!isDuplicate(wantedJob, diffJob), 'Dedup: different title not flagged');
 assert(titleSimilarity('프론트엔드 개발자', 'Frontend Developer') > 0.3, 'Title similarity: ko↔en mapping works');
 
@@ -350,7 +388,7 @@ console.log('\n🔄 Phase 5: Full Pipeline Simulation');
 const rawJobs = [
   { source: 'wanted', raw: "프론트엔드 개발자카카오경력 3-10년합격보상금 70만원", url: 'https://wanted.co.kr/wd/1' },
   { source: 'jobkorea', lines: ['프론트엔드 개발자', '카카오', '서울 영등포구', '경력 3년 이상', '연봉 5000~8000만원', '~04.15'], url: 'https://jobkorea.co.kr/1' },
-  { source: 'linkedin', title: 'Frontend Developer', company: '카카오', url: 'https://linkedin.com/jobs/1' },
+  { source: 'linkedin', title: 'Frontend Developer', company: 'Kakao', location: '서울', description: 'React TypeScript development', url: 'https://linkedin.com/jobs/1' },
   { source: 'wanted', raw: "백엔드 개발자 Python/Django토스경력 5년 이상합격보상금 100만원", url: 'https://wanted.co.kr/wd/2' },
   { source: 'wanted', raw: "시니어 리액트 개발자네이버경력 7-12년합격보상금 200만원", url: 'https://wanted.co.kr/wd/3' },
 ];
@@ -363,12 +401,20 @@ const parsedJobs = rawJobs.map(j => {
   } else if (j.source === 'jobkorea') {
     const p = parseJobKoreaJob(j.lines);
     return { ...p, source: j.source, url: j.url };
-  } else {
-    return { title: j.title, company: j.company, source: j.source, url: j.url };
+  } else if (j.source === 'linkedin') {
+    // Use production LinkedIn parser
+    const p = parseLinkedInCard({ title: j.title, company: j.company, location: j.location || '', description: j.description || '' });
+    return { ...p, source: j.source, url: j.url };
   }
+  return { ...j };
 });
 
 assert(parsedJobs.length === 5, `Pipeline: parsed ${parsedJobs.length} jobs`);
+
+// Verify LinkedIn parsed fields
+const linkedinParsed = parsedJobs.find(j => j.source === 'linkedin');
+assert(linkedinParsed !== undefined, 'Pipeline: LinkedIn job parsed');
+assert(linkedinParsed.title !== undefined, 'Pipeline: LinkedIn has title');
 
 // Dedup
 const uniqueJobs = [];
@@ -376,10 +422,12 @@ for (const job of parsedJobs) {
   const dup = uniqueJobs.find(u => isDuplicate(u, job));
   if (!dup) uniqueJobs.push(job);
 }
-// Wanted 카카오 + JobKorea 카카오 + LinkedIn 카카오 should dedup to 3 unique
-// LinkedIn only has title/company, so title similarity with "프론트엔드 개발자" and "Frontend Developer"
-// through ko↔en mapping should match
+// Wanted 카카오 + JobKorea 카카오 + LinkedIn Kakao (EN) should dedup to 3 unique
+// LinkedIn Kakao ↔ 카카오 via companyKoEn map (EXP-067)
 assert(uniqueJobs.length <= 4, `Pipeline: dedup ${parsedJobs.length} → ${uniqueJobs.length} unique`);
+// Verify LinkedIn↔Korean dedup works via companyKoEn
+const kakaoGroup = parsedJobs.filter(j => companyToCanonical(j.company || '') === 'kakao');
+assert(kakaoGroup.length === 3, `Pipeline: 3 카카오/Kakao entries found across sources (got ${kakaoGroup.length})`);
 
 // Match
 const matchResults = uniqueJobs.map(job => {

@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v5.0 (EXP-069: JobKorea Salary Normalization Pipeline)
+# Job Scraping Skill v5.1 (EXP-070: LinkedIn Post-Processor)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
@@ -584,4 +584,22 @@ function normalizeSalary(raw) {
 agent-browser console        # 콘솔 로그
 agent-browser errors         # 에러 로그
 agent-browser screenshot     # 스크린샷
+```
+
+## LinkedIn Post-Processor (EXP-070)
+
+`scripts/post-process-linkedin.js` enriches raw LinkedIn card data with:
+
+### Features
+- **Experience level extraction**: senior/lead/principal → senior (5+yr), mid-senior/중급 → mid (3yr), junior/신입/entry-level → junior, intern → intern. Korean N년차 also detected.
+- **Skill inference**: 50+ tech patterns (React, Python, Spring Boot, Kubernetes, etc.) from title + description. Normalizes k8s→kubernetes, golang→go.
+- **Salary extraction**: 연봉/월급/억 patterns via shared `normalizeSalary()`. 면접후결정 detected.
+- **Work type detection**: remote/hybrid/onsite from Korean and English keywords.
+- **Location normalization**: Korean↔English city mapping, 대한민국 stripping.
+
+### Usage
+```js
+const { parseLinkedInCard } = require('./scripts/post-process-linkedin');
+const job = parseLinkedInCard({ title: 'Senior Backend Engineer (Python)', company: 'Naver', location: 'Pangyo, Gyeonggi-do', link: '...', description: 'Django, Kubernetes. 연봉 6000~9000만원' });
+// → { title, company, location:'판교 경기도', experience:'senior', experience_min_years:5, skills:'python, django, kubernetes', salary_min:6000, salary_max:9000, work_type:'onsite', source:'linkedin' }
 ```
