@@ -1,18 +1,16 @@
 {
-  "timestamp": "2026-04-02T01:04:00Z",
-  "experiment_id": "EXP-071",
-  "skill": "e2e-pipeline",
-  "focus": "production_sync",
-  "hypothesis": "E2E test had drifted from production code — inline JobKorea parser, no LinkedIn parser, outdated matching algorithm, outdated dedup. Syncing catches integration gaps.",
+  "timestamp": "2026-04-02T03:04:00Z",
+  "experiment_id": "EXP-072",
+  "skill": "job-tracking",
+  "focus": "nlp_sql_integration",
+  "hypothesis": "5 failing NLP-to-SQL integration tests indicate real parsing bugs affecting Korean query accuracy",
   "metrics": {
-    "total_tests": "707 (all pass)",
+    "total_tests": "727 (all pass)",
     "npm_test": "working",
-    "test_suites": 36,
+    "test_suites": 37,
     "all_passing": true,
-    "e2e_tests": "43 (was 39)",
-    "production_parsers_used": "3/3 (Wanted+JobKorea+LinkedIn)",
-    "matching_algo_synced": true,
-    "dedup_ko_en_companies": true,
+    "nlp_sql_tests": "20/20 (100%)",
+    "bugs_fixed": 5,
     "regressions": 0
   }
 }
