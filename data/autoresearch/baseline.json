@@ -1,17 +1,18 @@
 {
-  "timestamp": "2026-04-02T15:04:00Z",
-  "experiment_id": "EXP-081",
-  "skill": "job-scraping",
-  "focus": "cross_source_dedup_data_loss",
-  "hypothesis": "skills and culture_keywords columns missing from dedup-jobs.js cause silent data loss during merge",
+  "timestamp": "2026-04-02T16:04:00Z",
+  "experiment_id": "EXP-082",
+  "skill": "job-tracking",
+  "focus": "salary_threshold_nlp_queries",
+  "hypothesis": "Main NLP parser only supported basic '연봉 있는' queries; salary threshold parsing existed only in separate test suite with duplicated parser",
   "metrics": {
-    "total_tests": "878 (all pass)",
+    "total_tests": "884 (all pass)",
     "npm_test": "working",
     "test_suites": 43,
     "all_passing": true,
     "regressions": 0,
-    "dedup_enrichment_fields": 7,
-    "dedup_considers_skills": true,
-    "dedup_considers_culture": true
+    "nlp_v3_tests": 56,
+    "salary_threshold_cases": 6,
+    "salary_range_support": true,
+    "salary_eok_support": true
   }
 }
