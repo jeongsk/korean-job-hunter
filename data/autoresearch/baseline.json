@@ -1,16 +1,19 @@
 {
-  "timestamp": "2026-04-02T03:04:00Z",
-  "experiment_id": "EXP-072",
-  "skill": "job-tracking",
-  "focus": "nlp_sql_integration",
-  "hypothesis": "5 failing NLP-to-SQL integration tests indicate real parsing bugs affecting Korean query accuracy",
+  "timestamp": "2026-04-02T04:04:00Z",
+  "experiment_id": "EXP-073",
+  "skill": "all",
+  "focus": "dead_code_cleanup",
+  "hypothesis": "5 dead JS files in job-tracking (1991 lines), 9 dead shell scripts, 6 dead scripts/ files, 1 .bak file — all unreferenced — should be removed",
   "metrics": {
     "total_tests": "727 (all pass)",
     "npm_test": "working",
     "test_suites": 37,
     "all_passing": true,
-    "nlp_sql_tests": "20/20 (100%)",
-    "bugs_fixed": 5,
+    "dead_js_removed": "5 files (1991 lines)",
+    "dead_sh_removed": "9 files",
+    "dead_scripts_removed": "6 files (1719 lines)",
+    "bak_removed": 1,
+    "total_lines_removed": "~3700",
     "regressions": 0
   }
 }
