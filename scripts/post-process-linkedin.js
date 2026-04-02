@@ -7,7 +7,7 @@
 //   node scripts/post-process-linkedin.js < input.json > output.json
 //   const { parseLinkedInCard } = require('./scripts/post-process-linkedin');
 
-const { normalizeSalary } = require('./post-process-wanted');
+const { normalizeSalary, extractCultureKeywords } = require('./post-process-wanted');
 
 // === Location normalization ===
 function normalizeLocation(loc) {
@@ -144,6 +144,9 @@ function parseLinkedInCard(raw) {
   // Clean title: remove seniority prefixes in brackets
   let cleanTitle = title;
 
+  // Culture keywords (reuse Wanted patterns for parity)
+  const culture_keywords = extractCultureKeywords(`${title} ${description}`);
+
   return {
     title: cleanTitle,
     company,
@@ -156,6 +159,7 @@ function parseLinkedInCard(raw) {
     salary: salaryInfo.salary,
     salary_min: salaryInfo.salary_min,
     salary_max: salaryInfo.salary_max,
+    culture_keywords,
     source: 'linkedin',
   };
 }

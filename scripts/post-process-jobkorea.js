@@ -5,7 +5,7 @@
 //
 // Reuses normalizeSalary from post-process-wanted.js.
 
-const { normalizeSalary } = require('./post-process-wanted');
+const { normalizeSalary, extractCultureKeywords } = require('./post-process-wanted');
 
 const CITY_PATTERN = /(서울|경기|부산|대전|인천|광주|대구|울산|판교|강남|영등포|송파|성수|역삼|잠실|마포|용산|구로|분당|일산|평촌|수원|이천|성남|중구)/;
 const COMPANY_PREFIX = /^(㈜|\(주\)|주식회사)/;
@@ -99,9 +99,18 @@ function parseJobKoreaCard(raw) {
     }
   }
 
+  // Culture keywords (reuse Wanted patterns for parity)
+  const culture_keywords = extractCultureKeywords(text);
+
+  // Work type detection
+  const allText = lines.join(' ');
+  let work_type = 'onsite';
+  if (/전면재택|재택근무|풀리모트|원격근무|fully?\s*remote|100%\s*remote/i.test(allText)) work_type = 'remote';
+  else if (/하이브리드|주\d일\s*출근|hybrid/i.test(allText)) work_type = 'hybrid';
+
   return {
     title, company, experience, salary, salary_min, salary_max,
-    location, deadline, source: 'jobkorea'
+    location, deadline, work_type, culture_keywords, source: 'jobkorea'
   };
 }
 
