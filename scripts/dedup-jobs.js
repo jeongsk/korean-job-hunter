@@ -136,6 +136,8 @@ function fieldScore(job) {
   if (job.work_type && job.work_type.trim()) score++;
   if (job.location && job.location.trim()) score++;
   if (job.content && job.content.trim()) score += 2;
+  if (job.skills && job.skills.trim()) score += 3;  // Skills are high-value (35% match weight)
+  if (job.culture_keywords && job.culture_keywords.trim()) score += 1;
   // Prefer Wanted (usually richer)
   if (job.source === 'wanted') score += 1;
   return score;
@@ -149,7 +151,7 @@ function main() {
     process.exit(1);
   }
 
-  const raw = execSync(`sqlite3 -json "${DB_PATH}" "SELECT id, source, title, company, url, content, location, work_type, experience, salary, deadline, reward FROM jobs ORDER BY id"`, { encoding: 'utf8' });
+  const raw = execSync(`sqlite3 -json "${DB_PATH}" "SELECT id, source, title, company, url, content, location, work_type, experience, salary, deadline, reward, skills, culture_keywords FROM jobs ORDER BY id"`, { encoding: 'utf8' });
   const jobs = JSON.parse(raw);
 
   if (jobs.length === 0) {
@@ -199,20 +201,46 @@ function main() {
     const keeper = entries[0];
     const dupes = entries.slice(1);
 
+    // Enrich keeper with fields from dupes if missing
+    const enrichFields = ['skills', 'culture_keywords', 'salary', 'deadline', 'experience', 'work_type', 'location'];
+    const enrichUpdates = {};
+    for (const field of enrichFields) {
+      if ((!keeper[field] || !keeper[field].trim()) && !enrichUpdates[field]) {
+        for (const d of dupes) {
+          if (d[field] && d[field].trim()) {
+            enrichUpdates[field] = d[field].trim();
+            break;
+          }
+        }
+      }
+    }
+
     console.log(`\n🔄 Duplicate group (${entries.length} entries):`);
     console.log(`   ✅ KEEP [${keeper.source}] ${keeper.title} @ ${keeper.company} (score: ${keeper.score})`);
+    if (Object.keys(enrichUpdates).length > 0) {
+      console.log(`   📝 Enriching with: ${Object.keys(enrichUpdates).join(', ')} (from duplicate)`);
+    }
     for (const d of dupes) {
       console.log(`   ❌ REMOVE [${d.source}] ${d.title} @ ${d.company} (score: ${d.score})`);
-      toRemove.push(d.id);
+      toRemove.push({ id: d.id, enrich: enrichUpdates });
     }
     totalDupes += dupes.length;
+
+    // Apply enrichment before deletion
+    if (!DRY_RUN && Object.keys(enrichUpdates).length > 0) {
+      const setClauses = Object.entries(enrichUpdates)
+        .map(([k, v]) => `${k} = '${v.replace(/'/g, "''")}'`)
+        .join(', ');
+      execSync(`sqlite3 "${DB_PATH}" "UPDATE jobs SET ${setClauses} WHERE id = '${keeper.id}'"`, { encoding: 'utf8' });
+    }
   }
 
   if (DRY_RUN) {
     console.log(`\n📋 DRY RUN: Would remove ${totalDupes} duplicate(s) from ${groups.length} group(s).`);
   } else {
     // Remove duplicates, keeping the best entry
-    for (const id of toRemove) {
+    for (const entry of toRemove) {
+      const id = typeof entry === 'object' ? entry.id : entry;
       // Also remove related matches and applications
       execSync(`sqlite3 "${DB_PATH}" "DELETE FROM matches WHERE job_id = '${id}'"`, { encoding: 'utf8' });
       execSync(`sqlite3 "${DB_PATH}" "DELETE FROM applications WHERE job_id = '${id}'"`, { encoding: 'utf8' });
