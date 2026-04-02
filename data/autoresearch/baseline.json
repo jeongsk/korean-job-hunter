@@ -1,16 +1,17 @@
 {
-  "timestamp": "2026-04-02T14:04:00Z",
-  "experiment_id": "EXP-080",
-  "skill": "job-scraping+job-matching",
-  "focus": "production_pipeline_parity",
-  "hypothesis": "Production dedup missing Korean↔English company equivalents; Wanted/JobKorea post-processors not using shared skill-inference",
+  "timestamp": "2026-04-02T15:04:00Z",
+  "experiment_id": "EXP-081",
+  "skill": "job-scraping",
+  "focus": "cross_source_dedup_data_loss",
+  "hypothesis": "skills and culture_keywords columns missing from dedup-jobs.js cause silent data loss during merge",
   "metrics": {
-    "total_tests": "870 (all pass)",
+    "total_tests": "878 (all pass)",
     "npm_test": "working",
-    "test_suites": 42,
+    "test_suites": 43,
     "all_passing": true,
     "regressions": 0,
-    "dedup_ko_en_equivalents": 25,
-    "skill_inference_coverage": "3/3 post-processors"
+    "dedup_enrichment_fields": 7,
+    "dedup_considers_skills": true,
+    "dedup_considers_culture": true
   }
 }
