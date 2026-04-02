@@ -1,18 +1,18 @@
 {
-  "timestamp": "2026-04-02T00:04:00Z",
-  "experiment_id": "EXP-070",
-  "skill": "job-scraping",
-  "focus": "linkedin_post_processor",
-  "hypothesis": "LinkedIn had no post-processor unlike Wanted/JobKorea. Creating post-process-linkedin.js with experience, skills, salary, work_type brings LinkedIn pipeline to parity.",
+  "timestamp": "2026-04-02T01:04:00Z",
+  "experiment_id": "EXP-071",
+  "skill": "e2e-pipeline",
+  "focus": "production_sync",
+  "hypothesis": "E2E test had drifted from production code — inline JobKorea parser, no LinkedIn parser, outdated matching algorithm, outdated dedup. Syncing catches integration gaps.",
   "metrics": {
-    "total_tests": "703 (all pass)",
+    "total_tests": "707 (all pass)",
     "npm_test": "working",
     "test_suites": 36,
     "all_passing": true,
-    "linkedin_postprocess_tests": "32 (new)",
-    "linkedin_experience_levels": 5,
-    "linkedin_skill_patterns": "50+",
-    "linkedin_salary_extraction": true,
+    "e2e_tests": "43 (was 39)",
+    "production_parsers_used": "3/3 (Wanted+JobKorea+LinkedIn)",
+    "matching_algo_synced": true,
+    "dedup_ko_en_companies": true,
     "regressions": 0
   }
 }
