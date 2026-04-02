@@ -167,8 +167,69 @@ function parseKoreanQuery(input) {
     }
   }
 
+  // === Skill-based filtering (EXP-078) ===
+  const skillPatterns = [
+    // Longer patterns first to avoid substring conflicts
+    { canonical: 'react native', patterns: [/react\s*native/i, /리액트\s*네이티브/i] },
+    { canonical: 'react', patterns: [/react(?!ive)|리액트/i] },
+    { canonical: 'typescript', patterns: [/typescript|타입스크립트/i] },
+    { canonical: 'javascript', patterns: [/javascript|자바스크립트/i] },
+    { canonical: 'python', patterns: [/python|파이썬/i] },
+    { canonical: 'java', patterns: [/java(?!script)|자바(?!스크립트)/i] },
+    { canonical: 'go', patterns: [/golang|고언어|go언어/i] },
+    { canonical: 'rust', patterns: [/rust|러스트/i] },
+    { canonical: 'kotlin', patterns: [/kotlin|코틀린/i] },
+    { canonical: 'swift', patterns: [/swift|스위프트/i] },
+    { canonical: 'ruby', patterns: [/ruby|루비/i] },
+    { canonical: 'spring boot', patterns: [/spring\s*boot|스프링\s*부트/i] },
+    { canonical: 'spring', patterns: [/spring|스프링/i] },
+    { canonical: 'django', patterns: [/django|장고/i] },
+    { canonical: 'flask', patterns: [/flask|플라스크/i] },
+    { canonical: 'fastapi', patterns: [/fastapi/i] },
+    { canonical: 'next.js', patterns: [/next\.?js|넥스트/i] },
+    { canonical: 'vue', patterns: [/vue\.?js?|뷰/i] },
+    { canonical: 'angular', patterns: [/angular|앵귤러/i] },
+    { canonical: 'node.js', patterns: [/node\.?js|노드/i] },
+    { canonical: 'express', patterns: [/express|익스프레스/i] },
+    { canonical: 'flutter', patterns: [/flutter|플러터/i] },
+    { canonical: 'docker', patterns: [/docker|도커/i] },
+    { canonical: 'kubernetes', patterns: [/kubernetes|k8s|쿠버네티스/i] },
+    { canonical: 'aws', patterns: [/aws|아마존웹서비스/i] },
+    { canonical: 'gcp', patterns: [/gcp|google\s*cloud/i] },
+    { canonical: 'azure', patterns: [/azure/i] },
+    { canonical: 'terraform', patterns: [/terraform|테라폼/i] },
+    { canonical: 'jenkins', patterns: [/jenkins/i] },
+    { canonical: 'github actions', patterns: [/github\s*actions/i] },
+    { canonical: 'kafka', patterns: [/kafka/i] },
+    { canonical: 'redis', patterns: [/redis|레디스/i] },
+    { canonical: 'mongodb', patterns: [/mongodb/i] },
+    { canonical: 'mysql', patterns: [/mysql/i] },
+    { canonical: 'postgresql', patterns: [/postgresql|postgres/i] },
+    { canonical: 'elasticsearch', patterns: [/elasticsearch/i] },
+    { canonical: 'graphql', patterns: [/graphql/i] },
+    { canonical: 'tensorflow', patterns: [/tensorflow/i] },
+    { canonical: 'pytorch', patterns: [/pytorch/i] },
+    { canonical: 'figma', patterns: [/figma|피그마/i] },
+  ];
+
+  let skillMatched = false;
+  for (const { canonical, patterns } of skillPatterns) {
+    for (const p of patterns) {
+      if (p.test(text)) {
+        filters.push(`j.skills LIKE '%${canonical}%'`);
+        consumedWords.add(canonical);
+        // Add Korean alias to consumed words
+        const koMatch = text.match(/[가-힣]+/);
+        if (koMatch && p.source.includes('가-힣')) consumedWords.add(koMatch[0]);
+        skillMatched = true;
+        break;
+      }
+    }
+    if (skillMatched) break;
+  }
+
   // === Remaining Korean keywords (title/company search) ===
-  const stopWords = new Set(['면접', '면접보는', '면접잡힌', '지원', '지원한', '지원할', '지원예정', '지원완료', '관심', '북마크', '찜', '찜해둔', '합격', '합격한', '오퍼', '탈락', '탈락한', '거절', '불합격', '재택', '재택으로', '원격', '리모트', '하이브리드', '점수', '점수순으로', '매칭', '최신', '빼고', '제외', '말고', '있어', '보여', '보여줘', '공고', '거', '곳', '다', '중에', '할', '한', '수', '있는', '순으로', '보는', '잡힌', '해둔', '예정', '완료', '했', '을', '를', '이', '가', '에서', '의', '에', '연봉', '급여', '연수입', '마감임박', '곧마감', '마감순', '오늘', '내일', '마감', '기한', '데드라인', '경력', '년', '년차', '이상', '남은', '빠른순']);
+  const stopWords = new Set(['면접', '면접보는', '면접잡힌', '지원', '지원한', '지원할', '지원예정', '지원완료', '관심', '북마크', '찜', '찜해둔', '합격', '합격한', '오퍼', '탈락', '탈락한', '거절', '불합격', '재택', '재택으로', '원격', '리모트', '하이브리드', '점수', '점수순으로', '매칭', '최신', '빼고', '제외', '말고', '있어', '보여', '보여줘', '공고', '거', '곳', '다', '중에', '할', '한', '수', '있는', '순으로', '보는', '잡힌', '해둔', '예정', '완료', '했', '을', '를', '이', '가', '에서', '의', '에', '연봉', '급여', '연수입', '마감임박', '곧마감', '마감순', '오늘', '내일', '마감', '기한', '데드라인', '경력', '년', '년차', '이상', '남은', '빠른순', '쓰는', '하는', '쓰는곳', '하는곳', '파이썬', '도커', '코틀린', '스프링', '장고', '플라스크', '넥스트', '뷰', '앵귤러', '노드', '익스프레스', '플러터', '쿠버네티스', '테라폼', '러스트', '스위프트', '루비', '레디스', '피그마', '리액트', '자바스크립트', '타입스크립트', '자바', '고언어', '부트']);
   const koreanWords = text.match(/[가-힣]{2,}/g) || [];
   for (const word of koreanWords) {
     if (!stopWords.has(word) && !consumedWords.has(word)) {
@@ -275,6 +336,20 @@ const testCases = [
     note: "standalone 경력 excludes 신입-only jobs" },
   { id: 39, input: "경력 5년 이상 서울", expectedFilters: ["j.experience LIKE '%5%'", "j.location LIKE '%서울%'"], expectedOrder: "a.updated_at DESC",
     note: "경력 N년 + location composite (경력 is stopword, not leaked)" },
+
+  // --- EXP-078: Skill-based filtering ---
+  { id: 40, input: "React 공고 있어?", expectedFilters: ["j.skills LIKE '%react%'"], expectedOrder: "a.updated_at DESC",
+    note: "English skill name queries j.skills column" },
+  { id: 41, input: "파이썬 공고", expectedFilters: ["j.skills LIKE '%python%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean skill alias 파이썬 maps to python canonical" },
+  { id: 42, input: "도커 쓰는 공고", expectedFilters: ["j.skills LIKE '%docker%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 도커 maps to docker, 쓰는 is stopword" },
+  { id: 43, input: "스프링 부트 지원한 공고", expectedFilters: ["a.status = 'applied'", "j.skills LIKE '%spring boot%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 스프링 부트 + status composite" },
+  { id: 44, input: "k8s 서울 공고", expectedFilters: ["j.skills LIKE '%kubernetes%'", "j.location LIKE '%서울%'"], expectedOrder: "a.updated_at DESC",
+    note: "k8s alias maps to kubernetes canonical" },
+  { id: 45, input: "코틀린 관심 공고", expectedFilters: ["a.status = 'interested'", "j.skills LIKE '%kotlin%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 코틀린 maps to kotlin + status" },
 ];
 
 // Run tests

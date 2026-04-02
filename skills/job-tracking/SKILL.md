@@ -3,7 +3,7 @@ name: job-tracking
 description: "Job application status tracking with SQLite CRUD, Korean NLP query parsing, pipeline analytics, and smart suggestions"
 ---
 
-# Job Tracking Skill v2.4 (EXP-056: N년차/경력 Experience NLP Patterns)
+# Job Tracking Skill v2.5 (EXP-078: Skill-based NLP Query Filtering)
 
 ## Korean Natural Language Query Parsing
 
@@ -46,6 +46,17 @@ description: "Job application status tracking with SQLite CRUD, Korean NLP query
 | N년차 | `j.experience LIKE '%N%'` |
 | 경력 (standalone) | `j.experience NOT LIKE '%신입%' OR j.experience LIKE '%무관%'` |
 
+### Skill-based Filtering (EXP-078)
+| Korean/English Pattern | SQL Filter | Example Input |
+|---|---|---|
+| React / 리액트 | `j.skills LIKE '%react%'` | "React 공고" |
+| 파이썬 / Python | `j.skills LIKE '%python%'` | "파이썬 공고" |
+| 도커 / Docker | `j.skills LIKE '%docker%'` | "도커 쓰는 공고" |
+| 스프링 부트 / Spring Boot | `j.skills LIKE '%spring boot%'` | "스프링 부트 지원한 공고" |
+| k8s / 쿠버네티스 / Kubernetes | `j.skills LIKE '%kubernetes%'` | "k8s 서울 공고" |
+| 코틀린 / Kotlin | `j.skills LIKE '%kotlin%'` | "코틀린 관심 공고" |
+| Node.js / 노드 | `j.skills LIKE '%node.js%'` | "노드 공고" |
+
 ### Deadline Urgency Scoring (EXP-035)
 
 Deadlines are computed into urgency levels for prioritization:
@@ -62,14 +73,14 @@ Deadlines are computed into urgency levels for prioritization:
 ```sql
 -- Urgency-aware query: upcoming deadlines with match scores
 SELECT j.title, j.company, j.deadline,
-       CAST(julianday(j.deadline) - julianday('now') AS INTEGER) as days_left,
+       CAST(julianday(j.deadline) - julianday(date('now')) AS INTEGER) as days_left,
        m.score
 FROM jobs j
 LEFT JOIN matches m ON j.id = m.job_id
 LEFT JOIN applications a ON j.id = a.job_id
 WHERE j.deadline IS NOT NULL AND j.deadline != ''
   AND j.deadline NOT LIKE '%상시%'
-  AND julianday(j.deadline) - julianday('now') > 0
+  AND CAST(julianday(j.deadline) - julianday(date('now')) AS INTEGER) > 0
   AND a.id IS NULL  -- not yet applied
 ORDER BY julianday(j.deadline) ASC, m.score DESC
 LIMIT 20
@@ -119,6 +130,14 @@ parse_korean_query(input):
   // Work type
   if matches "(재택|원격|리모트)" → filters.push("j.work_type = 'remote'")
   if matches "하이브리드" → filters.push("j.work_type = 'hybrid'")
+  
+  // Skill-based filtering (EXP-078)
+  // Matches tech skill names (English + Korean aliases) against j.skills column
+  // Korean aliases: 파이썬→python, 도커→docker, 스프링→spring, 쿠버네티스→kubernetes, etc.
+  // Aliases: k8s→kubernetes, golang→go, JS→javascript
+  // "React 공고" → j.skills LIKE '%react%'
+  // "파이썬 쓰는 공고" → j.skills LIKE '%python%'
+  // "k8s 서울" → j.skills LIKE '%kubernetes%' AND j.location LIKE '%서울%'
   
   // Negation (빼고/제외/말고): negate only the entity immediately before the marker
   if matches "(빼고|제외|말고)" + entity immediately before marker → that entity gets NOT
