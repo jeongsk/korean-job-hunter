@@ -37,8 +37,8 @@ const TIER1 = { // 100% — aliases / near-identical
 const TIER2 = { // 75%
   'spring': ['spring boot', 'spring_boot'], 'spring boot': ['spring'], 'spring_boot': ['spring'],
   'express': ['node.js', 'nestjs'], 'node.js': ['express', 'nestjs'], 'nestjs': ['node.js', 'express'],
-  'fastapi': ['python'], 'python': ['fastapi', 'django', 'flask'],
-  'django': ['python'], 'flask': ['python'],
+  'fastapi': ['python', 'django', 'flask'], 'python': ['fastapi', 'django', 'flask'],
+  'django': ['python', 'fastapi', 'flask'], 'flask': ['python', 'fastapi', 'django'],
   'aws': ['gcp', 'azure', 'cloud'], 'gcp': ['aws', 'azure', 'cloud'], 'azure': ['aws', 'gcp', 'cloud'],
   'java': ['kotlin'], 'kotlin': ['java'],
   'react': ['react native'], 'react native': ['react'],
@@ -52,7 +52,7 @@ const TIER2 = { // 75%
 };
 
 const TIER3 = { // 25%
-  'react': ['vue', 'svelte'], 'vue': ['react', 'svelte'], 'svelte': ['react', 'vue'],
+  'react': ['vue', 'svelte', 'angular'], 'vue': ['react', 'svelte', 'angular'], 'svelte': ['react', 'vue', 'angular'], 'angular': ['react', 'vue', 'svelte'],
   'node.js': ['python'], 'python': ['node.js'],
   'aws': ['docker'], 'docker': ['aws', 'kubernetes', 'terraform', 'nginx'], 'kubernetes': ['docker'],
   'kubernetes': ['container'], 'container': ['kubernetes'],
@@ -94,7 +94,7 @@ const PRIMARY_DOMAINS = {
   'go': 'go', 'rust': 'rust', 'swift': 'swift', 'c++': 'c++', 'c#': 'c#', 'kotlin': 'java',
   'spring': 'java', 'spring boot': 'java',
   'django': 'python', 'flask': 'python', 'fastapi': 'python',
-  'react': 'js/ts', 'next.js': 'js/ts', 'vue': 'js/ts', 'nuxt.js': 'js/ts', 'svelte': 'js/ts',
+  'react': 'js/ts', 'next.js': 'js/ts', 'vue': 'js/ts', 'nuxt.js': 'js/ts', 'svelte': 'js/ts', 'angular': 'js/ts',
   'express': 'js/ts', 'nestjs': 'js/ts', 'node.js': 'js/ts',
   'swiftui': 'swift', 'flutter': 'dart', 'dart': 'dart',
   '.net': 'c#', 'asp.net': 'c#',

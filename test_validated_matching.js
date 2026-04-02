@@ -31,8 +31,8 @@ const TIER1 = { // 100%
 const TIER2 = { // 75%
   'spring': ['spring boot', 'spring_boot'], 'spring boot': ['spring'], 'spring_boot': ['spring'],
   'express': ['node.js', 'nestjs'], 'node.js': ['express', 'nestjs'], 'nestjs': ['node.js', 'express'],
-  'fastapi': ['python'], 'python': ['fastapi', 'django', 'flask'],
-  'django': ['python'], 'flask': ['python'],
+  'fastapi': ['python', 'django', 'flask'], 'python': ['fastapi', 'django', 'flask'],
+  'django': ['python', 'fastapi', 'flask'], 'flask': ['python', 'fastapi', 'django'],
   'aws': ['gcp', 'azure', 'cloud'], 'gcp': ['aws', 'azure', 'cloud'], 'azure': ['aws', 'gcp', 'cloud'],
   'java': ['kotlin'], 'kotlin': ['java'], // JVM interoperable (EXP-062)
   'react': ['react native'], 'react native': ['react'], // shared React paradigm (EXP-062)
@@ -47,7 +47,7 @@ const TIER2 = { // 75%
 };
 
 const TIER3 = { // 25%
-  'react': ['vue', 'svelte'], 'vue': ['react', 'svelte'], 'svelte': ['react', 'vue'],
+  'react': ['vue', 'svelte', 'angular'], 'vue': ['react', 'svelte', 'angular'], 'svelte': ['react', 'vue', 'angular'], 'angular': ['react', 'vue', 'svelte'],
   'node.js': ['python'], 'python': ['node.js'],
   'aws': ['docker'], 'docker': ['aws', 'kubernetes', 'terraform', 'nginx'], 'kubernetes': ['docker'], // container ecosystem (EXP-062) + DevOps (EXP-064)
   'kubernetes': ['container'], 'container': ['kubernetes'],
@@ -430,6 +430,12 @@ const simTests = [
   ['MongoDB', 'Redis', 0.25], // NoSQL stores
   ['GraphQL', 'gRPC', 0.25], // modern API protocols
   ['Kubernetes', 'K8s', 1.0], // alias
+  // EXP-074: Python web framework cross-similarity
+  ['FastAPI', 'Django', 0.75], // Python web frameworks
+  ['FastAPI', 'Flask', 0.75], // Python web frameworks
+  ['Django', 'Flask', 0.75], // Python web frameworks
+  ['Angular', 'React', 0.25], // frontend frameworks
+  ['Angular', 'Vue', 0.25], // frontend frameworks
 ];
 for (const [a, b, expected] of simTests) {
   const actual = getSimilarity(a, b);

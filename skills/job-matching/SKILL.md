@@ -3,7 +3,7 @@ name: job-matching
 description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring, and framework-aware primary domain alignment (EXP-049)"
 ---
 
-# Job Matching Skill v3.2 (EXP-048: Korean Culture Patterns + WLB)
+# Job Matching Skill v3.3 (EXP-074: Python Web Framework Cross-Similarity + Angular)
 
 ## Score Weights (Validated — EXP-017)
 
@@ -55,8 +55,7 @@ This prevents infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflati
 ### Tier 2: Strong Compatibility (75%)
 - Spring ↔ Spring Boot
 - Express ↔ Node.js ↔ NestJS
-- FastAPI ↔ Python
-- Django ↔ Python
+- FastAPI ↔ Python ↔ Django ↔ Flask (EXP-074: same-language web framework cross-similarity)
 - AWS ↔ GCP ↔ Azure ↔ Cloud
 - Java ↔ Kotlin (JVM interoperable — EXP-062)
 - React ↔ React Native (shared React paradigm — EXP-062)
@@ -69,7 +68,7 @@ This prevents infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflati
 - Oracle ↔ MSSQL (enterprise RDBMS — EXP-064)
 
 ### Tier 3: Partial Overlap (25%)
-- React ↔ Vue ↔ Svelte (frontend frameworks — EXP-062)
+- React ↔ Vue ↔ Svelte ↔ Angular (frontend frameworks — EXP-074: Angular added)
 - Node.js ↔ Python (server-side)
 - AWS ↔ Docker (cloud/containers)
 - Docker ↔ Kubernetes (container ecosystem — EXP-062)

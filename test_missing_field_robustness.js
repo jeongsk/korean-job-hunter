@@ -25,12 +25,12 @@ const TIER1 = {
 const TIER2 = {
   'spring': ['spring boot'], 'spring boot': ['spring'],
   'express': ['node.js', 'nestjs'], 'node.js': ['express', 'nestjs'], 'nestjs': ['node.js', 'express'],
-  'fastapi': ['python'], 'python': ['fastapi', 'django', 'flask'],
-  'django': ['python'], 'flask': ['python'],
+  'fastapi': ['python', 'django', 'flask'], 'python': ['fastapi', 'django', 'flask'],
+  'django': ['python', 'fastapi', 'flask'], 'flask': ['python', 'fastapi', 'django'],
   'aws': ['gcp', 'azure', 'cloud'], 'gcp': ['aws', 'azure', 'cloud'], 'azure': ['aws', 'gcp', 'cloud'],
 };
 const TIER3 = {
-  'react': ['vue'], 'vue': ['react'],
+  'react': ['vue', 'angular'], 'vue': ['react', 'angular'], 'angular': ['react', 'vue'],
   'node.js': ['python'], 'python': ['node.js'],
   'aws': ['docker'], 'docker': ['aws'],
   'kubernetes': ['container'], 'container': ['kubernetes'],
@@ -51,7 +51,7 @@ const PRIMARY_DOMAINS = {
   'go': 'go', 'rust': 'rust', 'swift': 'swift', 'c++': 'c++', 'c#': 'c#', 'kotlin': 'java',
   'spring': 'java', 'spring boot': 'java',
   'django': 'python', 'flask': 'python', 'fastapi': 'python',
-  'react': 'js/ts', 'next.js': 'js/ts', 'vue': 'js/ts', 'nuxt.js': 'js/ts', 'svelte': 'js/ts',
+  'react': 'js/ts', 'next.js': 'js/ts', 'vue': 'js/ts', 'nuxt.js': 'js/ts', 'svelte': 'js/ts', 'angular': 'js/ts',
   'express': 'js/ts', 'nestjs': 'js/ts', 'node.js': 'js/ts',
   'swiftui': 'swift', 'flutter': 'dart', 'dart': 'dart',
   '.net': 'c#', 'asp.net': 'c#',
