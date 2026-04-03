@@ -1,18 +1,17 @@
 {
-  "timestamp": "2026-04-03T20:04:00Z",
-  "experiment_id": "EXP-092",
-  "skill": "job-scraping",
-  "focus": "salary_range_dedup_persistence",
-  "hypothesis": "salary_min/salary_max computed by all 3 post-processors but never included in dedup-jobs.js SELECT or enrichFields — salary-based NLP queries always returned empty after dedup",
+  "timestamp": "2026-04-03T21:04:00Z",
+  "experiment_id": "EXP-093",
+  "skill": "job-matching",
+  "focus": "similarity_map_key_format",
+  "hypothesis": "github_actions underscore key in TIER2 doesn't match github actions from skill-inference — Jenkins↔GitHub Actions similarity was 0 instead of 0.75",
   "metrics": {
-    "total_tests": "1030 (all pass)",
+    "total_tests": "1033 (all pass)",
     "npm_test": "working",
     "test_suites": 46,
     "all_passing": true,
     "regressions": 0,
-    "salary_min_in_select": true,
-    "salary_max_in_select": true,
-    "salary_enrichment": true,
-    "numeric_sql_handling": true
+    "jenkins_github_actions_similarity": "0.75 (was 0)",
+    "duplicate_key_bug": "fixed",
+    "key_format_consistency_check": true
   }
 }
