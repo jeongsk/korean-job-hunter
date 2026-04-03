@@ -140,6 +140,8 @@ function fieldScore(job) {
   if (job.skills && job.skills.trim()) score += 3;  // Skills are high-value (35% match weight)
   if (job.culture_keywords && job.culture_keywords.trim()) score += 1;
   if (job.employment_type && job.employment_type !== 'regular') score += 1;  // Non-default employment_type carries info
+  if (job.career_stage && job.career_stage.trim()) score += 2;  // Career stage is 15% match weight
+  if (job.reward && job.reward.trim()) score += 1;  // Referral bonus info
   // Prefer Wanted (usually richer)
   if (job.source === 'wanted') score += 1;
   return score;
@@ -204,7 +206,7 @@ function main() {
     const dupes = entries.slice(1);
 
     // Enrich keeper with fields from dupes if missing
-    const enrichFields = ['skills', 'culture_keywords', 'employment_type', 'salary', 'deadline', 'experience', 'work_type', 'location', 'career_stage'];
+    const enrichFields = ['skills', 'culture_keywords', 'employment_type', 'salary', 'deadline', 'experience', 'work_type', 'location', 'career_stage', 'reward'];
     const enrichUpdates = {};
     for (const field of enrichFields) {
       if ((!keeper[field] || !keeper[field].trim()) && !enrichUpdates[field]) {

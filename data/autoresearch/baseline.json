@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-04-03T21:04:00Z",
-  "experiment_id": "EXP-093",
-  "skill": "job-matching",
-  "focus": "similarity_map_key_format",
-  "hypothesis": "github_actions underscore key in TIER2 doesn't match github actions from skill-inference — Jenkins↔GitHub Actions similarity was 0 instead of 0.75",
+  "timestamp": "2026-04-03T22:04:00Z",
+  "experiment_id": "EXP-094",
+  "skill": "job-scraping",
+  "focus": "dedup_field_completeness",
+  "hypothesis": "career_stage missing from fieldScore, reward missing from both fieldScore and enrichFields — data silently lost during dedup",
   "metrics": {
-    "total_tests": "1033 (all pass)",
+    "total_tests": "1040 (all pass)",
     "npm_test": "working",
-    "test_suites": 46,
+    "test_suites": 47,
     "all_passing": true,
     "regressions": 0,
-    "jenkins_github_actions_similarity": "0.75 (was 0)",
-    "duplicate_key_bug": "fixed",
-    "key_format_consistency_check": true
+    "career_stage_in_fieldScore": true,
+    "reward_in_fieldScore": true,
+    "reward_in_enrichFields": true
   }
 }
