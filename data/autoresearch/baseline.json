@@ -1,18 +1,18 @@
 {
-  "timestamp": "2026-04-03T19:04:00Z",
-  "experiment_id": "EXP-091",
-  "skill": "job-scraping+job-matching",
-  "focus": "career_stage_pipeline",
-  "hypothesis": "career_stage computed by all 3 post-processors but never persisted to DB — 15% matching weight always returned 50 neutral score",
+  "timestamp": "2026-04-03T20:04:00Z",
+  "experiment_id": "EXP-092",
+  "skill": "job-scraping",
+  "focus": "salary_range_dedup_persistence",
+  "hypothesis": "salary_min/salary_max computed by all 3 post-processors but never included in dedup-jobs.js SELECT or enrichFields — salary-based NLP queries always returned empty after dedup",
   "metrics": {
-    "total_tests": "1023 (all pass)",
+    "total_tests": "1030 (all pass)",
     "npm_test": "working",
-    "test_suites": 45,
+    "test_suites": 46,
     "all_passing": true,
     "regressions": 0,
-    "career_stage_in_db": true,
-    "career_stage_in_dedup": true,
-    "career_stage_shared_module": true,
-    "deriveCareerStage_sources": "skill-inference.js (Wanted, JobKorea) + local (LinkedIn)"
+    "salary_min_in_select": true,
+    "salary_max_in_select": true,
+    "salary_enrichment": true,
+    "numeric_sql_handling": true
   }
 }
