@@ -131,6 +131,7 @@ function fieldScore(job) {
   if (job.title) score++;
   if (job.company) score++;
   if (job.salary && job.salary.trim()) score += 2;
+  if (job.salary_min || job.salary_max) score += 1;  // Normalized salary range is valuable
   if (job.deadline && job.deadline.trim()) score += 2;
   if (job.experience && job.experience.trim()) score++;
   if (job.work_type && job.work_type.trim()) score++;
@@ -152,7 +153,7 @@ function main() {
     process.exit(1);
   }
 
-  const raw = execSync(`sqlite3 -json "${DB_PATH}" "SELECT id, source, title, company, url, content, location, work_type, experience, salary, deadline, reward, skills, culture_keywords, employment_type, career_stage FROM jobs ORDER BY id"`, { encoding: 'utf8' });
+  const raw = execSync(`sqlite3 -json "${DB_PATH}" "SELECT id, source, title, company, url, content, location, work_type, experience, salary, salary_min, salary_max, deadline, reward, skills, culture_keywords, employment_type, career_stage FROM jobs ORDER BY id"`, { encoding: 'utf8' });
   const jobs = JSON.parse(raw);
 
   if (jobs.length === 0) {
@@ -215,6 +216,14 @@ function main() {
         }
       }
     }
+    // Enrich numeric salary_min/salary_max (not text-trimmed)
+    if (!keeper.salary_min && !keeper.salary_max) {
+      for (const d of dupes) {
+        if (d.salary_min != null) { enrichUpdates.salary_min = d.salary_min; }
+        if (d.salary_max != null) { enrichUpdates.salary_max = d.salary_max; }
+        if (enrichUpdates.salary_min || enrichUpdates.salary_max) break;
+      }
+    }
 
     console.log(`\n🔄 Duplicate group (${entries.length} entries):`);
     console.log(`   ✅ KEEP [${keeper.source}] ${keeper.title} @ ${keeper.company} (score: ${keeper.score})`);
@@ -229,8 +238,9 @@ function main() {
 
     // Apply enrichment before deletion
     if (!DRY_RUN && Object.keys(enrichUpdates).length > 0) {
+      const numericFields = new Set(['salary_min', 'salary_max']);
       const setClauses = Object.entries(enrichUpdates)
-        .map(([k, v]) => `${k} = '${v.replace(/'/g, "''")}'`)
+        .map(([k, v]) => numericFields.has(k) ? `${k} = ${v != null ? v : 'NULL'}` : `${k} = '${v.replace(/'/g, "''")}'`)
         .join(', ');
       execSync(`sqlite3 "${DB_PATH}" "UPDATE jobs SET ${setClauses} WHERE id = '${keeper.id}'"`, { encoding: 'utf8' });
     }
