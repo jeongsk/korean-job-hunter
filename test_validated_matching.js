@@ -21,7 +21,7 @@ const WEIGHTS = {
 const TIER1 = { // 100%
   'typescript': ['javascript'], 'javascript': ['typescript'],
   'react': ['next.js'], 'next.js': ['react'],
-  'vue': ['nuxt.js'], 'nuxt.js': ['vue'],
+  'vue': ['nuxt.js', 'nuxt'], 'nuxt.js': ['vue'], 'nuxt': ['vue'], // EXP-087: nuxt alias
   'postgresql': ['mysql', 'sql'], 'mysql': ['postgresql', 'sql'], 'sql': ['postgresql', 'mysql'],
   'docker': ['container'], 'container': ['docker'],
   'kubernetes': ['k8s'], 'k8s': ['kubernetes'], // alias (EXP-064)
@@ -41,9 +41,23 @@ const TIER2 = { // 75%
   'jenkins': ['github_actions'], 'github_actions': ['jenkins'], // CI/CD
   'terraform': ['ansible'], 'ansible': ['terraform'], // IaC/config management
   'kafka': ['rabbitmq'], 'rabbitmq': ['kafka'], // message queues
-  'tensorflow': ['pytorch'], 'pytorch': ['tensorflow'], // ML frameworks
+  'tensorflow': ['pytorch', 'machine learning'], 'pytorch': ['tensorflow', 'machine learning'], // ML frameworks + EXP-087: ML ecosystem
   'elasticsearch': ['redis'], 'redis': ['elasticsearch'], // real-time data stores
   'oracle': ['mssql'], 'mssql': ['oracle'], // enterprise RDBMS
+  // EXP-087: Orphaned skill similarity connections
+  'go': ['rust'], 'rust': ['go'], // systems languages
+  'c#': ['.net'], '.net': ['c#'], // .NET ecosystem
+  'ruby': ['rails'], 'rails': ['ruby'], // Ruby ecosystem
+  'php': ['laravel'], 'laravel': ['php'], // PHP ecosystem
+  'swiftui': ['swift'], 'swift': ['swiftui'], // Apple ecosystem
+  'jetpack compose': ['kotlin'], 'kotlin': ['jetpack compose'], // Android modern UI
+  'redux': ['react'], // React state management (one-way: redux→react only)
+  'bigquery': ['snowflake'], 'snowflake': ['bigquery'], // cloud data warehouses
+  'airflow': ['dbt'], 'dbt': ['airflow'], // data orchestration
+  'linux': ['docker', 'nginx'], // OS/container/infra stack
+  'ci/cd': ['jenkins', 'github actions'], 'github actions': ['ci/cd'], // CI/CD ecosystem
+  'unity': ['unreal'], 'unreal': ['unity'], // game engines
+  'machine learning': ['tensorflow', 'pytorch'], // ML concept
 };
 
 const TIER3 = { // 25%
@@ -54,9 +68,14 @@ const TIER3 = { // 25%
   'sql': ['mongodb'], 'mongodb': ['sql'],
   // EXP-064: Detail-skill partial overlaps
   'terraform': ['docker'], 'nginx': ['docker'], // DevOps provisioning/infra
-  'spark': ['hadoop', 'pandas'], 'hadoop': ['spark'], 'pandas': ['spark'], // big data + data processing (EXP-064)
+  'spark': ['hadoop', 'pandas', 'airflow', 'dbt'], 'hadoop': ['spark', 'bigquery', 'snowflake'], 'pandas': ['spark'], // big data + data processing (EXP-064) + EXP-087 orchestration
   'graphql': ['grpc'], 'grpc': ['graphql'], // modern API protocols
   'mongodb': ['redis'], 'redis': ['mongodb'], // NoSQL stores
+  // EXP-087: Orphaned skill partial overlaps
+  'go': ['c++', 'java'], 'rust': ['c++'], 'c++': ['go', 'rust'], // systems/compiled languages
+  'c#': ['java'], // managed languages
+  'dart': ['flutter'], 'flutter': ['dart'], // Flutter ecosystem
+  'r': ['python'], 'python': ['r'], // data science languages
 };
 
 // Merge all tiers for lookup
@@ -539,7 +558,7 @@ const simTests = [
   ['Svelte', 'React', 0.25], // component frameworks (EXP-062)
   // EXP-064: Detail-skill similarity pairs
   ['GraphQL', 'REST_API', 0.75], // API paradigms
-  ['Jenkins', 'GITHUB_ACTIONS', 0.75], // CI/CD
+  ['Jenkins', 'github_actions', 0.75], // CI/CD (case-insensitive lookup)
   ['Terraform', 'Docker', 0.25], // DevOps provisioning
   ['Kafka', 'RabbitMQ', 0.75], // message queues
   ['TensorFlow', 'PyTorch', 0.75], // ML frameworks
@@ -554,6 +573,22 @@ const simTests = [
   ['Django', 'Flask', 0.75], // Python web frameworks
   ['Angular', 'React', 0.25], // frontend frameworks
   ['Angular', 'Vue', 0.25], // frontend frameworks
+  // EXP-087: Orphaned skill similarity tests
+  ['Go', 'Rust', 0.75], // systems languages
+  ['C#', '.NET', 0.75], // .NET ecosystem
+  ['Ruby', 'Rails', 0.75], // Ruby ecosystem
+  ['PHP', 'Laravel', 0.75], // PHP ecosystem
+  ['SwiftUI', 'Swift', 0.75], // Apple ecosystem
+  ['Jetpack Compose', 'Kotlin', 0.75], // Android modern UI
+  ['BigQuery', 'Snowflake', 0.75], // cloud data warehouses
+  ['Airflow', 'dbt', 0.75], // data orchestration
+  ['Unity', 'Unreal', 0.75], // game engines
+  ['Nuxt', 'Vue', 1.0], // nuxt alias
+  ['Go', 'C++', 0.25], // systems/compiled
+  ['Rust', 'C++', 0.25], // systems/compiled
+  ['Dart', 'Flutter', 0.25], // Flutter ecosystem
+  ['R', 'Python', 0.25], // data science
+  ['Hadoop', 'BigQuery', 0.25], // big data → cloud DW
 ];
 for (const [a, b, expected] of simTests) {
   const actual = getSimilarity(a, b);

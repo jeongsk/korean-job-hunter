@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-04-03T14:04:00Z",
-  "experiment_id": "EXP-086",
-  "skill": "job-scraping",
-  "focus": "employment_type_db_persistence",
-  "hypothesis": "employment_type was extracted by all 3 post-processors but never persisted to DB or preserved during cross-source dedup merge — same gap pattern as EXP-077 (skills) and EXP-081 (skills/culture in dedup)",
+  "timestamp": "2026-04-03T15:30:00Z",
+  "experiment_id": "EXP-087",
+  "skill": "job-matching",
+  "focus": "similarity_map_coverage_expansion",
+  "hypothesis": "47 of 77 skills had zero similarity connections — adding connections for Go/Rust, BigQuery/Snowflake, Airflow/dbt, Unity/Unreal, etc. would improve matching discrimination without regressions",
   "metrics": {
-    "total_tests": "950 (all pass)",
+    "total_tests": "965 (all pass)",
     "npm_test": "working",
     "test_suites": 44,
     "all_passing": true,
     "regressions": 0,
-    "new_dedup_persistence_tests": 12,
-    "employment_type_in_db": true,
-    "employment_type_in_dedup": true
+    "similarity_coverage": "62/77 (81%)",
+    "new_similarity_tests": 15,
+    "new_connections": 32
   }
 }
