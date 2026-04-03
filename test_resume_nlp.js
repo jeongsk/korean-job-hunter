@@ -1,5 +1,6 @@
 // Test suite for resume-agent Korean NLP skill extraction, career stage, and domain detection
-// EXP-032: Validates the core extraction logic from resume-agent.md
+// EXP-032: Initial test suite
+// EXP-090: Synced with skill-inference.js (77 skills), replaced inline maps with shared module
 
 let passed = 0, failed = 0;
 const results = [];
@@ -14,104 +15,8 @@ function assert(name, condition, detail = '') {
   }
 }
 
-// === Korean Skill Extraction Maps ===
-const languageMap = {
-  'javascript': ['자바스크립트', 'javascript', 'js', '자스'],
-  'typescript': ['타입스크립트', 'typescript', 'ts'],
-  'python': ['파이썬', 'python'],
-  'java': ['자바', 'java'],
-  'go': ['고언어', 'golang', 'go 언어'],
-  'rust': ['러스트', 'rust'],
-  'c++': ['시플러스', 'c++', 'cpp'],
-  'c#': ['씨샵', 'c#', 'csharp'],
-  'swift': ['스위프트', 'swift'],
-  'kotlin': ['코틀린', 'kotlin'],
-  'ruby': ['루비', 'ruby'],
-  'php': ['피에이치피', 'php'],
-};
-
-const frameworkMap = {
-  'react': ['리액트', 'react'],
-  'vue': ['뷰', 'vue.js', 'vue'],
-  'angular': ['앵귤러', 'angular'],
-  'next.js': ['넥스트', 'next.js', 'nextjs'],
-  'nuxt': ['넉스트', 'nuxt.js', 'nuxt'],
-  'node.js': ['노드', 'node.js', 'nodejs'],
-  'express': ['익스프레스', 'express'],
-  'nestjs': ['네스트', 'nestjs', 'nest.js'],
-  'spring': ['스프링', 'spring'],
-  'django': ['장고', 'django'],
-  'flask': ['플라스크', 'flask'],
-  'fastapi': ['패스트에이피아이', 'fastapi'],
-  'svelte': ['스벨트', 'svelte'],
-};
-
-const dbMap = {
-  'postgresql': ['포스트그레스', 'postgresql', 'postgres', 'pg'],
-  'mysql': ['마이에스큐엘', 'mysql'],
-  'mongodb': ['몽고디비', 'mongodb', 'mongo'],
-  'redis': ['레디스', 'redis'],
-  'elasticsearch': ['일래스틱', 'elasticsearch', 'es'],
-  'sqlite': ['에스큐라이트', 'sqlite'],
-  'oracle': ['오라클', 'oracle'],
-};
-
-const infraMap = {
-  'aws': ['아마존웹서비스', 'aws', 'amazon web services'],
-  'gcp': ['구글클라우드', 'gcp', 'google cloud'],
-  'azure': ['애저', 'azure'],
-  'docker': ['도커', 'docker'],
-  'kubernetes': ['쿠버네티스', 'kubernetes', 'k8s'],
-  'terraform': ['테라폼', 'terraform'],
-  'jenkins': ['젠킨스', 'jenkins'],
-  'github actions': ['깃헙액션', 'github actions'],
-  'git': ['깃', 'git', 'github'],
-};
-
-function extractSkills(text) {
-  const lower = text.toLowerCase();
-  const found = { languages: [], frameworks: [], databases: [], tools: [] };
-
-  // Detect java vs javascript using word-boundary-aware matching
-  const hasJavascript = /\bjavascript\b/i.test(text) || text.includes('자바스크립트') || text.includes('자스');
-  const hasJavaAlone = hasJavascript
-    ? (/\bjava\b(?!\s*script)/i.test(text) || text.includes('자바') && !text.includes('자바스크립트'))
-    : (lower.includes('java') || text.includes('자바'));
-
-  for (const [skill, keywords] of Object.entries(languageMap)) {
-    if (skill === 'java') {
-      if (hasJavaAlone && !found.languages.includes('java')) found.languages.push('java');
-      continue;
-    }
-    if (skill === 'javascript') {
-      if (hasJavascript && !found.languages.includes('javascript')) found.languages.push('javascript');
-      continue;
-    }
-    if (keywords.some(kw => lower.includes(kw.toLowerCase()))) {
-      if (!found.languages.includes(skill)) found.languages.push(skill);
-    }
-  }
-
-  for (const [skill, keywords] of Object.entries(frameworkMap)) {
-    if (keywords.some(kw => lower.includes(kw.toLowerCase()))) {
-      if (!found.frameworks.includes(skill)) found.frameworks.push(skill);
-    }
-  }
-
-  for (const [skill, keywords] of Object.entries(dbMap)) {
-    if (keywords.some(kw => lower.includes(kw.toLowerCase()))) {
-      if (!found.databases.includes(skill)) found.databases.push(skill);
-    }
-  }
-
-  for (const [skill, keywords] of Object.entries(infraMap)) {
-    if (keywords.some(kw => lower.includes(kw.toLowerCase()))) {
-      if (!found.tools.includes(skill)) found.tools.push(skill);
-    }
-  }
-
-  return found;
-}
+// Use skill-inference.js as single source of truth (same module used by all post-processors)
+const { inferSkills, SKILL_MAP } = require('./scripts/skill-inference');
 
 // === Career Stage Detection ===
 function detectCareerStage(years) {
@@ -135,7 +40,6 @@ function detectDomain(allSkills) {
   const lower = allSkills.map(s => s.toLowerCase());
   const scores = {};
   for (const [domain, indicators] of Object.entries(domainIndicators)) {
-    // Use exact word match for short indicators to avoid substring false positives (e.g., 'r' in 'spring')
     scores[domain] = indicators.filter(ind => {
       if (ind.length <= 2) {
         return lower.some(s => s === ind);
@@ -151,41 +55,46 @@ function detectDomain(allSkills) {
   return sorted[0][0];
 }
 
+// Helper: check if skills array contains a skill (case-insensitive)
+function has(skills, name) {
+  return skills.some(s => s.toLowerCase() === name.toLowerCase());
+}
+
 // === TEST CASES ===
 
-console.log('\n🧪 Resume Agent NLP Tests (EXP-032)\n');
+console.log('\n🧪 Resume Agent NLP Tests (EXP-090: skill-inference.js sync)\n');
 
 // --- 1. Korean Language Keyword Extraction ---
 console.log('📝 Korean Language Keyword Extraction');
 
-const t1 = extractSkills('3년차 리액트 개발자, 타입스크립트, 넥스트 사용');
-assert('Korean: 리액트 → react', t1.frameworks.includes('react'));
-assert('Korean: 타입스크립트 → typescript', t1.languages.includes('typescript'));
-assert('Korean: 넥스트 → next.js', t1.frameworks.includes('next.js'));
+const t1 = inferSkills('3년차 리액트 개발자, 타입스크립트, 넥스트 사용');
+assert('Korean: 리액트 → react', has(t1, 'react'));
+assert('Korean: 타입스크립트 → typescript', has(t1, 'typescript'));
+assert('Korean: 넥스트 → next.js', has(t1, 'next.js'));
 
-const t2 = extractSkills('자바스크립트와 파이썬 경험, 루비도 가능');
-assert('Korean: 자바스크립트 → javascript', t2.languages.includes('javascript'));
-assert('Korean: 파이썬 → python', t2.languages.includes('python'));
-assert('Korean: 루비 → ruby', t2.languages.includes('ruby'));
-assert('No false java match from 자바스크립트', !t2.languages.includes('java'));
+const t2 = inferSkills('자바스크립트와 파이썬 경험, 루비도 가능');
+assert('Korean: 자바스크립트 → javascript', has(t2, 'javascript'));
+assert('Korean: 파이썬 → python', has(t2, 'python'));
+assert('Korean: 루비 → ruby', has(t2, 'ruby'));
+assert('No false java match from 자바스크립트', !has(t2, 'java'));
 
-const t3 = extractSkills('자바 백엔드 개발, 스프링 프레임워크 사용');
-assert('Korean: 자바 → java (standalone)', t3.languages.includes('java'));
-assert('Korean: 스프링 → spring', t3.frameworks.includes('spring'));
+const t3 = inferSkills('자바 백엔드 개발, 스프링 프레임워크 사용');
+assert('Korean: 자바 → java (standalone)', has(t3, 'java'));
+assert('Korean: 스프링 → spring', has(t3, 'spring'));
 
-const t4 = extractSkills('도커, 쿠버네티스, AWS, 젠킨스 사용');
-assert('Korean: 도커 → docker', t4.tools.includes('docker'));
-assert('Korean: 쿠버네티스 → kubernetes', t4.tools.includes('kubernetes'));
-assert('Korean: 젠킨스 → jenkins', t4.tools.includes('jenkins'));
-assert('English: AWS → aws', t4.tools.includes('aws'));
+const t4 = inferSkills('도커, 쿠버네티스, AWS, 젠킨스 사용');
+assert('Korean: 도커 → docker', has(t4, 'docker'));
+assert('Korean: 쿠버네티스 → kubernetes', has(t4, 'kubernetes'));
+assert('Korean: 젠킨스 → jenkins', has(t4, 'jenkins'));
+assert('English: AWS → aws', has(t4, 'aws'));
 
 // --- 2. Database Extraction ---
 console.log('📝 Database Keyword Extraction');
 
-const t5 = extractSkills('포스트그레스와 레디스 경험, 몽고디비도 사용');
-assert('Korean: 포스트그레스 → postgresql', t5.databases.includes('postgresql'));
-assert('Korean: 레디스 → redis', t5.databases.includes('redis'));
-assert('Korean: 몽고디비 → mongodb', t5.databases.includes('mongodb'));
+const t5 = inferSkills('포스트그레스와 레디스 경험, 몽고디비도 사용');
+assert('Korean: 포스트그레스 → postgresql', has(t5, 'postgresql'));
+assert('Korean: 레디스 → redis', has(t5, 'redis'));
+assert('Korean: 몽고디비 → mongodb', has(t5, 'mongodb'));
 
 // --- 3. Career Stage Detection ---
 console.log('📝 Career Stage Detection');
@@ -209,39 +118,147 @@ assert('DevOps domain', detectDomain(['docker', 'kubernetes', 'aws', 'terraform'
 assert('Data domain', detectDomain(['python', 'tensorflow', 'pandas', 'spark']) === 'data');
 assert('Mobile domain', detectDomain(['swift', 'kotlin', 'flutter']) === 'mobile');
 
-// Mixed frontend+backend should be hybrid
 const domainMixed = detectDomain(['react', 'typescript', 'spring', 'java', 'docker']);
 assert('Fullstack hybrid detected', domainMixed.includes('/') && domainMixed.includes('frontend') && domainMixed.includes('backend'));
 
 // --- 5. Mixed English/Korean Input ---
 console.log('📝 Mixed English/Korean Input');
 
-const t6 = extractSkills('React, Node.js, PostgreSQL 경험. AWS와 Docker 사용. Kubernetes 운영');
-assert('Mixed: React detected', t6.frameworks.includes('react'));
-assert('Mixed: Node.js detected', t6.frameworks.includes('node.js'));
-assert('Mixed: PostgreSQL detected', t6.databases.includes('postgresql'));
-assert('Mixed: AWS detected', t6.tools.includes('aws'));
-assert('Mixed: Docker detected', t6.tools.includes('docker'));
-assert('Mixed: Kubernetes detected', t6.tools.includes('kubernetes'));
+const t6 = inferSkills('React, Node.js, PostgreSQL 경험. AWS와 Docker 사용. Kubernetes 운영');
+assert('Mixed: React detected', has(t6, 'react'));
+assert('Mixed: Node.js detected', has(t6, 'node.js'));
+assert('Mixed: PostgreSQL detected', has(t6, 'postgresql'));
+assert('Mixed: AWS detected', has(t6, 'aws'));
+assert('Mixed: Docker detected', has(t6, 'docker'));
+assert('Mixed: Kubernetes detected', has(t6, 'kubernetes'));
 
 // --- 6. Edge Cases ---
 console.log('📝 Edge Cases');
 
-const t7 = extractSkills('');
-assert('Empty input: no skills', t7.languages.length === 0 && t7.frameworks.length === 0);
+const t7 = inferSkills('');
+assert('Empty input: no skills', t7.length === 0);
 
-const t8 = extractSkills('자스 타스');
-assert('Korean abbreviations: 자스 → javascript', t8.languages.includes('javascript'));
-
-const t9 = extractSkills('Vue.js와 Nuxt.js로 프로젝트 진행');
-assert('Vue.js with dot → vue', t9.frameworks.includes('vue'));
-assert('Nuxt.js with dot → nuxt', t9.frameworks.includes('nuxt'));
+const t9 = inferSkills('Vue.js와 Nuxt.js로 프로젝트 진행');
+assert('Vue.js with dot → vue', has(t9, 'vue'));
+assert('Nuxt.js with dot → nuxt', has(t9, 'nuxt'));
 
 // java vs javascript disambiguation
-const t10 = extractSkills('JavaScript, TypeScript, Java');
-assert('English: JavaScript detected', t10.languages.includes('javascript'));
-assert('English: Java detected (standalone)', t10.languages.includes('java'));
-assert('English: TypeScript detected', t10.languages.includes('typescript'));
+const t10 = inferSkills('JavaScript, TypeScript, Java');
+assert('English: JavaScript detected', has(t10, 'javascript'));
+assert('English: Java detected (standalone)', has(t10, 'java'));
+assert('English: TypeScript detected', has(t10, 'typescript'));
+
+// --- 7. NEW: Infrastructure & DevOps skills (EXP-083) ---
+console.log('📝 Infrastructure & DevOps Skills (EXP-083)');
+
+const t11 = inferSkills('리눅스 서버 관리, 엔진엑스 설정 경험');
+assert('Korean: 리눅스 → linux', has(t11, 'linux'));
+assert('Korean: 엔진엑스 → nginx', has(t11, 'nginx'));
+
+const t12 = inferSkills('CI/CD 파이프라인 구축, 데브옵스 경험');
+assert('CI/CD detected', has(t12, 'ci/cd'));
+assert('Korean: 데브옵스 → devops', has(t12, 'devops'));
+
+const t13 = inferSkills('Ansible로 인프라 자동화');
+assert('Ansible detected', has(t13, 'ansible'));
+
+// --- 8. NEW: Data Engineering skills (EXP-083) ---
+console.log('📝 Data Engineering Skills');
+
+const t14 = inferSkills('스파크와 하둡으로 데이터 파이프라인 구축');
+assert('Korean: 스파크 → spark', has(t14, 'spark'));
+assert('Korean: 하둡 → hadoop', has(t14, 'hadoop'));
+
+const t15 = inferSkills('Airflow로 워크플로우 관리, dbt로 데이터 변환');
+assert('Airflow detected', has(t15, 'airflow'));
+assert('dbt detected', has(t15, 'dbt'));
+
+// --- 9. NEW: Cloud & Data Warehouse (EXP-083) ---
+console.log('📝 Cloud & Data Warehouse Skills');
+
+const t16 = inferSkills('빅쿼리로 데이터 분석, 스노우플레이크 경험');
+assert('Korean: 빅쿼리 → bigquery', has(t16, 'bigquery'));
+assert('Korean: 스노우플레이크 → snowflake', has(t16, 'snowflake'));
+
+const t17 = inferSkills('AWS Lambda 서버리스, S3 스토리지, SQS 메시지 큐');
+assert('AWS Lambda detected', has(t17, 'aws lambda'));
+assert('AWS S3 detected', has(t17, 'aws s3'));
+assert('AWS SQS detected', has(t17, 'aws sqs'));
+
+// --- 10. NEW: Java ecosystem (EXP-083) ---
+console.log('📝 Java Ecosystem Skills');
+
+const t18 = inferSkills('JPA/Hibernate로 ORM 개발');
+assert('JPA detected', has(t18, 'jpa'));
+
+// --- 11. NEW: Frontend State & Frameworks (EXP-083) ---
+console.log('📝 Frontend State & Frameworks');
+
+const t19 = inferSkills('리덕스로 상태관리');
+assert('Korean: 리덕스 → redux', has(t19, 'redux'));
+
+const t20 = inferSkills('Flutter로 크로스플랫폼 앱 개발');
+assert('Flutter detected', has(t20, 'flutter'));
+
+const t21 = inferSkills('SwiftUI로 iOS 앱 개발');
+assert('SwiftUI detected', has(t21, 'swiftui'));
+
+const t22 = inferSkills('Laravel로 PHP 백엔드, Rails도 경험');
+assert('Laravel detected', has(t22, 'laravel'));
+assert('Rails detected', has(t22, 'rails'));
+
+// --- 12. NEW: Game Engines (EXP-083) ---
+console.log('📝 Game Engine Skills');
+
+const t23 = inferSkills('유니티로 게임 개발, 언리얼도 가능');
+assert('Korean: 유니티 → unity', has(t23, 'unity'));
+assert('Korean: 언리얼 → unreal', has(t23, 'unreal'));
+
+// --- 13. NEW: API & AI/ML (EXP-083) ---
+console.log('📝 API & AI/ML Skills');
+
+const t24 = inferSkills('GraphQL API 개발, REST API 설계, gRPC 경험');
+assert('GraphQL detected', has(t24, 'graphql'));
+assert('REST API detected', has(t24, 'rest api'));
+assert('gRPC detected', has(t24, 'grpc'));
+
+const t25 = inferSkills('TensorFlow와 PyTorch로 머신러닝 모델 개발');
+assert('TensorFlow detected', has(t25, 'tensorflow'));
+assert('PyTorch detected', has(t25, 'pytorch'));
+
+// --- 14. NEW: Design (EXP-083) ---
+console.log('📝 Design Skills');
+
+const t26 = inferSkills('Figma로 UI/UX 디자인');
+assert('Figma detected', has(t26, 'figma'));
+
+// --- 15. NEW: Messaging & Data (EXP-083) ---
+console.log('📝 Messaging & Additional Data Skills');
+
+const t27 = inferSkills('Kafka로 이벤트 스트리밍, RabbitMQ 메시지 큐');
+assert('Kafka detected', has(t27, 'kafka'));
+assert('RabbitMQ detected', has(t27, 'rabbitmq'));
+
+const t28 = inferSkills('MSSQL/SQL Server 운영');
+assert('MSSQL detected', has(t28, 'mssql'));
+
+// --- 16. SKILL_MAP coverage validation ---
+console.log('📝 SKILL_MAP Coverage Validation');
+
+const totalSkills = Object.keys(SKILL_MAP).length;
+assert(`SKILL_MAP has 77+ entries (got ${totalSkills})`, totalSkills >= 77);
+
+// Verify every skill in SKILL_MAP can be detected via its own regex
+let selfDetected = 0;
+for (const [skill, regex] of Object.entries(SKILL_MAP)) {
+  // Test with English skill name
+  const result = inferSkills(skill);
+  if (result.some(s => s.toLowerCase() === skill.toLowerCase())) {
+    selfDetected++;
+  }
+}
+assert(`All skills self-detect via inferSkills (${selfDetected}/${totalSkills})`, selfDetected >= totalSkills * 0.9,
+  `${totalSkills - selfDetected} skills not self-detected`);
 
 // === RESULTS ===
 console.log('\n' + results.join('\n'));

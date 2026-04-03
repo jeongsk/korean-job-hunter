@@ -1,18 +1,19 @@
 {
-  "timestamp": "2026-04-03T16:04:00Z",
-  "experiment_id": "EXP-088",
-  "skill": "job-matching",
-  "focus": "key_normalization_and_orphan_connections",
-  "hypothesis": "rest_api key mismatch broke GraphQL↔REST API similarity for real data; 7 skills still had zero connections",
+  "timestamp": "2026-04-03T17:04:00Z",
+  "experiment_id": "EXP-089",
+  "skill": "resume-agent",
+  "focus": "skill_coverage_parity_with_matching",
+  "hypothesis": "resume-agent had 38 fewer skills than skill-inference.js, causing silent data loss in the matching pipeline",
   "metrics": {
     "total_tests": "965 (all pass)",
     "npm_test": "working",
     "test_suites": 44,
     "all_passing": true,
     "regressions": 0,
-    "similarity_coverage": "77/77 (100%)",
-    "key_normalization_bug": "fixed (rest_api→rest api)",
-    "duplicate_key_bug": "fixed (java had two TIER2 entries)",
-    "new_connections": 15
+    "resume_agent_skills": 77,
+    "skill_inference_skills": 77,
+    "skill_coverage_parity": "100%",
+    "inline_maps_removed": 4,
+    "single_source_of_truth": "scripts/skill-inference.js"
   }
 }

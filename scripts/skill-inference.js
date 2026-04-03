@@ -57,7 +57,7 @@ const SKILL_MAP = {
   'docker': /docker|도커/i,
   'terraform': /terraform|테라폼/i,
   'ansible': /ansible/i,
-  'jenkins': /jenkins/i,
+  'jenkins': /jenkins|젠킨스/i,
   'github actions': /github\s*actions/i,
   'linux': /linux|리눅스/i,
   'nginx': /nginx|엔진엑스/i,
@@ -66,8 +66,8 @@ const SKILL_MAP = {
 
   // AWS Services
   'aws lambda': /aws\s*lambda|람다/i,
-  'aws s3': /aws\s*s3|s3\s*bucket/i,
-  'aws sqs': /aws\s*sqs/i,
+  'aws s3': /aws\s*s3|s3\s*bucket|(?<!\w)s3(?=\s|스토리지|버킷|$)/i,
+  'aws sqs': /aws\s*sqs|sqs\s*(?:메시지|큐|message)/i,
 
   // GCP Services
   'bigquery': /bigquery|빅쿼리/i,
@@ -78,11 +78,11 @@ const SKILL_MAP = {
   // Data / Messaging
   'kafka': /kafka/i,
   'rabbitmq': /rabbitmq/i,
-  'elasticsearch': /elasticsearch/i,
-  'redis': /redis/i,
-  'mongodb': /mongodb/i,
+  'elasticsearch': /elasticsearch|일래스틱/i,
+  'redis': /redis|레디스/i,
+  'mongodb': /mongodb|몽고디비/i,
   'mysql': /mysql/i,
-  'postgresql': /postgresql|postgres/i,
+  'postgresql': /postgresql|postgres|포스트그레스/i,
   'oracle': /oracle/i,
   'mssql': /mssql|sql\s*server/i,
 
