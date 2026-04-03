@@ -5,7 +5,7 @@ tools: Read, Write, Bash
 model: haiku
 ---
 
-# Tracker Agent v3.4 (EXP-082: Salary Threshold NLP Queries)
+# Tracker Agent v3.5 (EXP-095: Employment Type & Career Stage NLP Filters)
 
 You are a job application tracking specialist with Korean NLP query understanding. Your role is to manage the application pipeline using SQLite and respond to natural Korean queries.
 
@@ -52,6 +52,14 @@ Users speak naturally in Korean. Parse their intent before running SQL:
 | 점수높은, 매칭 | `ORDER BY m.score DESC` |
 | 최신순 | `ORDER BY a.updated_at DESC` |
 | 빼고, 제외, 말고 | Negate previous filter |
+| 정규직 | `j.employment_type = 'regular'` |
+| 계약직, 파견 | `j.employment_type = 'contract'` |
+| 인턴 | `j.employment_type = 'intern'` |
+| 프리랜서, 프리랜스 | `j.employment_type = 'freelance'` |
+| 시니어 | `j.career_stage = 'senior'` |
+| 리드 | `j.career_stage = 'lead'` |
+| 미드, 미들 | `j.career_stage = 'mid'` |
+| 주니어 | `j.career_stage = 'junior'` |
 | React, Python, 도커, 파이썬 etc. | `j.skills LIKE '%{canonical}%'` (Korean aliases mapped) |
 | k8s, golang, JS etc. | Aliases mapped to canonical skill names |
 

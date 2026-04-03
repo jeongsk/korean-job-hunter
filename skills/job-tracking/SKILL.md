@@ -3,7 +3,7 @@ name: job-tracking
 description: "Job application status tracking with SQLite CRUD, Korean NLP query parsing, pipeline analytics, and smart suggestions"
 ---
 
-# Job Tracking Skill v2.7 (EXP-082: Salary Threshold NLP Queries)
+# Job Tracking Skill v2.8 (EXP-095: Employment Type & Career Stage NLP Filters)
 
 ## Korean Natural Language Query Parsing
 
@@ -45,6 +45,22 @@ description: "Job application status tracking with SQLite CRUD, Korean NLP query
 | N년 이상 | `j.experience LIKE '%N%'` |
 | N년차 | `j.experience LIKE '%N%'` |
 | 경력 (standalone) | `j.experience NOT LIKE '%신입%' OR j.experience LIKE '%무관%'` |
+
+### Employment Type Filter (EXP-095)
+| Korean Pattern | SQL Filter | Example Input |
+|---|---|---|
+| 정규직 | `j.employment_type = 'regular'` | "정규직 공고 있어?" |
+| 계약직/파견 | `j.employment_type = 'contract'` | "계약직 관심 공고" |
+| 인턴 | `j.employment_type = 'intern'` | "인턴 공고" |
+| 프리랜서/프리랜스 | `j.employment_type = 'freelance'` | "프리랜서 공고 있어?" |
+
+### Career Stage Filter (EXP-095)
+| Korean Pattern | SQL Filter | Example Input |
+|---|---|---|
+| 시니어/senior | `j.career_stage = 'senior'` | "시니어 포지션 있어?" |
+| 리드 | `j.career_stage = 'lead'` | "리드 포지션 서울" |
+| 미드/미들 | `j.career_stage = 'mid'` | "미드 레벨 관심 공고" |
+| 주니어/junior | `j.career_stage = 'junior'` | "주니어 공고" |
 
 ### Skill-based Filtering (EXP-078)
 | Korean/English Pattern | SQL Filter | Example Input |

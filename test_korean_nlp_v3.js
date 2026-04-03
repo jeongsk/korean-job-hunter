@@ -112,6 +112,42 @@ function parseKoreanQuery(input) {
     }
   }
 
+  // === Employment type filter (EXP-095) ===
+  if (/정규직/.test(text)) {
+    filters.push("j.employment_type = 'regular'");
+    consumedWords.add('정규직');
+  }
+  if (/계약직|파견/.test(text)) {
+    filters.push("j.employment_type = 'contract'");
+    consumedWords.add('계약직'); consumedWords.add('파견');
+  }
+  if (/인턴/.test(text)) {
+    filters.push("j.employment_type = 'intern'");
+    consumedWords.add('인턴');
+  }
+  if (/프리랜서|프리랜스/.test(text)) {
+    filters.push("j.employment_type = 'freelance'");
+    consumedWords.add('프리랜서'); consumedWords.add('프리랜스');
+  }
+
+  // === Career stage filter (EXP-095) ===
+  if (/시니어|senior/i.test(text)) {
+    filters.push("j.career_stage = 'senior'");
+    consumedWords.add('시니어');
+  }
+  if (/(?<![가-힣])리드(?![가-힣])/.test(text) || /lead\s*포지션|lead\s*position/i.test(text)) {
+    filters.push("j.career_stage = 'lead'");
+    consumedWords.add('리드');
+  }
+  if (/미드|미들|mid\s*level/i.test(text)) {
+    filters.push("j.career_stage = 'mid'");
+    consumedWords.add('미드'); consumedWords.add('미들');
+  }
+  if (/주니어|junior/i.test(text)) {
+    filters.push("j.career_stage = 'junior'");
+    consumedWords.add('주니어');
+  }
+
   // === Experience filter ===
   if (/신입/.test(text)) {
     filters.push("(j.experience LIKE '%신입%' OR j.experience LIKE '%무관%')");
@@ -269,7 +305,7 @@ function parseKoreanQuery(input) {
   }
 
   // === Remaining Korean keywords (title/company search) ===
-  const stopWords = new Set(['면접', '면접보는', '면접잡힌', '지원', '지원한', '지원할', '지원예정', '지원완료', '관심', '북마크', '찜', '찜해둔', '합격', '합격한', '오퍼', '탈락', '탈락한', '거절', '불합격', '재택', '재택으로', '원격', '리모트', '하이브리드', '점수', '점수순으로', '매칭', '최신', '빼고', '제외', '말고', '있어', '보여', '보여줘', '공고', '거', '곳', '다', '중에', '할', '한', '수', '있는', '순으로', '보는', '잡힌', '해둔', '예정', '완료', '했', '을', '를', '이', '가', '에서', '의', '에', '연봉', '급여', '연수입', '마감임박', '곧마감', '마감순', '오늘', '내일', '마감', '기한', '데드라인', '경력', '년', '년차', '이상', '남은', '빠른순', '쓰는', '하는', '쓰는곳', '하는곳', '파이썬', '도커', '코틀린', '스프링', '장고', '플라스크', '넥스트', '뷰', '앵귤러', '노드', '익스프레스', '플러터', '쿠버네티스', '테라폼', '러스트', '스위프트', '루비', '레디스', '피그마', '리액트', '자바스크립트', '타입스크립트', '자바', '고언어', '부트']);
+  const stopWords = new Set(['면접', '면접보는', '면접잡힌', '정규직', '계약직', '파견', '인턴', '프리랜서', '프리랜스', '시니어', '주니어', '미드', '미들', '리드', '포지션', '레벨', '수준', '지원', '지원한', '지원할', '지원예정', '지원완료', '관심', '북마크', '찜', '찜해둔', '합격', '합격한', '오퍼', '탈락', '탈락한', '거절', '불합격', '재택', '재택으로', '원격', '리모트', '하이브리드', '점수', '점수순으로', '매칭', '최신', '빼고', '제외', '말고', '있어', '보여', '보여줘', '공고', '거', '곳', '다', '중에', '할', '한', '수', '있는', '순으로', '보는', '잡힌', '해둔', '예정', '완료', '했', '을', '를', '이', '가', '에서', '의', '에', '연봉', '급여', '연수입', '마감임박', '곧마감', '마감순', '오늘', '내일', '마감', '기한', '데드라인', '경력', '년', '년차', '이상', '남은', '빠른순', '쓰는', '하는', '쓰는곳', '하는곳', '파이썬', '도커', '코틀린', '스프링', '장고', '플라스크', '넥스트', '뷰', '앵귤러', '노드', '익스프레스', '플러터', '쿠버네티스', '테라폼', '러스트', '스위프트', '루비', '레디스', '피그마', '리액트', '자바스크립트', '타입스크립트', '자바', '고언어', '부트']);
   const koreanWords = text.match(/[가-힣]{2,}/g) || [];
   for (const word of koreanWords) {
     if (!stopWords.has(word) && !consumedWords.has(word)) {
@@ -414,6 +450,24 @@ const testCases = [
     note: "Salary threshold + status" },
   { id: 56, input: "연봉 5000~7000 서울", expectedFilters: ["(j.salary_min <= 7000 AND j.salary_max >= 5000)", "j.location LIKE '%서울%'"], expectedOrder: "a.updated_at DESC",
     note: "Salary range + location" },
+
+  // --- EXP-095: Employment type & career stage filtering ---
+  { id: 57, input: "정규직 공고 있어?", expectedFilters: ["j.employment_type = 'regular'"], expectedOrder: "a.updated_at DESC",
+    note: "정규직 filters employment_type" },
+  { id: 58, input: "계약직 관심 공고", expectedFilters: ["j.employment_type = 'contract'", "a.status = 'interested'"], expectedOrder: "a.updated_at DESC",
+    note: "계약직 + status composite" },
+  { id: 59, input: "인턴 공고", expectedFilters: ["j.employment_type = 'intern'"], expectedOrder: "a.updated_at DESC" },
+  { id: 60, input: "정규직 서울 공고", expectedFilters: ["j.employment_type = 'regular'", "j.location LIKE '%서울%'"], expectedOrder: "a.updated_at DESC",
+    note: "Employment type + location composite" },
+  { id: 61, input: "시니어 포지션 있어?", expectedFilters: ["j.career_stage = 'senior'"], expectedOrder: "a.updated_at DESC",
+    note: "시니어 filters career_stage" },
+  { id: 62, input: "주니어 공고", expectedFilters: ["j.career_stage = 'junior'"], expectedOrder: "a.updated_at DESC" },
+  { id: 63, input: "미드 레벨 관심 공고", expectedFilters: ["j.career_stage = 'mid'", "a.status = 'interested'"], expectedOrder: "a.updated_at DESC",
+    note: "Career stage + status composite" },
+  { id: 64, input: "리드 포지션 서울", expectedFilters: ["j.career_stage = 'lead'", "j.location LIKE '%서울%'"], expectedOrder: "a.updated_at DESC" },
+  { id: 65, input: "정규직 시니어 카카오 공고", expectedFilters: ["j.employment_type = 'regular'", "j.career_stage = 'senior'", "j.company LIKE '%카카오%'"], expectedOrder: "a.updated_at DESC",
+    note: "Employment type + career stage + company composite" },
+  { id: 66, input: "프리랜서 공고 있어?", expectedFilters: ["j.employment_type = 'freelance'"], expectedOrder: "a.updated_at DESC" },
 ];
 
 // Run tests
