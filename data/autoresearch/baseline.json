@@ -1,17 +1,16 @@
 {
-  "timestamp": "2026-04-03T11:43:00Z",
-  "experiment_id": "EXP-083",
-  "skill": "job-scraping+job-matching",
-  "focus": "skill_inference_korean_job_market_expansion",
-  "hypothesis": "Skill inference module missing 27 common Korean job market keywords causing zero-detection in scraped postings",
+  "timestamp": "2026-04-03T12:04:00Z",
+  "experiment_id": "EXP-084",
+  "skill": "job-matching",
+  "focus": "salary_preference_alignment",
+  "hypothesis": "Matching algorithm ignores salary preferences despite resume having salary_range and jobs having salary_min/salary_max",
   "metrics": {
-    "total_tests": "913 (all pass)",
+    "total_tests": "927 (all pass)",
     "npm_test": "working",
     "test_suites": 43,
     "all_passing": true,
     "regressions": 0,
-    "skill_map_entries": 77,
-    "new_patterns": 27,
-    "new_tests": 29
+    "new_salary_tests": 14,
+    "salary_alignment_range": "-20 to +20"
   }
 }

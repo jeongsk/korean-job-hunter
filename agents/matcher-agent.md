@@ -87,12 +87,16 @@ Match against candidate preferences. Keyword overlap ratio = score.
 
 Compare job level vs candidate level. Same level = 100%, one step off = 70%, two+ steps = 30%.
 
-### Location/Work (10%)
+### Location/Work/Salary (10%) (EXP-084)
 
-- Exact location match → 100%
-- Same metro area → 70%
-- Work type match (remote/hybrid/onsite) → bonus 30%
-- Neither matches → 0–20%
+- Exact location match → +15
+- Work type match → +15
+- Salary alignment (when both candidate preference and job salary data exist):
+  - Ranges overlap → +5 to +20
+  - Job below candidate min → -5 to -20
+  - Job above candidate max → +5
+  - No data → 0 (neutral)
+- Base: 50, range: 0-100
 
 ## Title-Based Skill Inference (EXP-052)
 
@@ -159,7 +163,7 @@ These must hold after scoring:
   Job: {job_level} | You: {candidate_level}
 
 📍 Location     {loc_score}% ({weighted}/10)
-  Type: {work_type} | Location: {loc}
+  Type: {work_type} | Location: {loc} | Salary: {salary_align}
 
 💡 Key: {top_strength}
 ⚠️  Gap: {top_weakness}

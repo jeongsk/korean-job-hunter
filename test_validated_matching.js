@@ -192,12 +192,51 @@ function calculateCareerStageScore(jobStage, candidateYears) {
   return 40;
 }
 
-// === Location/Work Score ===
-function calculateLocationWorkScore(jobLocation, jobWorkType, candidatePrefs) {
+// === Salary Alignment Score (EXP-084) ===
+// When both candidate has salary preference and job has salary data,
+// compute alignment. Returns adjustment (-20 to +20) or 0 if no salary data.
+function calculateSalaryAlignment(jobSalaryMin, jobSalaryMax, candidateSalaryRange) {
+  if (!candidateSalaryRange || !jobSalaryMin) return 0; // no data = neutral
+  const prefMin = candidateSalaryRange.min;
+  const prefMax = candidateSalaryRange.max;
+  if (prefMin == null) return 0;
+  
+  const jobMin = jobSalaryMin;
+  const jobMax = jobSalaryMax || jobSalaryMin;
+  
+  // Calculate overlap
+  const overlapMin = Math.max(prefMin, jobMin);
+  const overlapMax = Math.min(prefMax || Infinity, jobMax);
+  
+  if (overlapMin <= overlapMax) {
+    // Ranges overlap — how well?
+    const prefRange = (prefMax || prefMin * 1.5) - prefMin;
+    const overlap = overlapMax - overlapMin;
+    const ratio = Math.min(1, overlap / Math.max(1, prefRange));
+    // Good overlap: +5 to +20
+    return Math.round(5 + ratio * 15);
+  }
+  
+  // No overlap
+  if (jobMax < prefMin) {
+    // Job pays less than candidate wants
+    const gap = prefMin - jobMax;
+    const gapRatio = Math.min(1, gap / Math.max(1, prefMin));
+    return Math.round(-5 - gapRatio * 15); // -5 to -20
+  }
+  
+  // Job pays more than candidate wants — slight positive
+  return 5;
+}
+
+// === Location/Work/Salary Score (EXP-084: salary preference added) ===
+function calculateLocationWorkScore(jobLocation, jobWorkType, candidatePrefs, jobSalaryMin, jobSalaryMax) {
   let score = 50;
-  if (candidatePrefs.locations?.some(l => jobLocation?.includes(l))) score += 25;
-  if (candidatePrefs.work_types?.some(w => w === jobWorkType)) score += 25;
-  return Math.min(100, score);
+  if (candidatePrefs.locations?.some(l => jobLocation?.includes(l))) score += 15;
+  if (candidatePrefs.work_types?.some(w => w === jobWorkType)) score += 15;
+  // Salary alignment (EXP-084)
+  score += calculateSalaryAlignment(jobSalaryMin, jobSalaryMax, candidatePrefs.salary_range);
+  return Math.max(0, Math.min(100, score));
 }
 
 // === Full Match Score ===
@@ -208,7 +247,7 @@ function calculateMatch(job, candidate) {
   const expScore = calculateExperienceScore(job.experience, candidate.experience_years);
   const cultureScore = calculateCultureScore(job.culture_keywords, candidate.cultural_preferences);
   const stageScore = calculateCareerStageScore(job.career_stage, candidate.experience_years);
-  const locScore = calculateLocationWorkScore(job.location, job.work_type, candidate.preferences);
+  const locScore = calculateLocationWorkScore(job.location, job.work_type, candidate.preferences, job.salary_min, job.salary_max);
   
   const raw = 
     skillScore * WEIGHTS.skill +
@@ -242,6 +281,7 @@ const candidate = {
   preferences: {
     locations: ['서울', '판교'],
     work_types: ['hybrid', 'remote'],
+    salary_range: { min: 5000, max: 8000 }, // EXP-084: salary preference (만원)
   },
 };
 
@@ -254,6 +294,7 @@ const jobs = {
     career_stage: 'mid',
     location: '서울 강남구',
     work_type: 'hybrid',
+    salary_min: 6000, salary_max: 8000, // within candidate range
     label: 'HIGH',
   },
   // HIGH: Fullstack with some overlap
@@ -264,6 +305,7 @@ const jobs = {
     career_stage: 'mid',
     location: '판교',
     work_type: 'hybrid',
+    salary_min: 5500, salary_max: 7500, // within candidate range
     label: 'HIGH',
   },
   // MED: Python/Django - infrastructure overlap only (EXP-024)
@@ -316,6 +358,57 @@ const jobs = {
     location: '서울',
     work_type: 'remote',
     label: 'LOW',
+  },
+  // EXP-084: Salary alignment test jobs
+  'SALARY-PERFECT': {
+    skills: ['React', 'TypeScript', 'Node.js'],
+    experience: '3~7년',
+    culture_keywords: ['innovative'],
+    career_stage: 'mid',
+    location: '서울',
+    work_type: 'hybrid',
+    salary_min: 5000, salary_max: 8000, // exact match to preference
+    label: 'SALARY',
+  },
+  'SALARY-PARTIAL': {
+    skills: ['React', 'TypeScript', 'Node.js'],
+    experience: '3~7년',
+    culture_keywords: ['innovative'],
+    career_stage: 'mid',
+    location: '서울',
+    work_type: 'hybrid',
+    salary_min: 4000, salary_max: 6000, // partial overlap (5000-6000)
+    label: 'SALARY',
+  },
+  'SALARY-LOW': {
+    skills: ['React', 'TypeScript', 'Node.js'],
+    experience: '3~7년',
+    culture_keywords: ['innovative'],
+    career_stage: 'mid',
+    location: '서울',
+    work_type: 'hybrid',
+    salary_min: 2500, salary_max: 3500, // below candidate range
+    label: 'SALARY',
+  },
+  'SALARY-HIGH': {
+    skills: ['React', 'TypeScript', 'Node.js'],
+    experience: '3~7년',
+    culture_keywords: ['innovative'],
+    career_stage: 'mid',
+    location: '서울',
+    work_type: 'hybrid',
+    salary_min: 9000, salary_max: 12000, // above candidate range
+    label: 'SALARY',
+  },
+  'SALARY-NO-DATA': {
+    skills: ['React', 'TypeScript', 'Node.js'],
+    experience: '3~7년',
+    culture_keywords: ['innovative'],
+    career_stage: 'mid',
+    location: '서울',
+    work_type: 'hybrid',
+    // no salary fields — should be neutral
+    label: 'SALARY',
   },
 };
 
@@ -498,6 +591,72 @@ console.log(`${highFirst ? '✅' : '❌'} Highest is HIGH`);
 console.log(`${lowLast ? '✅' : '❌'} Lowest is LOW`);
 highFirst ? passed++ : failed++;
 lowLast ? passed++ : failed++;
+
+// Test 10: Salary alignment (EXP-084)
+console.log('\n=== Salary Alignment Tests ===');
+const salaryResults = results.filter(r => r.id.startsWith('SALARY-'));
+
+// SALARY-PERFECT should have highest location score (exact overlap)
+const salaryPerfect = results.find(r => r.id === 'SALARY-PERFECT');
+const salaryLow = results.find(r => r.id === 'SALARY-LOW');
+const salaryPartial = results.find(r => r.id === 'SALARY-PARTIAL');
+const salaryHigh = results.find(r => r.id === 'SALARY-HIGH');
+const salaryNoData = results.find(r => r.id === 'SALARY-NO-DATA');
+
+// Perfect overlap scores highest
+const perfectLoc = salaryPerfect?.components.location.score;
+const lowLoc = salaryLow?.components.location.score;
+const ok1 = perfectLoc > lowLoc;
+console.log(`${ok1 ? '✅' : '❌'} Perfect salary overlap (${perfectLoc}) > low salary (${lowLoc})`);
+ok1 ? passed++ : failed++;
+
+// Low salary penalized
+const ok2 = lowLoc < salaryNoData?.components.location.score;
+console.log(`${ok2 ? '✅' : '❌'} Low salary location score (${lowLoc}) < no-data neutral (${salaryNoData?.components.location.score})`);
+ok2 ? passed++ : failed++;
+
+// High salary (above range) gets slight positive
+const highLoc = salaryHigh?.components.location.score;
+const ok3 = highLoc > salaryNoData?.components.location.score;
+console.log(`${ok3 ? '✅' : '❌'} High salary (${highLoc}) > no-data neutral (${salaryNoData?.components.location.score})`);
+ok3 ? passed++ : failed++;
+
+// No-data is neutral (same as before)
+const noDataLoc = salaryNoData?.components.location.score;
+const ok4 = noDataLoc === 80; // 50 base + 15 loc + 15 work_type, no salary
+console.log(`${ok4 ? '✅' : '❌'} No salary data is neutral (${noDataLoc}, expected 80)`);
+ok4 ? passed++ : failed++;
+
+// Partial overlap between perfect and low
+const partialLoc = salaryPartial?.components.location.score;
+const ok5 = partialLoc < perfectLoc && partialLoc > lowLoc;
+console.log(`${ok5 ? '✅' : '❌'} Partial overlap (${partialLoc}) between perfect (${perfectLoc}) and low (${lowLoc})`);
+ok5 ? passed++ : failed++;
+
+// Perfect salary overall score > low salary overall score (same skills/exp)
+const ok6 = salaryPerfect && salaryLow && salaryPerfect.score > salaryLow.score;
+console.log(`${ok6 ? '✅' : '❌'} Perfect salary overall (${salaryPerfect?.score}) > low salary (${salaryLow?.score})`);
+ok6 ? passed++ : failed++;
+
+// Salary unit tests for calculateSalaryAlignment
+console.log('\n=== Salary Alignment Unit Tests ===');
+const salaryUnitTests = [
+  // [jobMin, jobMax, prefRange, expectedRange, description]
+  [5000, 8000, {min:5000, max:8000}, [15, 20], 'exact match'],
+  [6000, 7000, {min:5000, max:8000}, [5, 20], 'job within preference'],
+  [4000, 6000, {min:5000, max:8000}, [5, 20], 'partial overlap'],
+  [2000, 3000, {min:5000, max:8000}, [-20, -5], 'below range'],
+  [9000, 12000, {min:5000, max:8000}, [5, 5], 'above range → slight positive'],
+  [null, null, {min:5000, max:8000}, [0, 0], 'no job salary data'],
+  [5000, 8000, null, [0, 0], 'no candidate preference'],
+  [5000, null, {min:5000, max:8000}, [5, 20], 'single job salary value'],
+];
+for (const [jMin, jMax, pref, expectedRange, desc] of salaryUnitTests) {
+  const score = calculateSalaryAlignment(jMin, jMax, pref);
+  const ok = score >= expectedRange[0] && score <= expectedRange[1];
+  console.log(`${ok ? '✅' : '❌'} ${desc}: ${score} (expected ${expectedRange[0]}~${expectedRange[1]})`);
+  ok ? passed++ : failed++;
+}
 
 // Summary
 console.log(`\n📊 Results: ${passed}/${passed + failed} passed, ${failed} failed`);

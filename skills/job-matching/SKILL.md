@@ -3,7 +3,7 @@ name: job-matching
 description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring, and framework-aware primary domain alignment (EXP-049)"
 ---
 
-# Job Matching Skill v3.3 (EXP-074: Python Web Framework Cross-Similarity + Angular)
+# Job Matching Skill v3.4 (EXP-084: Salary Preference Alignment)
 
 ## Score Weights (Validated — EXP-017)
 
@@ -13,7 +13,7 @@ description: "Resume-to-job matching with tiered skill similarity, skill-gated s
 | **Experience fit** | **25%** | 0-100 | Career stage and experience level alignment |
 | **Company culture fit** | **15%** | 0-100 | Cultural values and work environment matching |
 | **Career stage alignment** | **15%** | 0-100 | Professional development stage compatibility |
-| **Location/work fit** | **10%** | 0-100 | Work type and location preference alignment |
+| **Location/work/salary fit** | **10%** | 0-100 | Work type, location, and salary preference alignment |
 
 ## Discrimination Requirements (EXP-028)
 
@@ -135,6 +135,25 @@ When `job.skills` is empty or has <2 entries (common from LinkedIn/partial scrap
 **Example:** A job with `title: "React/TypeScript 프론트엔드"` and `skills: []` gets effective skills `[React, TypeScript]` — matching score reflects actual domain alignment instead of defaulting to neutral 50.
 
 **Discrimination impact:** Without title inference, a React job with no skills and a Java job with no skills both score ~50. With inference, the React job scores HIGH and the Java job scores LOW for a JS candidate — correct discrimination is restored.
+
+## Salary Preference Alignment (EXP-084)
+
+The 10% Location/Work/Salary component now includes salary preference matching when both the candidate has `preferences.salary_range: {min, max}` and the job has `salary_min`/`salary_max` populated.
+
+**Scoring breakdown** (base 50):
+- Location match: +15
+- Work type match: +15
+- Salary alignment: -20 to +20
+
+**Salary alignment logic:**
+- **Ranges overlap**: +5 to +20 (proportional to overlap ratio)
+- **Job below candidate min**: -5 to -20 (proportional to gap)
+- **Job above candidate max**: +5 (slight positive — above expectations is acceptable)
+- **No salary data on either side**: 0 (neutral, backward compatible)
+
+**Example:** Candidate wants 5000-8000만원. Job offering 6000-7000 → good overlap (+10). Job offering 2500-3500 → below range (-11). Job offering 9000-12000 → above range (+5).
+
+This prevents a 3000만원 job from scoring identically to a 7000만원 job when the candidate explicitly prefers 5000-8000.
 
 ## Matching Workflow
 
