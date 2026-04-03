@@ -138,6 +138,7 @@ function fieldScore(job) {
   if (job.content && job.content.trim()) score += 2;
   if (job.skills && job.skills.trim()) score += 3;  // Skills are high-value (35% match weight)
   if (job.culture_keywords && job.culture_keywords.trim()) score += 1;
+  if (job.employment_type && job.employment_type !== 'regular') score += 1;  // Non-default employment_type carries info
   // Prefer Wanted (usually richer)
   if (job.source === 'wanted') score += 1;
   return score;
@@ -151,7 +152,7 @@ function main() {
     process.exit(1);
   }
 
-  const raw = execSync(`sqlite3 -json "${DB_PATH}" "SELECT id, source, title, company, url, content, location, work_type, experience, salary, deadline, reward, skills, culture_keywords FROM jobs ORDER BY id"`, { encoding: 'utf8' });
+  const raw = execSync(`sqlite3 -json "${DB_PATH}" "SELECT id, source, title, company, url, content, location, work_type, experience, salary, deadline, reward, skills, culture_keywords, employment_type FROM jobs ORDER BY id"`, { encoding: 'utf8' });
   const jobs = JSON.parse(raw);
 
   if (jobs.length === 0) {
@@ -202,7 +203,7 @@ function main() {
     const dupes = entries.slice(1);
 
     // Enrich keeper with fields from dupes if missing
-    const enrichFields = ['skills', 'culture_keywords', 'salary', 'deadline', 'experience', 'work_type', 'location'];
+    const enrichFields = ['skills', 'culture_keywords', 'employment_type', 'salary', 'deadline', 'experience', 'work_type', 'location'];
     const enrichUpdates = {};
     for (const field of enrichFields) {
       if ((!keeper[field] || !keeper[field].trim()) && !enrichUpdates[field]) {
