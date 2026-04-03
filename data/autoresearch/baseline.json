@@ -1,18 +1,17 @@
 {
-  "timestamp": "2026-04-02T16:04:00Z",
-  "experiment_id": "EXP-082",
-  "skill": "job-tracking",
-  "focus": "salary_threshold_nlp_queries",
-  "hypothesis": "Main NLP parser only supported basic '연봉 있는' queries; salary threshold parsing existed only in separate test suite with duplicated parser",
+  "timestamp": "2026-04-03T11:43:00Z",
+  "experiment_id": "EXP-083",
+  "skill": "job-scraping+job-matching",
+  "focus": "skill_inference_korean_job_market_expansion",
+  "hypothesis": "Skill inference module missing 27 common Korean job market keywords causing zero-detection in scraped postings",
   "metrics": {
-    "total_tests": "884 (all pass)",
+    "total_tests": "913 (all pass)",
     "npm_test": "working",
     "test_suites": 43,
     "all_passing": true,
     "regressions": 0,
-    "nlp_v3_tests": 56,
-    "salary_threshold_cases": 6,
-    "salary_range_support": true,
-    "salary_eok_support": true
+    "skill_map_entries": 77,
+    "new_patterns": 27,
+    "new_tests": 29
   }
 }

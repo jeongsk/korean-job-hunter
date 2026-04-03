@@ -502,7 +502,7 @@ node scripts/dedup-jobs.js --json
 
 ### Extraction
 ```javascript
-// 50+ skill patterns: languages, frameworks, DBs, infra, data/ML
+// 77+ skill patterns: languages, frameworks, DBs, infra, data/ML, cloud services, game engines
 // Handles Korean equivalents, disambiguation (Java≠JavaScript, Spring vs Spring Boot)
 // See test_detail_skill_extraction.js for full pattern list
 const detailSkills = extractSkillsFromDetail(pageText);

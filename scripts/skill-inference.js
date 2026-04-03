@@ -3,7 +3,7 @@
  * Extracts technology keywords from job titles and descriptions.
  * Supports Korean equivalents (파이썬→python, 스프링→spring, etc.)
  *
- * EXP-077: Unified from LinkedIn-only inferSkillsFromText and matching TITLE_SKILL_PATTERNS.
+ * EXP-083: Added Linux, Nginx, CI/CD, DevOps, Spark, Hadoop, Airflow, dbt, JPA, Redux, Unity, Unreal, BigQuery, Snowflake, AWS Lambda/S3/SQS.
  * This is the single source of truth for skill pattern matching.
  */
 
@@ -59,6 +59,21 @@ const SKILL_MAP = {
   'ansible': /ansible/i,
   'jenkins': /jenkins/i,
   'github actions': /github\s*actions/i,
+  'linux': /linux|리눅스/i,
+  'nginx': /nginx|엔진엑스/i,
+  'ci/cd': /ci\s*\/?\s*cd|cicd|지속적\s*통합|지속적\s*배포/i,
+  'devops': /devops|데브옵스/i,
+
+  // AWS Services
+  'aws lambda': /aws\s*lambda|람다/i,
+  'aws s3': /aws\s*s3|s3\s*bucket/i,
+  'aws sqs': /aws\s*sqs/i,
+
+  // GCP Services
+  'bigquery': /bigquery|빅쿼리/i,
+
+  // Cloud Data
+  'snowflake': /snowflake|스노우플레이크/i,
 
   // Data / Messaging
   'kafka': /kafka/i,
@@ -70,6 +85,22 @@ const SKILL_MAP = {
   'postgresql': /postgresql|postgres/i,
   'oracle': /oracle/i,
   'mssql': /mssql|sql\s*server/i,
+
+  // ORM / Java Persistence
+  'jpa': /jpa|hibernate|하이버네이트/i,
+
+  // Data Engineering
+  'spark': /spark|스파크/i,
+  'hadoop': /hadoop|하둡/i,
+  'airflow': /airflow|에어플로우/i,
+  'dbt': /\bdbt\b/i,
+
+  // Frontend State/UI
+  'redux': /redux|리덕스/i,
+
+  // Game
+  'unity': /unity|유니티/i,
+  'unreal': /unreal|언리얼/i,
 
   // API
   'graphql': /graphql/i,

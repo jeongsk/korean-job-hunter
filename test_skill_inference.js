@@ -93,5 +93,38 @@ if (keyCount >= 50) {
   failed++;
 }
 
+// ─── EXP-083: New Infrastructure/Data/Frontend/Game Skills ───
+assertIncludes('Linux Korean', inferSkills('리눅스 서버 관리'), ['linux']);
+assertIncludes('Linux English', inferSkills('Linux Administrator'), ['linux']);
+assertIncludes('Nginx English', inferSkills('Nginx Reverse Proxy'), ['nginx']);
+assertIncludes('CI/CD Korean', inferSkills('CI/CD 파이프라인'), ['ci/cd']);
+assertIncludes('CI/CD English', inferSkills('CI CD Engineer'), ['ci/cd']);
+assertIncludes('DevOps English', inferSkills('DevOps Engineer'), ['devops']);
+assertIncludes('DevOps Korean', inferSkills('데브옵스 플랫폼'), ['devops']);
+assertIncludes('JPA English', inferSkills('JPA/Hibernate Backend'), ['jpa']);
+assertIncludes('Hibernate English', inferSkills('Spring Hibernate'), ['spring', 'jpa']);
+assertIncludes('Spark English', inferSkills('Spark Data Engineering'), ['spark']);
+assertIncludes('Spark Korean', inferSkills('스파크 빅데이터'), ['spark']);
+assertIncludes('Hadoop English', inferSkills('Hadoop Cluster'), ['hadoop']);
+assertIncludes('Hadoop Korean', inferSkills('하둡 에코시스템'), ['hadoop']);
+assertIncludes('Airflow English', inferSkills('Airflow DAG'), ['airflow']);
+assertIncludes('dbt English', inferSkills('dbt Transformation'), ['dbt']);
+assertIncludes('BigQuery English', inferSkills('BigQuery Analyst'), ['bigquery']);
+assertIncludes('BigQuery Korean', inferSkills('빅쿼리 데이터'), ['bigquery']);
+assertIncludes('Snowflake English', inferSkills('Snowflake Data Warehouse'), ['snowflake']);
+assertIncludes('Redux English', inferSkills('Redux State Management'), ['redux']);
+assertIncludes('Redux Korean', inferSkills('리덕스 상태관리'), ['redux']);
+assertIncludes('Unity English', inferSkills('Unity Game Developer'), ['unity']);
+assertIncludes('Unity Korean', inferSkills('유니티 게임개발'), ['unity']);
+assertIncludes('Unreal English', inferSkills('Unreal Engine 5'), ['unreal']);
+assertIncludes('AWS Lambda', inferSkills('AWS Lambda Serverless'), ['aws', 'aws lambda']);
+assertIncludes('AWS S3', inferSkills('AWS S3 Storage'), ['aws', 'aws s3']);
+assertIncludes('AWS SQS', inferSkills('AWS SQS Messaging'), ['aws', 'aws sqs']);
+
+// ─── Combined new skills ───
+assertIncludes('Linux+Nginx+Docker', inferSkills('Linux Nginx Docker 배포'), ['linux', 'nginx', 'docker']);
+assertIncludes('Spark+Airflow+BigQuery', inferSkills('Spark Airflow BigQuery'), ['spark', 'airflow', 'bigquery']);
+assertIncludes('CI/CD+Jenkins+Docker', inferSkills('CI/CD Jenkins Docker'), ['ci/cd', 'jenkins', 'docker']);
+
 console.log(`\n📊 Skill Inference: ${passed}/${passed + failed} passed`);
 if (failed > 0) process.exit(1);
