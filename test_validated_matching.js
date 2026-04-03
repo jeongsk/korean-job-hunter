@@ -37,7 +37,7 @@ const TIER2 = { // 75%
   'java': ['kotlin'], 'kotlin': ['java'], // JVM interoperable (EXP-062)
   'react': ['react native'], 'react native': ['react'], // shared React paradigm (EXP-062)
   // EXP-064: Detail-skill similarity pairs
-  'graphql': ['rest_api'], 'rest_api': ['graphql'], // API paradigms
+  'graphql': ['rest api'], 'rest api': ['graphql'], // API paradigms (EXP-088: fixed underscore→space to match skill-inference key)
   'jenkins': ['github_actions'], 'github_actions': ['jenkins'], // CI/CD
   'terraform': ['ansible'], 'ansible': ['terraform'], // IaC/config management
   'kafka': ['rabbitmq'], 'rabbitmq': ['kafka'], // message queues
@@ -58,6 +58,10 @@ const TIER2 = { // 75%
   'ci/cd': ['jenkins', 'github actions'], 'github actions': ['ci/cd'], // CI/CD ecosystem
   'unity': ['unreal'], 'unreal': ['unity'], // game engines
   'machine learning': ['tensorflow', 'pytorch'], // ML concept
+  // EXP-088: Remaining orphan connections
+  'jpa': ['spring', 'java'], 'spring': ['jpa'], 'java': ['kotlin', 'jpa'], // JPA/Hibernate is Spring Data's ORM layer (merged with existing kotlin entry)
+  'devops': ['docker', 'kubernetes', 'terraform', 'ci/cd'], // DevOps umbrella connects to core tools
+  'aws lambda': ['aws'], 'aws s3': ['aws'], 'aws sqs': ['aws'], // AWS services connect to parent cloud
 };
 
 const TIER3 = { // 25%
@@ -76,6 +80,12 @@ const TIER3 = { // 25%
   'c#': ['java'], // managed languages
   'dart': ['flutter'], 'flutter': ['dart'], // Flutter ecosystem
   'r': ['python'], 'python': ['r'], // data science languages
+  // EXP-088: Remaining orphan partial overlaps
+  'devops': ['jenkins', 'github actions'], // DevOps connects to CI/CD tools
+  'aws lambda': ['docker', 'kubernetes'], // serverless↔container compute models
+  'aws s3': ['bigquery', 'snowflake'], // storage↔data warehouse pipeline
+  'aws sqs': ['kafka', 'rabbitmq'], // managed↔self-hosted messaging
+  'figma': ['angular', 'react', 'vue'], // design tools overlap with frontend frameworks
 };
 
 // Merge all tiers for lookup
@@ -557,7 +567,7 @@ const simTests = [
   ['Svelte', 'Vue', 0.25], // component frameworks (EXP-062)
   ['Svelte', 'React', 0.25], // component frameworks (EXP-062)
   // EXP-064: Detail-skill similarity pairs
-  ['GraphQL', 'REST_API', 0.75], // API paradigms
+  ['GraphQL', 'REST API', 0.75], // API paradigms (EXP-088: fixed key to match skill-inference)
   ['Jenkins', 'github_actions', 0.75], // CI/CD (case-insensitive lookup)
   ['Terraform', 'Docker', 0.25], // DevOps provisioning
   ['Kafka', 'RabbitMQ', 0.75], // message queues
