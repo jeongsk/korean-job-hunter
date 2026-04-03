@@ -1,17 +1,18 @@
 {
-  "timestamp": "2026-04-03T18:04:00Z",
-  "experiment_id": "EXP-090",
-  "skill": "resume-agent",
-  "focus": "skill_extraction_sync",
-  "hypothesis": "test_resume_nlp.js had 39-skill inline maps while resume-agent.md references skill-inference.js (77 skills) — test was validating stale extraction logic",
+  "timestamp": "2026-04-03T19:04:00Z",
+  "experiment_id": "EXP-091",
+  "skill": "job-scraping+job-matching",
+  "focus": "career_stage_pipeline",
+  "hypothesis": "career_stage computed by all 3 post-processors but never persisted to DB — 15% matching weight always returned 50 neutral score",
   "metrics": {
-    "total_tests": "997 (all pass)",
+    "total_tests": "1023 (all pass)",
     "npm_test": "working",
-    "test_suites": 44,
+    "test_suites": 45,
     "all_passing": true,
     "regressions": 0,
-    "resume_nlp_tests": 76,
-    "skill_source": "skill-inference.js (77 skills)",
-    "korean_equivalents_fixed": 7
+    "career_stage_in_db": true,
+    "career_stage_in_dedup": true,
+    "career_stage_shared_module": true,
+    "deriveCareerStage_sources": "skill-inference.js (Wanted, JobKorea) + local (LinkedIn)"
   }
 }

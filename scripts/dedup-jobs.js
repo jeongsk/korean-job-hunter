@@ -152,7 +152,7 @@ function main() {
     process.exit(1);
   }
 
-  const raw = execSync(`sqlite3 -json "${DB_PATH}" "SELECT id, source, title, company, url, content, location, work_type, experience, salary, deadline, reward, skills, culture_keywords, employment_type FROM jobs ORDER BY id"`, { encoding: 'utf8' });
+  const raw = execSync(`sqlite3 -json "${DB_PATH}" "SELECT id, source, title, company, url, content, location, work_type, experience, salary, deadline, reward, skills, culture_keywords, employment_type, career_stage FROM jobs ORDER BY id"`, { encoding: 'utf8' });
   const jobs = JSON.parse(raw);
 
   if (jobs.length === 0) {
@@ -203,7 +203,7 @@ function main() {
     const dupes = entries.slice(1);
 
     // Enrich keeper with fields from dupes if missing
-    const enrichFields = ['skills', 'culture_keywords', 'employment_type', 'salary', 'deadline', 'experience', 'work_type', 'location'];
+    const enrichFields = ['skills', 'culture_keywords', 'employment_type', 'salary', 'deadline', 'experience', 'work_type', 'location', 'career_stage'];
     const enrichUpdates = {};
     for (const field of enrichFields) {
       if ((!keeper[field] || !keeper[field].trim()) && !enrichUpdates[field]) {
