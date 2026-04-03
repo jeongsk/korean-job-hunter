@@ -59,7 +59,7 @@ const SKILL_PATTERNS = {
   'kubernetes': { re: /\bkubernetes\b|\bk8s\b|쿠버네티스/i },
   'terraform': { re: /\bterraform\b|테라폼/i },
   'jenkins': { re: /\bjenkins\b|젠킨스/i },
-  'github_actions': { re: /\bgithub\s*actions?\b/i },
+  'github_actions': { re: /\bgithub\s*actions?\b/i }, // key is github_actions but skill-inference uses 'github actions'
   'nginx': { re: /\bnginx\b/i },
   'kafka': { re: /\bkafka\b|카프카/i },
   'rabbitmq': { re: /\brabbitmq\b/i },

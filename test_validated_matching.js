@@ -38,7 +38,7 @@ const TIER2 = { // 75%
   'react': ['react native'], 'react native': ['react'], // shared React paradigm (EXP-062)
   // EXP-064: Detail-skill similarity pairs
   'graphql': ['rest api'], 'rest api': ['graphql'], // API paradigms (EXP-088: fixed underscore→space to match skill-inference key)
-  'jenkins': ['github_actions'], 'github_actions': ['jenkins'], // CI/CD
+  'jenkins': ['github actions'], 'github actions': ['jenkins', 'ci/cd'], // CI/CD (EXP-093: fixed underscore→space + merged duplicate key)
   'terraform': ['ansible'], 'ansible': ['terraform'], // IaC/config management
   'kafka': ['rabbitmq'], 'rabbitmq': ['kafka'], // message queues
   'tensorflow': ['pytorch', 'machine learning'], 'pytorch': ['tensorflow', 'machine learning'], // ML frameworks + EXP-087: ML ecosystem
@@ -55,7 +55,7 @@ const TIER2 = { // 75%
   'bigquery': ['snowflake'], 'snowflake': ['bigquery'], // cloud data warehouses
   'airflow': ['dbt'], 'dbt': ['airflow'], // data orchestration
   'linux': ['docker', 'nginx'], // OS/container/infra stack
-  'ci/cd': ['jenkins', 'github actions'], 'github actions': ['ci/cd'], // CI/CD ecosystem
+  'ci/cd': ['jenkins', 'github actions'], // CI/CD ecosystem (EXP-093: removed duplicate 'github actions' key, merged into line above)
   'unity': ['unreal'], 'unreal': ['unity'], // game engines
   'machine learning': ['tensorflow', 'pytorch'], // ML concept
   // EXP-088: Remaining orphan connections
@@ -568,7 +568,7 @@ const simTests = [
   ['Svelte', 'React', 0.25], // component frameworks (EXP-062)
   // EXP-064: Detail-skill similarity pairs
   ['GraphQL', 'REST API', 0.75], // API paradigms (EXP-088: fixed key to match skill-inference)
-  ['Jenkins', 'github_actions', 0.75], // CI/CD (case-insensitive lookup)
+  ['Jenkins', 'GitHub Actions', 0.75], // CI/CD (EXP-093: fixed to use space key matching skill-inference output)
   ['Terraform', 'Docker', 0.25], // DevOps provisioning
   ['Kafka', 'RabbitMQ', 0.75], // message queues
   ['TensorFlow', 'PyTorch', 0.75], // ML frameworks
@@ -808,6 +808,42 @@ console.log('\n--- Employment Type Tests (EXP-085) ---');
   const ok = card.employment_type === 'contract';
   console.log(`${ok ? '✅' : '❌'} JobKorea: 계약직 → contract (got: ${card.employment_type})`);
   ok ? passed++ : failed++;
+}
+
+// EXP-093: Verify all skill-inference keys are used consistently in similarity maps (no underscore mismatches)
+{
+  const { SKILL_MAP } = require('./scripts/skill-inference');
+  const allInferenceKeys = Object.keys(SKILL_MAP);
+  const allTierKeys = [...Object.keys(TIER1), ...Object.keys(TIER2), ...Object.keys(TIER3)];
+  const allTierValues = [...Object.values(TIER1), ...Object.values(TIER2), ...Object.values(TIER3)].flat();
+  const allTierEntries = [...new Set([...allTierKeys, ...allTierValues])];
+
+  // Find inference keys that appear in TIER maps but with wrong format (underscore vs space)
+  const mismatches = [];
+  for (const skillKey of allInferenceKeys) {
+    if (allTierEntries.includes(skillKey)) continue; // correct format exists
+    const underscored = skillKey.replace(/ /g, '_').replace(/\//g, '_');
+    if (allTierEntries.includes(underscored)) {
+      mismatches.push({ skill: skillKey, tierHas: underscored });
+    }
+  }
+
+  const ok = mismatches.length === 0;
+  console.log(`${ok ? '✅' : '❌'} Skill-inference key format consistency: ${mismatches.length === 0 ? 'all match' : mismatches.map(m => `${m.skill} vs ${m.tierHas}`).join(', ')}`);
+  ok ? passed++ : failed++;
+}
+
+// EXP-093: Verify jenkins↔github actions similarity works with skill-inference output keys
+{
+  const sim = getSimilarity('jenkins', 'github actions');
+  const ok = sim === 0.75;
+  console.log(`${ok ? '✅' : '❌'} Jenkins ↔ github actions similarity: ${sim} (expected 0.75)`);
+  ok ? passed++ : failed++;
+
+  const sim2 = getSimilarity('github actions', 'jenkins');
+  const ok2 = sim2 === 0.75;
+  console.log(`${ok2 ? '✅' : '❌'} github actions ↔ Jenkins similarity: ${sim2} (expected 0.75)`);
+  ok2 ? passed++ : failed++;
 }
 
 // Summary

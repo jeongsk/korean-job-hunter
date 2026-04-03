@@ -43,7 +43,7 @@ const TIER2 = { // 75%
   'java': ['kotlin'], 'kotlin': ['java'],
   'react': ['react native'], 'react native': ['react'],
   'graphql': ['rest_api'], 'rest_api': ['graphql'],
-  'jenkins': ['github_actions'], 'github_actions': ['jenkins'],
+  'jenkins': ['github actions'], 'github actions': ['jenkins'],
   'terraform': ['ansible'], 'ansible': ['terraform'],
   'kafka': ['rabbitmq'], 'rabbitmq': ['kafka'],
   'tensorflow': ['pytorch'], 'pytorch': ['tensorflow'],
