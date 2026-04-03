@@ -230,12 +230,22 @@ function calculateSalaryAlignment(jobSalaryMin, jobSalaryMax, candidateSalaryRan
 }
 
 // === Location/Work/Salary Score (EXP-084: salary preference added) ===
-function calculateLocationWorkScore(jobLocation, jobWorkType, candidatePrefs, jobSalaryMin, jobSalaryMax) {
+function calculateLocationWorkScore(jobLocation, jobWorkType, candidatePrefs, jobSalaryMin, jobSalaryMax, jobEmploymentType) {
   let score = 50;
   if (candidatePrefs.locations?.some(l => jobLocation?.includes(l))) score += 15;
   if (candidatePrefs.work_types?.some(w => w === jobWorkType)) score += 15;
   // Salary alignment (EXP-084)
   score += calculateSalaryAlignment(jobSalaryMin, jobSalaryMax, candidatePrefs.salary_range);
+  // Employment type alignment (EXP-085)
+  if (candidatePrefs.employment_types && jobEmploymentType) {
+    if (candidatePrefs.employment_types.includes(jobEmploymentType)) {
+      score += 5; // bonus for preferred employment type
+    } else if (jobEmploymentType === 'contract' && !candidatePrefs.employment_types.includes('contract')) {
+      score -= 10; // penalty for unwanted contract
+    } else if (jobEmploymentType === 'intern' && !candidatePrefs.employment_types.includes('intern')) {
+      score -= 15; // larger penalty for unwanted intern
+    }
+  }
   return Math.max(0, Math.min(100, score));
 }
 
@@ -247,7 +257,7 @@ function calculateMatch(job, candidate) {
   const expScore = calculateExperienceScore(job.experience, candidate.experience_years);
   const cultureScore = calculateCultureScore(job.culture_keywords, candidate.cultural_preferences);
   const stageScore = calculateCareerStageScore(job.career_stage, candidate.experience_years);
-  const locScore = calculateLocationWorkScore(job.location, job.work_type, candidate.preferences, job.salary_min, job.salary_max);
+  const locScore = calculateLocationWorkScore(job.location, job.work_type, candidate.preferences, job.salary_min, job.salary_max, job.employment_type);
   
   const raw = 
     skillScore * WEIGHTS.skill +
@@ -655,6 +665,103 @@ for (const [jMin, jMax, pref, expectedRange, desc] of salaryUnitTests) {
   const score = calculateSalaryAlignment(jMin, jMax, pref);
   const ok = score >= expectedRange[0] && score <= expectedRange[1];
   console.log(`${ok ? '✅' : '❌'} ${desc}: ${score} (expected ${expectedRange[0]}~${expectedRange[1]})`);
+  ok ? passed++ : failed++;
+}
+
+// === Employment Type Tests (EXP-085) ===
+console.log('\n--- Employment Type Tests (EXP-085) ---');
+
+// Test: regular job with regular preference → no penalty
+{
+  const prefs = { locations: [], work_types: [], employment_types: ['regular'] };
+  const s = calculateLocationWorkScore('서울', 'onsite', prefs, null, null, 'regular');
+  const ok = s === 55; // 50 base + 5 employment match
+  console.log(`${ok ? '✅' : '❌'} Regular job + regular preference: ${s} (expected 55)`);
+  ok ? passed++ : failed++;
+}
+
+// Test: contract job without contract preference → penalty
+{
+  const prefs = { locations: [], work_types: [], employment_types: ['regular'] };
+  const s = calculateLocationWorkScore('서울', 'onsite', prefs, null, null, 'contract');
+  const ok = s === 40; // 50 base - 10 contract penalty
+  console.log(`${ok ? '✅' : '❌'} Contract job + regular-only preference: ${s} (expected 40)`);
+  ok ? passed++ : failed++;
+}
+
+// Test: intern job without intern preference → larger penalty
+{
+  const prefs = { locations: [], work_types: [], employment_types: ['regular'] };
+  const s = calculateLocationWorkScore('서울', 'onsite', prefs, null, null, 'intern');
+  const ok = s === 35; // 50 base - 15 intern penalty
+  console.log(`${ok ? '✅' : '❌'} Intern job + regular-only preference: ${s} (expected 35)`);
+  ok ? passed++ : failed++;
+}
+
+// Test: contract job with contract preference → bonus
+{
+  const prefs = { locations: [], work_types: [], employment_types: ['regular', 'contract'] };
+  const s = calculateLocationWorkScore('서울', 'onsite', prefs, null, null, 'contract');
+  const ok = s === 55; // 50 base + 5 employment match
+  console.log(`${ok ? '✅' : '❌'} Contract job + contract preference: ${s} (expected 55)`);
+  ok ? passed++ : failed++;
+}
+
+// Test: no employment preference → neutral
+{
+  const prefs = { locations: [], work_types: [] }; // no employment_types
+  const s = calculateLocationWorkScore('서울', 'onsite', prefs, null, null, 'contract');
+  const ok = s === 50; // 50 base, no employment effect
+  console.log(`${ok ? '✅' : '❌'} Contract job + no preference: ${s} (expected 50)`);
+  ok ? passed++ : failed++;
+}
+
+// Test: no employment_type on job → neutral
+{
+  const prefs = { locations: [], work_types: [], employment_types: ['regular'] };
+  const s = calculateLocationWorkScore('서울', 'onsite', prefs, null, null, null);
+  const ok = s === 50; // 50 base, no job employment_type
+  console.log(`${ok ? '✅' : '❌'} No employment_type on job: ${s} (expected 50)`);
+  ok ? passed++ : failed++;
+}
+
+// Test: employment type discrimination in full match score
+{
+  const regularJob = { title: 'React Dev', company: 'A', skills: ['React', 'TypeScript'], experience: '경력 3~5년', work_type: 'onsite', employment_type: 'regular', location: '서울', culture_keywords: [], career_stage: 'mid' };
+  const contractJob = { ...regularJob, employment_type: 'contract' };
+  const candidate = { skills: ['React', 'TypeScript', 'JavaScript'], experience_years: 4, cultural_preferences: [], preferences: { locations: ['서울'], work_types: ['onsite'], employment_types: ['regular'] } };
+  const regularScore = calculateMatch(regularJob, candidate).overall;
+  const contractScore = calculateMatch(contractJob, candidate).overall;
+  const ok = regularScore > contractScore;
+  console.log(`${ok ? '✅' : '❌'} Full match: regular(${regularScore}) > contract(${contractScore})`);
+  ok ? passed++ : failed++;
+}
+
+// Test: Wanted post-processor extracts employment_type
+{
+  const { parseWantedJob } = require('./scripts/post-process-wanted');
+  const contractJob = parseWantedJob('[프론트엔드 개발자] 카카오 경력 3~7년 계약직 서울');
+  const ok1 = contractJob.employment_type === 'contract';
+  console.log(`${ok1 ? '✅' : '❌'} Wanted: 계약직 → contract (got: ${contractJob.employment_type})`);
+  ok1 ? passed++ : failed++;
+
+  const internJob = parseWantedJob('[백엔드 개발자] 네이버 인턴 경력 무관 판교');
+  const ok2 = internJob.employment_type === 'intern';
+  console.log(`${ok2 ? '✅' : '❌'} Wanted: 인턴 → intern (got: ${internJob.employment_type})`);
+  ok2 ? passed++ : failed++;
+
+  const regularJob2 = parseWantedJob('[iOS 개발자] 토스 경력 2~5년 서울');
+  const ok3 = regularJob2.employment_type === 'regular';
+  console.log(`${ok3 ? '✅' : '❌'} Wanted: no type → regular (got: ${regularJob2.employment_type})`);
+  ok3 ? passed++ : failed++;
+}
+
+// Test: JobKorea post-processor extracts employment_type
+{
+  const { parseJobKoreaCard } = require('./scripts/post-process-jobkorea');
+  const card = parseJobKoreaCard('React 개발자\n카카오\n경력 3~7년\n계약직\n서울\n마감 4/10');
+  const ok = card.employment_type === 'contract';
+  console.log(`${ok ? '✅' : '❌'} JobKorea: 계약직 → contract (got: ${card.employment_type})`);
   ok ? passed++ : failed++;
 }
 

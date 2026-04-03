@@ -142,6 +142,13 @@ function parseLinkedInCard(raw) {
   // Work type
   const work_type = detectWorkType(`${title} ${description}`);
 
+  // Employment type (EXP-085)
+  const combinedText = `${title} ${description}`;
+  let employment_type = 'regular';
+  if (/contract|계약직|파견|위촉|temporary/i.test(combinedText)) employment_type = 'contract';
+  else if (/intern|인턴(십)?/i.test(combinedText)) employment_type = 'intern';
+  else if (/freelance|프리랜서/i.test(combinedText)) employment_type = 'freelance';
+
   // Clean title: remove seniority prefixes in brackets
   let cleanTitle = title;
 
@@ -157,6 +164,7 @@ function parseLinkedInCard(raw) {
     experience_min_years: minYears,
     skills: skills.join(', '),
     work_type,
+    employment_type,
     salary: salaryInfo.salary,
     salary_min: salaryInfo.salary_min,
     salary_max: salaryInfo.salary_max,

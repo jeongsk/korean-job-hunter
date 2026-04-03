@@ -3,7 +3,7 @@ name: job-matching
 description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring, and framework-aware primary domain alignment (EXP-049)"
 ---
 
-# Job Matching Skill v3.4 (EXP-084: Salary Preference Alignment)
+# Job Matching Skill v3.5 (EXP-085: Employment Type Alignment)
 
 ## Score Weights (Validated — EXP-017)
 
@@ -13,7 +13,7 @@ description: "Resume-to-job matching with tiered skill similarity, skill-gated s
 | **Experience fit** | **25%** | 0-100 | Career stage and experience level alignment |
 | **Company culture fit** | **15%** | 0-100 | Cultural values and work environment matching |
 | **Career stage alignment** | **15%** | 0-100 | Professional development stage compatibility |
-| **Location/work/salary fit** | **10%** | 0-100 | Work type, location, and salary preference alignment |
+| **Location/work/salary/employment fit** | **10%** | 0-100 | Work type, location, salary preference, and employment type alignment |
 
 ## Discrimination Requirements (EXP-028)
 
@@ -144,6 +144,19 @@ The 10% Location/Work/Salary component now includes salary preference matching w
 - Location match: +15
 - Work type match: +15
 - Salary alignment: -20 to +20
+- Employment type alignment: -15 to +5 (EXP-085)
+
+## Employment Type Alignment (EXP-085)
+
+Jobs are classified by `employment_type`: `regular` (정규직, default), `contract` (계약직/파견), `intern` (인턴), `freelance` (프리랜서). All three post-processors extract this field.
+
+**Scoring:**
+- **Match with candidate preference**: +5
+- **Contract job, candidate doesn't want contract**: -10
+- **Intern job, candidate doesn't want intern**: -15
+- **No preference specified or no employment_type**: neutral (0)
+
+Backward compatible — jobs without employment_type data score neutrally.
 
 **Salary alignment logic:**
 - **Ranges overlap**: +5 to +20 (proportional to overlap ratio)

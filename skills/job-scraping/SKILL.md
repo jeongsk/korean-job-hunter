@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v5.2 (EXP-077: Skills Column Persistence)
+# Job Scraping Skill v5.3 (EXP-085: Employment Type Extraction)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
@@ -610,5 +610,15 @@ agent-browser screenshot     # 스크린샷
 ```js
 const { parseLinkedInCard } = require('./scripts/post-process-linkedin');
 const job = parseLinkedInCard({ title: 'Senior Backend Engineer (Python)', company: 'Naver', location: 'Pangyo, Gyeonggi-do', link: '...', description: 'Django, Kubernetes. 연봉 6000~9000만원' });
-// → { title, company, location:'판교 경기도', experience:'senior', experience_min_years:5, skills:'python, django, kubernetes', salary_min:6000, salary_max:9000, work_type:'onsite', source:'linkedin' }
+// → { title, company, location:'판교 경기도', experience:'senior', experience_min_years:5, skills:'python, django, kubernetes', salary_min:6000, salary_max:9000, work_type:'onsite', employment_type:'regular', source:'linkedin' }
 ```
+
+## Employment Type Extraction (EXP-085)
+
+All three post-processors (Wanted, JobKorea, LinkedIn) now extract `employment_type`:
+- `regular` — 정규직 (default when no keyword found)
+- `contract` — 계약직, 파견, 위촉, contract position
+- `intern` — 인턴, 인턴십, intern
+- `freelance` — 프리랜서, freelance
+
+The field is used in matching (10% location/work component) to penalize contract/intern jobs when the candidate prefers regular employment.

@@ -135,12 +135,18 @@ function parseJobKoreaCard(raw) {
   if (/전면재택|재택근무|풀리모트|원격근무|fully?\s*remote|100%\s*remote/i.test(allText)) work_type = 'remote';
   else if (/하이브리드|주\d일\s*출근|hybrid/i.test(allText)) work_type = 'hybrid';
 
+  // Employment type extraction (EXP-085)
+  let employment_type = 'regular';
+  if (/계약직|파견|위촉/i.test(allText)) employment_type = 'contract';
+  else if (/인턴(십)?/i.test(allText)) employment_type = 'intern';
+  else if (/프리랜서/i.test(allText)) employment_type = 'freelance';
+
   // Skill inference from title (EXP-080)
   const skills = inferSkills(title).join(', ');
 
   return {
     title, company, experience, salary, salary_min, salary_max,
-    location, deadline, work_type, culture_keywords, source: 'jobkorea',
+    location, deadline, work_type, employment_type, culture_keywords, source: 'jobkorea',
     career_stage: deriveCareerStage(experience),
     skills
   };

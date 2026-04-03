@@ -1,16 +1,16 @@
 {
-  "timestamp": "2026-04-03T12:04:00Z",
-  "experiment_id": "EXP-084",
-  "skill": "job-matching",
-  "focus": "salary_preference_alignment",
-  "hypothesis": "Matching algorithm ignores salary preferences despite resume having salary_range and jobs having salary_min/salary_max",
+  "timestamp": "2026-04-03T13:04:00Z",
+  "experiment_id": "EXP-085",
+  "skill": "job-scraping+job-matching",
+  "focus": "employment_type_extraction_and_alignment",
+  "hypothesis": "Employment type (정규직/계약직/인턴) was stripped from titles but never captured as a field. Korean job seekers strongly prefer regular employment and should see penalties for contract/intern jobs.",
   "metrics": {
-    "total_tests": "927 (all pass)",
+    "total_tests": "938 (all pass)",
     "npm_test": "working",
     "test_suites": 43,
     "all_passing": true,
     "regressions": 0,
-    "new_salary_tests": 14,
-    "salary_alignment_range": "-20 to +20"
+    "new_employment_tests": 11,
+    "employment_type_values": "regular/contract/intern/freelance"
   }
 }

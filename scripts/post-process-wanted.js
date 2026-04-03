@@ -61,10 +61,10 @@ function parseWantedJob(raw) {
   }
 
   if (!allText || allText.length < 3) {
-    return { id, title: '', company: '', experience: '', salary: '', salary_min: null, salary_max: null, work_type: 'onsite', location: '', reward: '', skills: '', deadline: '', culture_keywords: [], career_stage: null, link };
+    return { id, title: '', company: '', experience: '', salary: '', salary_min: null, salary_max: null, work_type: 'onsite', employment_type: 'regular', location: '', reward: '', skills: '', deadline: '', culture_keywords: [], career_stage: null, link };
   }
 
-  let r = { id, title: '', company: '', experience: '', salary: '', salary_min: null, salary_max: null, work_type: 'onsite', location: '', reward: '', skills: '', deadline: '', culture_keywords: [], career_stage: null, link };
+  let r = { id, title: '', company: '', experience: '', salary: '', salary_min: null, salary_max: null, work_type: 'onsite', employment_type: 'regular', location: '', reward: '', skills: '', deadline: '', culture_keywords: [], career_stage: null, link };
 
   let t = allText;
 
@@ -131,6 +131,12 @@ function parseWantedJob(raw) {
   }
 
   // === Noise cleanup ===
+  // === Employment type extraction (EXP-085) ===
+  let employment_type = 'regular'; // default
+  if (/계약직|파견|위촉| outsourced|contract\s*position/i.test(t)) employment_type = 'contract';
+  else if (/인턴(십)?|intern/i.test(t)) employment_type = 'intern';
+  else if (/프리랜서|freelance/i.test(t)) employment_type = 'freelance';
+
   t = t.replace(/합격/g, ' ').replace(/·/g, ' ').replace(/계약직|정규직|인턴십/g, ' ').trim();
 
   // === Company extraction ===
@@ -200,6 +206,7 @@ function parseWantedJob(raw) {
     }
   }
 
+  r.employment_type = employment_type;
   r.culture_keywords = extractCultureKeywords(allText);
 
   // === Normalize salary to salary_min/salary_max (EXP-068) ===
