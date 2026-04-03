@@ -1,16 +1,17 @@
 {
-  "timestamp": "2026-04-03T13:04:00Z",
-  "experiment_id": "EXP-085",
-  "skill": "job-scraping+job-matching",
-  "focus": "employment_type_extraction_and_alignment",
-  "hypothesis": "Employment type (정규직/계약직/인턴) was stripped from titles but never captured as a field. Korean job seekers strongly prefer regular employment and should see penalties for contract/intern jobs.",
+  "timestamp": "2026-04-03T14:04:00Z",
+  "experiment_id": "EXP-086",
+  "skill": "job-scraping",
+  "focus": "employment_type_db_persistence",
+  "hypothesis": "employment_type was extracted by all 3 post-processors but never persisted to DB or preserved during cross-source dedup merge — same gap pattern as EXP-077 (skills) and EXP-081 (skills/culture in dedup)",
   "metrics": {
-    "total_tests": "938 (all pass)",
+    "total_tests": "950 (all pass)",
     "npm_test": "working",
-    "test_suites": 43,
+    "test_suites": 44,
     "all_passing": true,
     "regressions": 0,
-    "new_employment_tests": 11,
-    "employment_type_values": "regular/contract/intern/freelance"
+    "new_dedup_persistence_tests": 12,
+    "employment_type_in_db": true,
+    "employment_type_in_dedup": true
   }
 }
