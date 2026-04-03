@@ -122,84 +122,51 @@ Override with explicit `career_stage` field if provided.
 
 Infer from skill distribution:
 
-| Domain | Indicator Skills |
-|--------|-----------------|
-| **frontend** | React, Vue, Angular, Next.js, Nuxt, Svelte, CSS, HTML, TypeScript |
-| **backend** | Spring, Express, NestJS, Django, FastAPI, Go, Java, Python |
+| Domain | Indicator Skills (from skill-inference.js) |
+|--------|---------------------------------------------|
+| **frontend** | React, Vue, Angular, Next.js, Nuxt, Svelte, Redux, TypeScript, CSS, HTML |
+| **backend** | Spring Boot, Spring, Express, NestJS, Django, FastAPI, Flask, Laravel, Rails, .NET, Go, Java, Python, Node.js |
 | **fullstack** | Mix of frontend + backend skills (3+ from each) |
-| **data** | TensorFlow, PyTorch, Pandas, R, Spark, Hadoop, ML keywords |
-| **mobile** | Swift, Kotlin, React Native, Flutter, iOS, Android |
-| **devops** | Docker, Kubernetes, Terraform, Ansible, Jenkins, AWS, GCP, Azure |
-| **design** | Figma, Sketch, Photoshop, Illustrator, UX/UI keywords |
+| **data** | TensorFlow, PyTorch, Machine Learning, Spark, Hadoop, Airflow, dbt, BigQuery, Snowflake, R |
+| **mobile** | Swift, Kotlin, React Native, Flutter, SwiftUI, Jetpack Compose |
+| **devops** | Docker, Kubernetes, Terraform, Ansible, Jenkins, GitHub Actions, Linux, Nginx, CI/CD, DevOps, AWS, GCP, Azure |
+| **design** | Figma |
 
 Score each domain by counting matching skills. Pick highest. If top 2 are tied (equal score), mark as hybrid (e.g., "frontend/backend"). Use exact word match for indicators ≤ 2 chars (e.g., 'r', 'go') to avoid substring false positives.
 
 ## Korean Skill Extraction (NLP)
 
-### Programming Language Keywords
+**Primary source: `scripts/skill-inference.js`** — this is the single source of truth for all 77 skill patterns (Korean + English). Always use `inferSkills(text)` from that module rather than maintaining separate keyword maps.
+
+### Quick Reference: Skill Categories in skill-inference.js
+
+| Category | Skills (examples) |
+|----------|-------------------|
+| **Languages** | JavaScript, TypeScript, Python, Java, Go, Rust, C++, C#, Swift, Kotlin, Ruby, PHP, Dart, R |
+| **Frontend** | React, Vue, Angular, Next.js, Nuxt, Svelte, React Native, Flutter, SwiftUI, Jetpack Compose, Redux |
+| **Backend** | Node.js, Express, NestJS, Spring Boot, Spring, Django, Flask, FastAPI, Laravel, Rails, .NET |
+| **Databases** | PostgreSQL, MySQL, MongoDB, Redis, Elasticsearch, Oracle, MSSQL |
+| **Cloud/Infra** | AWS (Lambda/S3/SQS), GCP, Azure, Kubernetes, Docker, Terraform, Ansible, Jenkins, GitHub Actions, Linux, Nginx, CI/CD, DevOps |
+| **Data** | Spark, Hadoop, Airflow, dbt, BigQuery, Snowflake, Kafka, RabbitMQ, GraphQL, REST API, gRPC |
+| **AI/ML** | TensorFlow, PyTorch, Machine Learning |
+| **Game** | Unity, Unreal |
+| **Design** | Figma |
+
+### Usage in Resume Parsing
 ```javascript
-const languageMap = {
-  'javascript': ['자바스크립트', 'javascript', 'js', '자스'],
-  'typescript': ['타입스크립트', 'typescript', 'ts'],
-  'python': ['파이썬', 'python'],
-  'java': ['자바', 'java'],  // Disambiguation: use regex \bjava\b(?!script) when javascript is also present
-  'go': ['고언어', 'golang', 'go 언어'],
-  'rust': ['러스트', 'rust'],
-  'c++': ['시플러스', 'c++', 'cpp'],
-  'c#': ['씨샵', 'c#', 'csharp'],
-  'swift': ['스위프트', 'swift'],
-  'kotlin': ['코틀린', 'kotlin'],
-  'ruby': ['루비', 'ruby'],
-  'php': ['피에이치피', 'php'],
-};
+const { inferSkills } = require('./scripts/skill-inference.js');
+
+// Extract from resume text
+const rawText = "3년차 리액트 개발자, TypeScript, Next.js, Kafka 경험";
+const skills = inferSkills(rawText);
+// → ['typescript', 'react', 'next.js', 'kafka']
 ```
 
-### Framework/Library Keywords
-```javascript
-const frameworkMap = {
-  'react': ['리액트', 'react'],
-  'vue': ['뷰', 'vue.js', 'vue'],
-  'angular': ['앵귤러', 'angular'],
-  'next.js': ['넥스트', 'next.js', 'nextjs'],
-  'nuxt': ['넉스트', 'nuxt.js', 'nuxt'],
-  'node.js': ['노드', 'node.js', 'nodejs'],
-  'express': ['익스프레스', 'express'],
-  'nestjs': ['네스트', 'nestjs', 'nest.js'],
-  'spring': ['스프링', 'spring'],
-  'django': ['장고', 'django'],
-  'flask': ['플라스크', 'flask'],
-  'fastapi': ['패스트에이피아이', 'fastapi'],
-  'svelte': ['스벨트', 'svelte'],
-};
-```
+### Java/JavaScript Disambiguation
+When both Java and JavaScript appear in the same resume text, `skill-inference.js` handles this via regex ordering (react native before react, java checks `java(?!script)`). No manual disambiguation needed.
 
-### Database Keywords
-```javascript
-const dbMap = {
-  'postgresql': ['포스트그레스', 'postgresql', 'postgres', 'pg'],
-  'mysql': ['마이에스큐엘', 'mysql'],
-  'mongodb': ['몽고디비', 'mongodb', 'mongo'],
-  'redis': ['레디스', 'redis'],
-  'elasticsearch': ['일래스틱', 'elasticsearch', 'es'],
-  'sqlite': ['에스큐라이트', 'sqlite'],
-  'oracle': ['오라클', 'oracle'],
-};
-```
-
-### Infrastructure Keywords
-```javascript
-const infraMap = {
-  'aws': ['아마존웹서비스', 'aws', 'amazon web services'],
-  'gcp': ['구글클라우드', 'gcp', 'google cloud'],
-  'azure': ['애저', 'azure'],
-  'docker': ['도커', 'docker'],
-  'kubernetes': ['쿠버네티스', 'kubernetes', 'k8s'],
-  'terraform': ['테라폼', 'terraform'],
-  'jenkins': ['젠킨스', 'jenkins'],
-  'github actions': ['깃헙액션', 'github actions'],
-  'git': ['깃', 'git', 'github'],
-};
-```
+### Legacy Maps Removed
+Previous versions of this agent had inline `languageMap`, `frameworkMap`, `dbMap`, `infraMap` objects. These have been replaced by the shared `skill-inference.js` module to prevent drift. If you need to add a new skill, add it to `scripts/skill-inference.js` — it will automatically be available in both resume parsing and job matching.
 
 ## Cultural Preference Inference
 

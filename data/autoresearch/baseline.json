@@ -1,17 +1,18 @@
 {
-  "timestamp": "2026-04-03T15:30:00Z",
-  "experiment_id": "EXP-087",
+  "timestamp": "2026-04-03T16:04:00Z",
+  "experiment_id": "EXP-088",
   "skill": "job-matching",
-  "focus": "similarity_map_coverage_expansion",
-  "hypothesis": "47 of 77 skills had zero similarity connections — adding connections for Go/Rust, BigQuery/Snowflake, Airflow/dbt, Unity/Unreal, etc. would improve matching discrimination without regressions",
+  "focus": "key_normalization_and_orphan_connections",
+  "hypothesis": "rest_api key mismatch broke GraphQL↔REST API similarity for real data; 7 skills still had zero connections",
   "metrics": {
     "total_tests": "965 (all pass)",
     "npm_test": "working",
     "test_suites": 44,
     "all_passing": true,
     "regressions": 0,
-    "similarity_coverage": "62/77 (81%)",
-    "new_similarity_tests": 15,
-    "new_connections": 32
+    "similarity_coverage": "77/77 (100%)",
+    "key_normalization_bug": "fixed (rest_api→rest api)",
+    "duplicate_key_bug": "fixed (java had two TIER2 entries)",
+    "new_connections": 15
   }
 }
