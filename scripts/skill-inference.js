@@ -5,6 +5,7 @@
  *
  * EXP-083: Added Linux, Nginx, CI/CD, DevOps, Spark, Hadoop, Airflow, dbt, JPA, Redux, Unity, Unreal, BigQuery, Snowflake, AWS Lambda/S3/SQS.
  * EXP-097: Fixed ML regex false positive (html/xml), added AI/LLM skills (llm, rag, langchain, mlops, vector db, fine-tuning, huggingface, prompt engineering, stable diffusion, computer vision, nlp).
+ * EXP-101: Added Korean equivalents for 8 skills (graphql, rest api, grpc, tensorflow, pytorch, figma, mobx, stable diffusion). Added 8 modern Korean job market tools (vite, tailwind, prisma, vercel, trpc, hono, firebase, supabase).
  * This is the single source of truth for skill pattern matching.
  */
 
@@ -31,35 +32,48 @@ const SKILL_MAP = {
 
   // Frameworks
   'next.js': /next\.?js|넥스트/i,
-  'nuxt': /nuxt/i,
+  'nuxt': /nuxt|넉스트/i,
   'vue': /vue\.?js?|뷰/i,
   'angular': /angular|앵귤러/i,
-  'svelte': /svelte/i,
+  'svelte': /svelte|스벨트/i,
   'node.js': /node\.?js|노드/i,
   'express': /express|익스프레스/i,
   'nestjs': /nest\.?js|네스트/i,
-  'spring boot': /spring\s*boot/i,
+  'spring boot': /spring\s*boot|스프링부트/i,
   'spring': /spring|스프링/i,
   'django': /django|장고/i,
   'flask': /flask|플라스크/i,
-  'fastapi': /fastapi/i,
+  'fastapi': /fastapi|패스트에이피아이/i,
   'flutter': /flutter|플러터/i,
   'swiftui': /swiftui/i,
   'jetpack compose': /jetpack\s*compose/i,
-  'laravel': /laravel/i,
+  'laravel': /laravel|라라벨/i,
   'rails': /rails|루비온레일즈/i,
   '.net': /\.net|asp\.net/i,
 
+  // Modern Web Tools (EXP-101)
+  'vite': /(?<!\w)vite(?!\w)|바이트/i,
+  'tailwind': /tailwind\s*css|tailwind|테일윈드/i,
+  'prisma': /(?<!\w)prisma(?!\w)|프리즈마/i,
+  'vercel': /(?<!\w)vercel(?!\w)|버셀/i,
+  'trpc': /(?<!\w)trpc(?!\w)|티알피시/i,
+  'hono': /(?<!\w)hono(?!\w)|호노/i,
+  'firebase': /(?<!\w)firebase(?!\w)|파이어베이스/i,
+  'supabase': /(?<!\w)supabase(?!\w)|수파베이스/i,
+  'storybook': /storybook|스토리북/i,
+  'jest': /(?<!\w)jest(?!\w)|제스트/i,
+  'cypress': /(?<!\w)cypress(?!\w)|사이프레스/i,
+
   // Infrastructure
   'aws': /aws|아마존웹서비스/i,
-  'gcp': /gcp|google\s*cloud/i,
-  'azure': /azure/i,
+  'gcp': /gcp|google\s*cloud|구글\s*클라우드/i,
+  'azure': /azure|애저/i,
   'kubernetes': /kubernetes|k8s|쿠버네티스/i,
   'docker': /docker|도커/i,
   'terraform': /terraform|테라폼/i,
-  'ansible': /ansible/i,
+  'ansible': /ansible|앤서블/i,
   'jenkins': /jenkins|젠킨스/i,
-  'github actions': /github\s*actions/i,
+  'github actions': /github\s*actions|깃헙\s*액션/i,
   'linux': /linux|리눅스/i,
   'nginx': /nginx|엔진엑스/i,
   'ci/cd': /ci\s*\/?\s*cd|cicd|지속적\s*통합|지속적\s*배포/i,
@@ -77,14 +91,14 @@ const SKILL_MAP = {
   'snowflake': /snowflake|스노우플레이크/i,
 
   // Data / Messaging
-  'kafka': /kafka/i,
-  'rabbitmq': /rabbitmq/i,
+  'kafka': /kafka|카프카/i,
+  'rabbitmq': /rabbitmq|래빗엠큐/i,
   'elasticsearch': /elasticsearch|일래스틱/i,
   'redis': /redis|레디스/i,
   'mongodb': /mongodb|몽고디비/i,
-  'mysql': /mysql/i,
+  'mysql': /mysql|마이에스큐엘/i,
   'postgresql': /postgresql|postgres|포스트그레스/i,
-  'oracle': /oracle/i,
+  'oracle': /oracle|오라클/i,
   'mssql': /mssql|sql\s*server/i,
 
   // ORM / Java Persistence
@@ -100,7 +114,7 @@ const SKILL_MAP = {
   'redux': /redux|리덕스/i,
   'zustand': /zustand|주스탄드/i,
   'recoil': /recoil|리코일/i,
-  'mobx': /mobx/i,
+  'mobx': /mobx|몹엑스|몹스/i,
   'vuex': /vuex|뷰엑스/i,
   'pinia': /pinia|피니아/i,
 
@@ -109,13 +123,13 @@ const SKILL_MAP = {
   'unreal': /unreal|언리얼/i,
 
   // API
-  'graphql': /graphql/i,
-  'rest api': /\brest\b\s*api|restful/i,
-  'grpc': /grpc/i,
+  'graphql': /graphql|그래프큐엘|그래프QL/i,
+  'rest api': /\brest\b\s*api|restful|레스트\s*api/i,
+  'grpc': /grpc|지알피시/i,
 
   // AI/ML
-  'tensorflow': /tensorflow/i,
-  'pytorch': /pytorch/i,
+  'tensorflow': /tensorflow|텐서플로우|텐서플로/i,
+  'pytorch': /pytorch|파이토치/i,
   'machine learning': /machine\s*learning|(?<![a-z])ml(?=\s|엔지니어|개발자|모델|engineer|$)/i,
   'llm': /(?<![a-z])llm(?!\w)|large\s*language\s*model/i,
   'rag': /(?<![a-z])rag(?!\w)|검색증강생성/i,
@@ -125,12 +139,12 @@ const SKILL_MAP = {
   'fine-tuning': /fine[\s-]?tun|파인튜닝|미세조정/i,
   'huggingface': /hugging\s*face|허깅페이스/i,
   'prompt engineering': /prompt\s*engineer|프롬프트\s*엔지니어/i,
-  'stable diffusion': /stable\s*diffusion/i,
+  'stable diffusion': /stable\s*diffusion|스테이블\s*디퓨전/i,
   'computer vision': /computer\s*vision|컴퓨터\s*비전/i,
   'nlp': /(?<![a-z])nlp(?!\w)|자연어\s*처리/i,
 
   // Design
-  'figma': /figma/i,
+  'figma': /figma|피그마/i,
 };
 
 /**

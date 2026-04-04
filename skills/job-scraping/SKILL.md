@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v5.5 (EXP-098: Deadline Normalization Pipeline)
+# Job Scraping Skill v5.6 (EXP-101: Korean Equivalents + Modern Web Tools)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 

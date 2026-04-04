@@ -3,7 +3,7 @@ name: job-matching
 description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring, and framework-aware primary domain alignment (EXP-049)"
 ---
 
-# Job Matching Skill v3.9 (EXP-100: State management skill connections)
+# Job Matching Skill v3.10 (EXP-101: Modern Web Tool Similarity + Korean Equivalents)
 
 ## Score Weights (Validated — EXP-017)
 

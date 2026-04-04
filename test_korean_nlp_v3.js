@@ -339,6 +339,18 @@ function parseKoreanQuery(input) {
     { canonical: 'stable diffusion', patterns: [/stable\s*diffusion|스테이블\s*디퓨전/i] },
     { canonical: 'vector database', patterns: [/vector\s*database|벡터\s*디비|벡터데이터베이스/i] },
     { canonical: 'r', patterns: [/\br\s*(?:언어|프로그래밍)/i] },
+    // EXP-101: Modern web tools
+    { canonical: 'vite', patterns: [/(?<!\w)vite(?!\w)|바이트/i] },
+    { canonical: 'tailwind', patterns: [/tailwind\s*css|tailwind|테일윈드/i] },
+    { canonical: 'prisma', patterns: [/(?<!\w)prisma(?!\w)|프리즈마/i] },
+    { canonical: 'vercel', patterns: [/(?<!\w)vercel(?!\w)|버셀/i] },
+    { canonical: 'trpc', patterns: [/(?<!\w)trpc(?!\w)/i] },
+    { canonical: 'hono', patterns: [/(?<!\w)hono(?!\w)|호노/i] },
+    { canonical: 'firebase', patterns: [/(?<!\w)firebase(?!\w)|파이어베이스/i] },
+    { canonical: 'supabase', patterns: [/(?<!\w)supabase(?!\w)|수파베이스/i] },
+    { canonical: 'storybook', patterns: [/storybook|스토리북/i] },
+    { canonical: 'jest', patterns: [/(?<!\w)jest(?!\w)|제스트/i] },
+    { canonical: 'cypress', patterns: [/(?<!\w)cypress(?!\w)|사이프레스/i] },
   ];
 
   for (const { canonical, patterns } of skillPatterns) {
@@ -358,7 +370,7 @@ function parseKoreanQuery(input) {
   }
 
   // === Remaining Korean keywords (title/company search) ===
-  const stopWords = new Set(['면접', '면접보는', '면접잡힌', '정규직', '계약직', '파견', '인턴', '프리랜서', '프리랜스', '시니어', '주니어', '미드', '미들', '리드', '포지션', '레벨', '수준', '지원', '지원한', '지원할', '지원예정', '지원완료', '관심', '북마크', '찜', '찜해둔', '합격', '합격한', '오퍼', '탈락', '탈락한', '거절', '불합격', '재택', '재택으로', '원격', '리모트', '하이브리드', '점수', '점수순으로', '매칭', '최신', '빼고', '제외', '말고', '있어', '보여', '보여줘', '공고', '거', '곳', '다', '중에', '할', '한', '수', '있는', '순으로', '보는', '잡힌', '해둔', '예정', '완료', '했', '을', '를', '이', '가', '에서', '의', '에', '연봉', '급여', '연수입', '마감임박', '곧마감', '마감순', '오늘', '내일', '마감', '기한', '데드라인', '경력', '년', '년차', '이상', '남은', '빠른순', '쓰는', '하는', '쓰는곳', '하는곳', '파이썬', '도커', '코틀린', '스프링', '장고', '플라스크', '넥스트', '뷰', '앵귤러', '노드', '익스프레스', '플러터', '쿠버네티스', '테라폼', '러스트', '스위프트', '루비', '레디스', '피그마', '리액트', '자바스크립트', '타입스크립트', '자바', '고언어', '부트', '리눅스', '엔진엑스', '데브옵스', '스파크', '하둡', '에어플로우', '디비티', '빅쿼리', '스노우플레이크', '리덕스', '주스탄드', '리코일', '몹엑스', '뷰엑스', '피니아', '유니티', '언리얼', '머신러닝', '래빗엠큐', '오라클', '다트', '스벨트', '스위프트유아이', '네스트', '넉스트', '라라벨', '레일즈', '닷넷', '앤서블', '랭체인', '허깅페이스', '파인튜닝', '프롬프트', '디퓨전', '벡터', '자연어', '자연어처리', '비전', '컴퓨터', '컴퓨터비전', '머신러닝', '파인튜닝', '프롬프트엔지니어링', '스테이블', '디퓨전', '벡터디비']);
+  const stopWords = new Set(['면접', '면접보는', '면접잡힌', '정규직', '계약직', '파견', '인턴', '프리랜서', '프리랜스', '시니어', '주니어', '미드', '미들', '리드', '포지션', '레벨', '수준', '지원', '지원한', '지원할', '지원예정', '지원완료', '관심', '북마크', '찜', '찜해둔', '합격', '합격한', '오퍼', '탈락', '탈락한', '거절', '불합격', '재택', '재택으로', '원격', '리모트', '하이브리드', '점수', '점수순으로', '매칭', '최신', '빼고', '제외', '말고', '있어', '보여', '보여줘', '공고', '거', '곳', '다', '중에', '할', '한', '수', '있는', '순으로', '보는', '잡힌', '해둔', '예정', '완료', '했', '을', '를', '이', '가', '에서', '의', '에', '연봉', '급여', '연수입', '마감임박', '곧마감', '마감순', '오늘', '내일', '마감', '기한', '데드라인', '경력', '년', '년차', '이상', '남은', '빠른순', '쓰는', '하는', '쓰는곳', '하는곳', '파이썬', '도커', '코틀린', '스프링', '장고', '플라스크', '넥스트', '뷰', '앵귤러', '노드', '익스프레스', '플러터', '쿠버네티스', '테라폼', '러스트', '스위프트', '루비', '레디스', '피그마', '리액트', '자바스크립트', '타입스크립트', '자바', '고언어', '부트', '리눅스', '엔진엑스', '데브옵스', '스파크', '하둡', '에어플로우', '디비티', '빅쿼리', '스노우플레이크', '리덕스', '주스탄드', '리코일', '몹엑스', '뷰엑스', '피니아', '유니티', '언리얼', '머신러닝', '래빗엠큐', '오라클', '다트', '스벨트', '스위프트유아이', '네스트', '넉스트', '라라벨', '레일즈', '닷넷', '앤서블', '랭체인', '허깅페이스', '파인튜닝', '프롬프트', '디퓨전', '벡터', '자연어', '자연어처리', '비전', '컴퓨터', '컴퓨터비전', '머신러닝', '파인튜닝', '프롬프트엔지니어링', '스테이블', '디퓨전', '벡터디비', '바이트', '테일윈드', '프리즈마', '버셀', '파이어베이스', '수파베이스', '스토리북', '제스트', '사이프레스', '호노']);
   const koreanWords = text.match(/[가-힣]{2,}/g) || [];
   for (const word of koreanWords) {
     if (!stopWords.has(word) && !consumedWords.has(word)) {
@@ -557,6 +569,21 @@ const testCases = [
     note: "Korean 피니아 maps to pinia" },
   { id: 83, input: "리덕스 주스탄드 공고", expectedFilters: ["j.skills LIKE '%redux%'", "j.skills LIKE '%zustand%'"], expectedOrder: "a.updated_at DESC",
     note: "Both 리덕스→redux and 주스탄드→zustand matched" },
+  // EXP-101: Modern web tool NLP queries
+  { id: 84, input: "바이트 쓰는 공고", expectedFilters: ["j.skills LIKE '%vite%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 바이트 maps to vite" },
+  { id: 85, input: "테일윈드 공고", expectedFilters: ["j.skills LIKE '%tailwind%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 테일윈드 maps to tailwind" },
+  { id: 86, input: "프리즈마 ORM 공고", expectedFilters: ["j.skills LIKE '%prisma%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 프리즈마 maps to prisma" },
+  { id: 87, input: "파이어베이스 백엔드 공고", expectedFilters: ["j.skills LIKE '%firebase%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 파이어베이스 maps to firebase" },
+  { id: 88, input: "수파베이스 공고", expectedFilters: ["j.skills LIKE '%supabase%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 수파베이스 maps to supabase" },
+  { id: 89, input: "스토리북 컴포넌트 공고", expectedFilters: ["j.skills LIKE '%storybook%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 스토리북 maps to storybook" },
+  { id: 90, input: "Vite React 공고", expectedFilters: ["j.skills LIKE '%vite%'", "j.skills LIKE '%react%'"], expectedOrder: "a.updated_at DESC",
+    note: "Both Vite and React in English" },
 ];
 
 // Run tests

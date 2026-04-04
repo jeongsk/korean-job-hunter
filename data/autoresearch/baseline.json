@@ -1,18 +1,19 @@
 {
-  "timestamp": "2026-04-04T04:04:00Z",
-  "experiment_id": "EXP-100",
+  "timestamp": "2026-04-04T05:04:00Z",
+  "experiment_id": "EXP-101",
   "skill": "job-matching+job-tracking+job-scraping",
-  "focus": "state_management_skill_coverage",
-  "hypothesis": "State management libraries (zustand, recoil, mobx, vuex, pinia) appear frequently in Korean frontend postings but were missing from skill-inference.js and similarity map",
+  "focus": "korean_equivalents_modern_web_tools",
+  "hypothesis": "8 skills had no Korean equivalents (graphql, rest api, grpc, tensorflow, pytorch, figma, mobx, stable diffusion) and 12+ additional skills (nuxt, svelte, spring boot, fastapi, laravel, gcp, azure, ansible, github actions, kafka, oracle, mysql) had incomplete Korean coverage. 11 modern Korean job market tools (vite, tailwind, prisma, vercel, trpc, hono, firebase, supabase, storybook, jest, cypress) were completely missing from skill inference, similarity map, and NLP parser.",
   "metrics": {
-    "total_tests": "1131 (all pass)",
+    "total_tests": "1192 (all pass)",
     "npm_test": "working",
     "test_suites": 48,
     "all_passing": true,
     "regressions": 0,
-    "skill_inference_count": "93 (was 88)",
-    "similarity_connections": "~130 (was ~120)",
-    "nlp_skill_patterns": "95 (was 90)",
-    "nlp_v3_tests": "83 (was 78)"
+    "skill_inference_count": "104 (was 93)",
+    "skill_korean_coverage": "100% (was ~85%)",
+    "nlp_skill_patterns": "101 (was 95)",
+    "similarity_connections": "~150 (was ~130)",
+    "new_modern_tools": "11 (vite, tailwind, prisma, vercel, trpc, hono, firebase, supabase, storybook, jest, cypress)"
   }
 }

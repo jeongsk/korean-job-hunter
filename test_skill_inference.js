@@ -172,5 +172,63 @@ assertExcludes('XML is NOT ML', inferSkills('xml parser developer'), ['machine l
 assertIncludes('ML Engineer IS ML', inferSkills('ML Engineer'), ['machine learning']);
 assertIncludes('ML 개발자 IS ML', inferSkills('ML 개발자'), ['machine learning']);
 
+// ─── EXP-101: Korean equivalents for previously-English-only skills ───
+assertIncludes('GraphQL Korean', inferSkills('그래프큐엘 API'), ['graphql']);
+assertIncludes('GraphQL Korean v2', inferSkills('그래프QL 백엔드'), ['graphql']);
+assertIncludes('REST API Korean', inferSkills('레스트 API 설계'), ['rest api']);
+assertIncludes('gRPC Korean', inferSkills('지알피시 마이크로서비스'), ['grpc']);
+assertIncludes('TensorFlow Korean', inferSkills('텐서플로우 머신러닝'), ['tensorflow']);
+assertIncludes('TensorFlow Korean v2', inferSkills('텐서플로 딥러닝'), ['tensorflow']);
+assertIncludes('PyTorch Korean', inferSkills('파이토치 연구원'), ['pytorch']);
+assertIncludes('Figma Korean', inferSkills('피그마 디자이너'), ['figma']);
+assertIncludes('MobX Korean', inferSkills('몹엑스 상태관리'), ['mobx']);
+assertIncludes('Stable Diffusion Korean', inferSkills('스테이블 디퓨전 생성'), ['stable diffusion']);
+
+// ─── EXP-101: Additional Korean equivalents for previously-English-only skills ───
+assertIncludes('Nuxt Korean', inferSkills('넉스트 프레임워크'), ['nuxt']);
+assertIncludes('Svelte Korean', inferSkills('스벨트 컴포넌트'), ['svelte']);
+assertIncludes('Spring Boot Korean', inferSkills('스프링부트 백엔드'), ['spring boot']);
+assertIncludes('FastAPI Korean', inferSkills('패스트에이피아이 서버'), ['fastapi']);
+assertIncludes('Laravel Korean', inferSkills('라라벨 풀스택'), ['laravel']);
+assertIncludes('GCP Korean', inferSkills('구글 클라우드 인프라'), ['gcp']);
+assertIncludes('Azure Korean', inferSkills('애저 클라우드'), ['azure']);
+assertIncludes('Ansible Korean', inferSkills('앤서블 자동화'), ['ansible']);
+assertIncludes('GitHub Actions Korean', inferSkills('깃헙 액션 CI'), ['github actions']);
+assertIncludes('Kafka Korean', inferSkills('카프카 스트리밍'), ['kafka']);
+assertIncludes('Oracle Korean', inferSkills('오라클 DBA'), ['oracle']);
+assertIncludes('MySQL Korean', inferSkills('마이에스큐엘 관리'), ['mysql']);
+
+// ─── EXP-101: Modern web tools (English) ───
+assertIncludes('Vite English', inferSkills('Vite + React Project'), ['vite', 'react']);
+assertIncludes('Tailwind English', inferSkills('Tailwind CSS Styling'), ['tailwind']);
+assertIncludes('Prisma English', inferSkills('Prisma ORM Database'), ['prisma']);
+assertIncludes('Vercel English', inferSkills('Vercel Deployment'), ['vercel']);
+assertIncludes('tRPC English', inferSkills('tRPC Type-safe API'), ['trpc']);
+assertIncludes('Hono English', inferSkills('Hono Edge Framework'), ['hono']);
+assertIncludes('Firebase English', inferSkills('Firebase Backend'), ['firebase']);
+assertIncludes('Supabase English', inferSkills('Supabase PostgreSQL'), ['supabase']);
+assertIncludes('Storybook English', inferSkills('Storybook Component Library'), ['storybook']);
+assertIncludes('Jest English', inferSkills('Jest Unit Testing'), ['jest']);
+assertIncludes('Cypress English', inferSkills('Cypress E2E Testing'), ['cypress']);
+
+// ─── EXP-101: Modern web tools (Korean) ───
+assertIncludes('Vite Korean', inferSkills('바이트 빌드도구'), ['vite']);
+assertIncludes('Tailwind Korean', inferSkills('테일윈드 스타일링'), ['tailwind']);
+assertIncludes('Prisma Korean', inferSkills('프리즈마 ORM'), ['prisma']);
+assertIncludes('Vercel Korean', inferSkills('버셀 배포'), ['vercel']);
+assertIncludes('Firebase Korean', inferSkills('파이어베이스 백엔드'), ['firebase']);
+assertIncludes('Supabase Korean', inferSkills('수파베이스 데이터베이스'), ['supabase']);
+assertIncludes('Storybook Korean', inferSkills('스토리북 컴포넌트'), ['storybook']);
+
+// ─── EXP-101: Modern tool disambiguation ───
+assertExcludes('Vite≠site', inferSkills('website developer'), ['vite']);
+assertExcludes('Hono≠honor', inferSkills('honorary developer'), ['hono']);
+assertExcludes('Jest≠jester', inferSkills('jester entertainment'), ['jest']);
+
+// ─── EXP-101: Combined modern stack ───
+assertIncludes('Modern frontend stack', inferSkills('React TypeScript Vite Tailwind'), ['react', 'typescript', 'vite', 'tailwind']);
+assertIncludes('Modern fullstack', inferSkills('Next.js Prisma Vercel Supabase'), ['next.js', 'prisma', 'vercel', 'supabase']);
+assertIncludes('Testing stack', inferSkills('Jest Cypress Storybook'), ['jest', 'cypress', 'storybook']);
+
 console.log(`\n📊 Skill Inference: ${passed}/${passed + failed} passed`);
 if (failed > 0) process.exit(1);

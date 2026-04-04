@@ -97,6 +97,18 @@ const TIER3 = { // 25%
   'aws s3': ['bigquery', 'snowflake'], // storage↔data warehouse pipeline
   'aws sqs': ['kafka', 'rabbitmq'], // managed↔self-hosted messaging
   'figma': ['angular', 'react', 'vue'], // design tools overlap with frontend frameworks
+  // EXP-101: Modern web tool connections
+  'vite': ['next.js', 'react', 'vue', 'svelte'], 'next.js': ['vite'], // Vite is used with these frameworks
+  'tailwind': ['react', 'vue', 'svelte', 'next.js'], // Tailwind pairs with frontend frameworks
+  'prisma': ['postgresql', 'mysql', 'mongodb', 'typescript'], // Prisma ORM connects to DBs and TS
+  'vercel': ['next.js', 'react'], 'next.js': ['vercel'], // Vercel is Next.js's platform
+  'trpc': ['typescript', 'next.js'], // tRPC requires TypeScript, commonly with Next.js
+  'hono': ['typescript', 'node.js'], // Hono is a JS/TS framework
+  'firebase': ['react', 'vue', 'angular'], // Firebase as BaaS for frontend frameworks
+  'supabase': ['postgresql', 'firebase'], 'postgresql': ['supabase'], // Supabase is Postgres-based Firebase alternative
+  'storybook': ['react', 'vue', 'angular'], // Storybook for component docs
+  'jest': ['react', 'typescript'], // Jest testing with these
+  'cypress': ['react', 'vue'], // Cypress E2E testing
   // EXP-097: AI/LLM partial overlaps
   'llm': ['rag', 'huggingface'], // LLM ecosystem
   'prompt engineering': ['llm'], // prompt engineering is LLM-specific
@@ -636,6 +648,15 @@ const simTests = [
   ['Pinia', 'Vue', 0.75], // Vue state management
   ['Redux', 'Zustand', 0.25], // React state alternatives (partial overlap)
   ['Vuex', 'Pinia', 0.25], // Vue state alternatives (partial overlap)
+  // EXP-101: Modern web tool similarity
+  ['Vite', 'Next.js', 0.25], // Vite used with Next.js
+  ['Tailwind', 'React', 0.25], // Tailwind pairs with React
+  ['Prisma', 'PostgreSQL', 0.25], // Prisma ORM → PostgreSQL
+  ['Prisma', 'TypeScript', 0.25], // Prisma is TypeScript-native
+  ['Vercel', 'Next.js', 0.25], // Vercel → Next.js platform
+  ['Supabase', 'PostgreSQL', 0.25], // Supabase is Postgres-based
+  ['Supabase', 'Firebase', 0.25], // Supabase ↔ Firebase BaaS alternatives
+  ['Storybook', 'React', 0.25], // Storybook for React components
 ];
 for (const [a, b, expected] of simTests) {
   const actual = getSimilarity(a, b);
