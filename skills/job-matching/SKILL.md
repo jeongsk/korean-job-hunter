@@ -31,15 +31,29 @@ When skill score < 40, all non-skill components are dampened by a quadratic gate
 - This prevents unrelated jobs from scoring high on experience/culture/location alone
 - Experience scoring considers range upper bounds (e.g., "3~7년" with 5 years experience = 95)
 
-## Primary Domain Alignment (EXP-024, tuned EXP-037)
+## Primary Domain Alignment (EXP-024, tuned EXP-037, expanded EXP-104)
 
 When the job's primary technology stack has zero overlap with the candidate's core domain skills, the skill score is penalized by **40%** (multiplied by 0.60).
 
-Primary domains detected (EXP-049: framework-aware):
-- **Languages**: Python, Java, JavaScript/TypeScript, Go, Rust, Swift, C++, C#, Kotlin, Dart, Ruby, PHP
-- **Frameworks map to parent language**: Spring/Spring Boot→Java, Django/Flask/FastAPI→Python, React/Next.js/Vue/Nuxt.js/Svelte/Express/NestJS/Node.js→JS/TS, Flutter→Dart, Laravel→PHP, Rails→Ruby, SwiftUI→Swift, .NET/ASP.NET→C#
+Primary domains detected (EXP-049: framework-aware, EXP-104: full 122-skill coverage):
+- **js/ts**: React, Next.js, Vue, Nuxt, Svelte, Angular, Node.js, Express, NestJS, React Native, Deno, Bun, Remix, Astro, Fastify, Koa, Hono, Vite, Tailwind, Vercel, tRPC, Storybook, Jest, Cypress, Prisma, Drizzle, TypeORM, Sequelize, Mongoose, Redux, Zustand, Recoil, MobX, Vuex, Pinia, Electron, Capacitor, Ionic, Sentry, Firebase, Supabase, GraphQL, REST API, gRPC
+- **python**: Python, Django, Flask, FastAPI, TensorFlow, PyTorch, ML, LLM, LangChain, MLOps, Computer Vision, NLP, HuggingFace, Fine-tuning, Stable Diffusion, RAG, Prompt Engineering, Vector Database
+- **java**: Java, Spring, Spring Boot, JPA, Jetpack Compose, Kotlin
+- **cloud**: AWS, GCP, Azure, AWS Lambda, AWS S3, AWS SQS
+- **devops**: Docker, Kubernetes, Terraform, Ansible, Jenkins, GitHub Actions, Linux, Nginx, CI/CD, Datadog, Grafana, Prometheus
+- **data**: PostgreSQL, MySQL, MongoDB, Redis, Elasticsearch, Oracle, MSSQL, Kafka, RabbitMQ, Spark, Hadoop, Airflow, dbt, BigQuery, Snowflake, R
+- **rust**: Rust, Tauri
+- **go**: Go
+- **swift**: Swift, SwiftUI
+- **c#**: C#, .NET, ASP.NET
+- **c++**: C++
+- **dart**: Dart, Flutter
+- **ruby**: Ruby, Rails
+- **php**: PHP, Laravel
+- **game**: Unity, Unreal
+- **design**: Figma
 
-This prevents infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflating scores for jobs in completely different primary tech stacks. Framework-only job listings (e.g., `[Spring, MySQL]` with no raw `Java` keyword) now correctly trigger domain alignment.
+This prevents infrastructure-only overlap from inflating scores for jobs in completely different primary tech stacks. EXP-104: Previously only ~45 skills had domain mappings; now all 122 skills from skill-inference.js are covered, ensuring the domain penalty correctly applies for jobs requiring Vite/Tailwind/Jest, Drizzle/TypeORM, Electron/Tauri, Grafana/Prometheus, Unity/Unreal, etc.
 
 ## Technology Similarity Map
 
