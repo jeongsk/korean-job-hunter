@@ -218,12 +218,16 @@ function main() {
         }
       }
     }
-    // Enrich numeric salary_min/salary_max (not text-trimmed)
-    if (!keeper.salary_min && !keeper.salary_max) {
+    // Enrich numeric salary_min/salary_max independently (not text-trimmed)
+    if (keeper.salary_min == null || keeper.salary_max == null) {
       for (const d of dupes) {
-        if (d.salary_min != null) { enrichUpdates.salary_min = d.salary_min; }
-        if (d.salary_max != null) { enrichUpdates.salary_max = d.salary_max; }
-        if (enrichUpdates.salary_min || enrichUpdates.salary_max) break;
+        if (keeper.salary_min == null && d.salary_min != null && enrichUpdates.salary_min == null) {
+          enrichUpdates.salary_min = d.salary_min;
+        }
+        if (keeper.salary_max == null && d.salary_max != null && enrichUpdates.salary_max == null) {
+          enrichUpdates.salary_max = d.salary_max;
+        }
+        if (enrichUpdates.salary_min != null && enrichUpdates.salary_max != null) break;
       }
     }
 
