@@ -79,6 +79,7 @@ Each scraped job must have these fields:
 | deadline | | JK | Application deadline |
 | culture_keywords | | All (card + detail page) | JSON array: ["innovative","collaborative","work_life_balance",...] — now auto-extracted from card text via post-processor (EXP-063) |
 | commute_min | | All | From Kakao Map API (optional) |
+| office_address | | All | Detailed office address for commute calculation (optional) |
 
 ## Workflow
 
@@ -94,7 +95,7 @@ Each scraped job must have these fields:
 6. Run cross-source dedup: `node scripts/dedup-jobs.js --dry-run` (preview) or `node scripts/dedup-jobs.js` (apply)
 
 ```bash
-sqlite3 data/jobs.db "INSERT OR IGNORE INTO jobs (id, source, title, company, url, content, location, work_type, experience, salary, salary_min, salary_max, deadline, reward, skills, employment_type, career_stage, commute_min) VALUES (...)"
+sqlite3 data/jobs.db "INSERT OR IGNORE INTO jobs (id, source, title, company, url, content, location, office_address, work_type, experience, salary, salary_min, salary_max, deadline, reward, skills, employment_type, career_stage, commute_min) VALUES (...)"
 
 After detail-page skill extraction, UPDATE the skills column:
 sqlite3 data/jobs.db "UPDATE jobs SET skills = 'React,TypeScript,AWS,...' WHERE id = '...'"

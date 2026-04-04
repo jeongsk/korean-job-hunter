@@ -86,7 +86,7 @@ console.log(`\n${passed}/${tests.length} passed`);
 
 // Also verify the actual DB has the new columns
 const actualCols = execSync(`sqlite3 "${path.join(__dirname, 'data', 'jobs.db')}" "PRAGMA table_info(jobs)"`).toString();
-const requiredCols = ['experience', 'salary', 'deadline', 'reward', 'culture_keywords', 'skills'];
+const requiredCols = ['experience', 'salary', 'deadline', 'reward', 'culture_keywords', 'skills', 'employment_type', 'career_stage', 'salary_min', 'salary_max', 'office_address'];
 let schemaOk = true;
 for (const col of requiredCols) {
   if (!actualCols.includes(col)) {
@@ -94,7 +94,7 @@ for (const col of requiredCols) {
     schemaOk = false;
   }
 }
-if (schemaOk) console.log('✅ jobs.db has all columns (experience, salary, deadline, reward, culture_keywords, skills)');
+if (schemaOk) console.log('✅ jobs.db has all columns (experience, salary, deadline, reward, culture_keywords, skills, employment_type, career_stage, salary_min, salary_max, office_address)');
 
 // Cleanup
 execSync(`rm -f "${dbPath}"`);
