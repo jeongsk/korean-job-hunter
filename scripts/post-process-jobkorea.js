@@ -11,7 +11,7 @@ const { inferSkills, deriveCareerStage } = require('./skill-inference');
 //
 // Reuses normalizeSalary from post-process-wanted.js.
 
-const { normalizeSalary, extractCultureKeywords } = require('./post-process-wanted');
+const { normalizeSalary, extractCultureKeywords, normalizeDeadline } = require('./post-process-wanted');
 
 const CITY_PATTERN = /(서울|경기|부산|대전|인천|광주|대구|울산|판교|강남|영등포|송파|성수|역삼|잠실|마포|용산|구로|분당|일산|평촌|수원|이천|성남|중구)/;
 const COMPANY_PREFIX = /^(㈜|\(주\)|주식회사)/;
@@ -30,7 +30,7 @@ function parseJobKoreaCard(raw) {
 
   // Classify each line
   const classified = lines.map((line, idx) => {
-    if (/마감/.test(line)) return { type: 'deadline', line, idx };
+    if (/마감|D-\d|상시모집|수시모집|상시채용|\d{4}[./-]\d{1,2}[./-]\d{1,2}/i.test(line)) return { type: 'deadline', line, idx };
     if (/^신입$/.test(line)) return { type: 'experience', line, idx };
     if (/^경력/.test(line)) {
       const rest = line.replace(/^경력\s*/, '');
@@ -122,6 +122,10 @@ function parseJobKoreaCard(raw) {
 
   // Skill inference from title (EXP-080)
   const skills = inferSkills(title).join(', ');
+
+  // Normalize deadline to ISO date (EXP-098)
+  const deadlineNorm = normalizeDeadline(deadline);
+  if (deadlineNorm) deadline = deadlineNorm;
 
   return {
     title, company, experience, salary, salary_min, salary_max,

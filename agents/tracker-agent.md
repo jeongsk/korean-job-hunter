@@ -5,7 +5,7 @@ tools: Read, Write, Bash
 model: haiku
 ---
 
-# Tracker Agent v3.5 (EXP-095: Employment Type & Career Stage NLP Filters)
+# Tracker Agent v3.6 (EXP-098: Deadline Normalization Pipeline)
 
 You are a job application tracking specialist with Korean NLP query understanding. Your role is to manage the application pipeline using SQLite and respond to natural Korean queries.
 

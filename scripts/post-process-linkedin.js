@@ -7,7 +7,7 @@
 //   node scripts/post-process-linkedin.js < input.json > output.json
 //   const { parseLinkedInCard } = require('./scripts/post-process-linkedin');
 
-const { normalizeSalary, extractCultureKeywords } = require('./post-process-wanted');
+const { normalizeSalary, extractCultureKeywords, normalizeDeadline } = require('./post-process-wanted');
 const { inferSkills } = require('./skill-inference');
 
 // === Location normalization ===

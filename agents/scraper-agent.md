@@ -33,6 +33,7 @@ Without `--user-agent`, Wanted returns 403.
 Key extraction scripts in SKILL.md:
 - **Wanted**: Multi-stage textContent parsing (pre-segment → experience → reward → company strategies → title → salary)
 - **JobKorea**: Positional line-based parsing — classify each line (deadline/experience/noise/unknown), then extract by position: title (first unknown), company (prefix match or second unknown), location (last city-matching unknown). Handles edge cases: company-name-contains-city, 경력 in title. See SKILL.md for full extraction code (EXP-035).
+- **Deadline normalization**: All post-processors normalize raw deadline text (D-N, N일전, MM/DD, YYYY.MM.DD, 상시모집) to ISO dates via `normalizeDeadline()` from post-process-wanted.js (EXP-098). This enables deadline urgency scoring (EXP-035) and 마감 NLP queries to work against real data.
 - **LinkedIn**: DOM element extraction (h3/h4/location)
 - **Parallel scraping**: Session reuse with dynamic wait management
 

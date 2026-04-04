@@ -56,7 +56,7 @@ const tests = [
       r.company === "네이버" &&
       r.experience === "경력 3~10년" &&
       r.location === "경기 성남시 분당구" &&
-      r.deadline.includes("마감") &&
+      r.deadline.includes("2026-04-15") &&
       r.salary_min === 5000 &&
       r.salary_max === 8000 &&
       r.source === 'jobkorea',

@@ -52,6 +52,11 @@ function parseWantedJob(raw) {
   } else {
     // If already parsed (has clean title/company), return as-is
     if (raw.title && raw.company && raw.title !== raw.experience) {
+      // But still normalize deadline if present (EXP-098)
+      if (raw.deadline) {
+        const dn = normalizeDeadline(raw.deadline);
+        if (dn) raw.deadline = dn;
+      }
       return raw;
     }
     // Use the concatenated text - prefer title field if it contains everything
@@ -219,6 +224,10 @@ function parseWantedJob(raw) {
     r.salary_max = null;
   }
 
+  // === Normalize deadline to ISO date (EXP-098) ===
+  const deadlineNorm = normalizeDeadline(r.deadline);
+  if (deadlineNorm) r.deadline = deadlineNorm;
+
   // === Title = whatever remains ===
   r.title = t.replace(/[,·\s]+/g, ' ').trim() || '직무 미상';
   if (!r.company || r.company.length < 2) r.company = '회사명 미상';
@@ -231,6 +240,58 @@ function parseWantedJob(raw) {
   if (inferred.length > 0) r.skills = inferred.join(', ');
 
   return r;
+}
+
+// === Deadline Normalization (EXP-098) ===
+// Converts raw deadline text to ISO date string for urgency scoring (EXP-035)
+// Supports: D-N, N일 전, MM/DD(요일), YYYY.MM.DD, YYYY/MM/DD, YYYY-MM-DD, 상시모집
+function normalizeDeadline(raw) {
+  if (!raw || typeof raw !== 'string') return null;
+  const text = raw.trim();
+
+  // 상시모집 / 수시모집 = always open, no deadline
+  if (/상시|수시|always/i.test(text)) return null;
+
+  // D-N (e.g., "D-3", "D-14")
+  const dDay = text.match(/D-(\d+)/i);
+  if (dDay) {
+    const d = new Date();
+    d.setDate(d.getDate() + parseInt(dDay[1]));
+    return localDateStr(d);
+  }
+
+  // N일 전 / N주 전 (posted N days/weeks ago — estimate ~30 day posting window)
+  const ago = text.match(/(\d+)\s*(일|주)\s*전/);
+  if (ago) {
+    const unit = ago[2] === '주' ? 7 : 1;
+    const daysAgo = parseInt(ago[1]) * unit;
+    const estimatedRemaining = 30 - daysAgo;
+    if (estimatedRemaining <= 0) return null;
+    const d = new Date();
+    d.setDate(d.getDate() + estimatedRemaining);
+    return localDateStr(d);
+  }
+
+  // YYYY.MM.DD or YYYY/MM/DD or YYYY-MM-DD
+  const fullDate = text.match(/(\d{4})[./-](\d{1,2})[./-](\d{1,2})/);
+  if (fullDate) {
+    return `${fullDate[1]}-${fullDate[2].padStart(2,'0')}-${fullDate[3].padStart(2,'0')}`;
+  }
+
+  // MM/DD(요일) — assume current year (or next year if date already passed)
+  const mmdd = text.match(/(\d{1,2})\/(\d{1,2})/);
+  if (mmdd) {
+    const now = new Date();
+    const d = new Date(now.getFullYear(), parseInt(mmdd[1]) - 1, parseInt(mmdd[2]));
+    if (d < new Date(now.getFullYear(), now.getMonth(), now.getDate())) d.setFullYear(d.getFullYear() + 1);
+    return localDateStr(d);
+  }
+
+  return null;
+}
+
+function localDateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
 // === Salary Normalization (EXP-068) ===
@@ -289,4 +350,4 @@ if (require.main === module) {
 
 // deriveCareerStage now imported from skill-inference.js (EXP-091)
 
-module.exports = { parseWantedJob, extractCultureKeywords, normalizeSalary, escapeRegExp, deriveCareerStage };
+module.exports = { parseWantedJob, extractCultureKeywords, normalizeSalary, normalizeDeadline, escapeRegExp, deriveCareerStage };

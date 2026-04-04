@@ -1,18 +1,16 @@
 {
-  "timestamp": "2026-04-04T01:04:00Z",
-  "experiment_id": "EXP-097",
-  "skill": "job-matching+skill-inference",
-  "focus": "ai_llm_skills_ml_regex_fix",
-  "hypothesis": "ML regex false positive matches html/xml; AI/LLM skills (llm, rag, langchain, mlops, vector db, fine-tuning, etc.) missing from skill inference and similarity map",
+  "timestamp": "2026-04-04T02:04:00Z",
+  "experiment_id": "EXP-098",
+  "skill": "job-scraping+job-tracking",
+  "focus": "deadline_normalization_pipeline",
+  "hypothesis": "Deadline urgency scoring (EXP-035, 24 tests) depends on ISO date fields but all 3 post-processors leave deadline as raw Korean text (D-3, ~04/30(수) 마감, 상시모집). The urgency computation and NLP deadline queries (마감임박, 오늘 마감) cannot work against raw text.",
   "metrics": {
-    "total_tests": "1077 (all pass)",
+    "total_tests": "1102 (all pass)",
     "npm_test": "working",
-    "test_suites": 47,
+    "test_suites": 48,
     "all_passing": true,
     "regressions": 0,
-    "skill_map_entries": 88,
-    "similarity_connections": "60+",
-    "ml_regex_false_positive_html": "fixed",
-    "ml_regex_false_positive_xml": "fixed"
+    "deadline_formats_supported": "D-N, N일전, N주전, MM/DD, YYYY.MM.DD, YYYY/MM/DD, YYYY-MM-DD, 상시모집",
+    "post_processors_updated": "wanted + jobkorea + linkedin import"
   }
 }
