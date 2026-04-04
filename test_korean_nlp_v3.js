@@ -212,6 +212,22 @@ const testCases = [
     note: "Korean 그라파나 maps to grafana" },
   { id: 97, input: "프로메테우스 공고", expectedFilters: ["j.skills LIKE '%prometheus%'"], expectedOrder: "a.updated_at DESC",
     note: "Korean 프로메테우스 maps to prometheus" },
+
+  // EXP-115: work_type keyword leak fixes + hybrid N일 출근 detection
+  { id: 98, input: "재택근무 공고", expectedFilters: ["j.work_type = 'remote'"], expectedOrder: "a.updated_at DESC",
+    note: "재택근무 should not leak to title/company keyword search" },
+  { id: 99, input: "풀리모트 공고", expectedFilters: ["j.work_type = 'remote'"], expectedOrder: "a.updated_at DESC",
+    note: "풀리모트 should not leak to title/company keyword search" },
+  { id: 100, input: "원격근무 공고", expectedFilters: ["j.work_type = 'remote'"], expectedOrder: "a.updated_at DESC",
+    note: "원격근무 should not leak to title/company keyword search" },
+  { id: 101, input: "전면재택 공고", expectedFilters: ["j.work_type = 'remote'"], expectedOrder: "a.updated_at DESC",
+    note: "전면재택 should not leak to title/company keyword search" },
+  { id: 102, input: "완전재택 공고", expectedFilters: ["j.work_type = 'remote'"], expectedOrder: "a.updated_at DESC",
+    note: "완전재택 should not leak to title/company keyword search" },
+  { id: 103, input: "주 3일 출근 공고", expectedFilters: ["j.work_type = 'hybrid'"], expectedOrder: "a.updated_at DESC",
+    note: "주 N일 출근 pattern should detect hybrid work type" },
+  { id: 104, input: "하이브리드 서울 공고", expectedFilters: ["j.work_type = 'hybrid'", "j.location LIKE '%서울%'"], expectedOrder: "a.updated_at DESC",
+    note: "하이브리드 with location should not leak work_type keyword" },
 ];
 
 // Run tests

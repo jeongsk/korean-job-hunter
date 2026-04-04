@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-04-04T20:04:00Z",
-  "experiment_id": "EXP-114",
-  "skill": "job-scraping",
-  "focus": "linkedin_shared_skill_inference",
-  "hypothesis": "LinkedIn post-processor used inline TECH_PATTERNS (52) instead of shared skill-inference.js (122 skills), missing 74% of extractable skills for LinkedIn-sourced jobs",
+  "timestamp": "2026-04-04T21:04:00Z",
+  "experiment_id": "EXP-115",
+  "skill": "job-tracking",
+  "focus": "nlp_work_type_keyword_leak_fix",
+  "hypothesis": "Work type Korean keywords (재택근무, 풀리모트, 원격근무, 전면재택, 완전재택) leaked into title/company keyword search because consumedWords only captured short forms (재택, 원격, 리모트). 주 N일 출근 hybrid pattern was missing from NLP parser entirely.",
   "metrics": {
-    "total_tests": "1315 (all pass)",
+    "total_tests": "1322 (all pass)",
     "npm_test": "working",
     "test_suites": 53,
     "all_passing": true,
     "regressions": 0,
-    "linkedin_skill_patterns": 122,
-    "shared_skill_inference_count": 122,
-    "linkedin_skill_parity": "100%"
+    "keyword_leaks_fixed": 7,
+    "hybrid_detection_added": true,
+    "new_test_cases": 7
   }
 }
