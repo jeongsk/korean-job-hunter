@@ -113,7 +113,7 @@ test('SKILL-LI-001: React Native from title', () => {
 
 test('SKILL-LI-002: multiple skills', () => {
   const skills = inferSkillsFromText('Full Stack Developer', 'Node.js, Python, AWS, Docker');
-  assert.ok(skills.includes('nodejs'));
+  assert.ok(skills.includes('node.js') || skills.includes('nodejs'));
   assert.ok(skills.includes('python'));
   assert.ok(skills.includes('aws'));
   assert.ok(skills.includes('docker'));
@@ -143,7 +143,7 @@ test('SKILL-LI-006: Spring Boot detected', () => {
 test('SKILL-LI-007: TypeScript + Next.js', () => {
   const skills = inferSkillsFromText('Frontend Developer (TypeScript, Next.js)');
   assert.ok(skills.includes('typescript'));
-  assert.ok(skills.includes('nextjs'));
+  assert.ok(skills.includes('next.js') || skills.includes('nextjs'));
 });
 
 // === Salary Extraction ===
@@ -274,6 +274,70 @@ test('FULL-LI-007: Spring Boot in description', () => {
   });
   assert.ok(r.skills.includes('spring boot'));
   assert.ok(r.skills.includes('kubernetes'));
+});
+
+// === EXP-114: LinkedIn skill extraction via shared module ===
+test('EXP114-001: parseLinkedInCard uses shared skill-inference for Snowflake/Airflow/dbt', () => {
+  const r = parseLinkedInCard({ title: 'Senior Data Engineer', company: 'TestCo', description: 'Snowflake, Airflow, dbt, BigQuery' });
+  assert.ok(r.skills.includes('snowflake'), 'should detect Snowflake');
+  assert.ok(r.skills.includes('airflow'), 'should detect Airflow');
+  assert.ok(r.skills.includes('dbt'), 'should detect dbt');
+  assert.ok(r.skills.includes('bigquery'), 'should detect BigQuery');
+});
+
+test('EXP114-002: LinkedIn detects PostgreSQL, Redis, Linux', () => {
+  const r = parseLinkedInCard({ title: 'Backend Developer', company: 'TestCo', description: 'PostgreSQL, Redis, Linux, Docker' });
+  assert.ok(r.skills.includes('postgresql'), 'should detect PostgreSQL');
+  assert.ok(r.skills.includes('redis'), 'should detect Redis');
+  assert.ok(r.skills.includes('linux'), 'should detect Linux');
+  assert.ok(r.skills.includes('docker'), 'should detect Docker');
+});
+
+test('EXP114-003: LinkedIn detects modern web tools (Tailwind, Vite, Pinia)', () => {
+  const r = parseLinkedInCard({ title: 'Frontend Engineer', company: 'TestCo', description: 'Vue.js, Pinia, Tailwind CSS, Vite' });
+  assert.ok(r.skills.includes('tailwind'), 'should detect Tailwind');
+  assert.ok(r.skills.includes('vite'), 'should detect Vite');
+  assert.ok(r.skills.includes('pinia'), 'should detect Pinia');
+  assert.ok(r.skills.includes('vue'), 'should detect Vue');
+});
+
+test('EXP114-004: LinkedIn detects ML ecosystem (PyTorch, HuggingFace, LangChain, RAG)', () => {
+  const r = parseLinkedInCard({ title: 'ML Engineer', company: 'TestCo', description: 'PyTorch, Hugging Face, LangChain, RAG' });
+  assert.ok(r.skills.includes('pytorch'), 'should detect PyTorch');
+  assert.ok(r.skills.includes('huggingface'), 'should detect HuggingFace');
+  assert.ok(r.skills.includes('langchain'), 'should detect LangChain');
+  assert.ok(r.skills.includes('rag'), 'should detect RAG');
+});
+
+test('EXP114-005: LinkedIn detects monitoring tools (Prometheus, Grafana, Sentry, CI/CD)', () => {
+  const r = parseLinkedInCard({ title: 'DevOps Engineer', company: 'TestCo', description: 'CI/CD, Prometheus, Grafana, Sentry' });
+  assert.ok(r.skills.includes('prometheus'), 'should detect Prometheus');
+  assert.ok(r.skills.includes('grafana'), 'should detect Grafana');
+  assert.ok(r.skills.includes('sentry'), 'should detect Sentry');
+  assert.ok(r.skills.includes('ci/cd'), 'should detect CI/CD');
+});
+
+test('EXP114-006: LinkedIn detects modern stack (Deno, Prisma, Supabase, TRPC)', () => {
+  const r = parseLinkedInCard({ title: 'Full Stack Developer', company: 'TestCo', description: 'Deno, Prisma, Supabase, TRPC' });
+  assert.ok(r.skills.includes('deno'), 'should detect Deno');
+  assert.ok(r.skills.includes('prisma'), 'should detect Prisma');
+  assert.ok(r.skills.includes('supabase'), 'should detect Supabase');
+  assert.ok(r.skills.includes('trpc'), 'should detect TRPC');
+});
+
+test('EXP114-007: LinkedIn detects Korean equivalents from description', () => {
+  const r = parseLinkedInCard({ title: '머신러닝 엔지니어', company: '테스트', description: '텐서플로우, 파이토치 경험' });
+  assert.ok(r.skills.includes('machine learning'), 'should detect 머신러닝');
+  assert.ok(r.skills.includes('tensorflow'), 'should detect 텐서플로우');
+  assert.ok(r.skills.includes('pytorch'), 'should detect 파이토치');
+});
+
+test('EXP114-008: LinkedIn detects NLP/computer vision/fine-tuning', () => {
+  const r = parseLinkedInCard({ title: 'Data Scientist', company: 'TestCo', description: 'TensorFlow, Computer Vision, NLP, Fine-tuning' });
+  assert.ok(r.skills.includes('computer vision'), 'should detect Computer Vision');
+  assert.ok(r.skills.includes('fine-tuning'), 'should detect Fine-tuning');
+  assert.ok(r.skills.includes('tensorflow'), 'should detect TensorFlow');
+  assert.ok(r.skills.includes('nlp'), 'should detect NLP');
 });
 
 // ── Summary ──

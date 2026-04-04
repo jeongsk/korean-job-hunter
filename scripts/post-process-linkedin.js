@@ -135,8 +135,8 @@ function parseLinkedInCard(raw) {
   // Experience level
   const { level, minYears } = extractExperienceLevel(title, description);
 
-  // Skills
-  const skills = inferSkillsFromText(title, description);
+  // Skills — use shared skill-inference module (122 skills) instead of inline TECH_PATTERNS (EXP-114)
+  const skills = inferSkills(`${title} ${description}`);
 
   // Salary
   const salaryInfo = extractSalary(description || title);

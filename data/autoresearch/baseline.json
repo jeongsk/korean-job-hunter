@@ -1,21 +1,17 @@
 {
-  "timestamp": "2026-04-04T17:04:00Z",
-  "experiment_id": "EXP-112",
+  "timestamp": "2026-04-04T20:04:00Z",
+  "experiment_id": "EXP-114",
   "skill": "job-scraping",
-  "focus": "comma_formatted_reward_extraction",
-  "hypothesis": "Wanted 보상금 amounts with comma-formatted numbers (1,000만원) leak into title because reward regex \\d+만원 doesn't match comma-separated digits",
+  "focus": "linkedin_shared_skill_inference",
+  "hypothesis": "LinkedIn post-processor used inline TECH_PATTERNS (52) instead of shared skill-inference.js (122 skills), missing 74% of extractable skills for LinkedIn-sourced jobs",
   "metrics": {
-    "total_tests": "1299 (all pass)",
+    "total_tests": "1315 (all pass)",
     "npm_test": "working",
     "test_suites": 53,
     "all_passing": true,
     "regressions": 0,
-    "new_reward_tests": 4,
-    "comma_reward_extraction": "working",
-    "skill_inference_count": 122,
-    "similarity_connections": "~180",
-    "nlp_skill_patterns": 119,
-    "korean_equivalents_coverage": "100%",
-    "domain_alignment_coverage": "100%"
+    "linkedin_skill_patterns": 122,
+    "shared_skill_inference_count": 122,
+    "linkedin_skill_parity": "100%"
   }
 }

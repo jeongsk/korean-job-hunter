@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v5.8 (EXP-113: AI/ML Korean Equivalent Sync)
+# Job Scraping Skill v5.9 (EXP-114: LinkedIn Skill Extraction via Shared Module)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
