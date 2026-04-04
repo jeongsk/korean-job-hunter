@@ -230,5 +230,38 @@ assertIncludes('Modern frontend stack', inferSkills('React TypeScript Vite Tailw
 assertIncludes('Modern fullstack', inferSkills('Next.js Prisma Vercel Supabase'), ['next.js', 'prisma', 'vercel', 'supabase']);
 assertIncludes('Testing stack', inferSkills('Jest Cypress Storybook'), ['jest', 'cypress', 'storybook']);
 
+// ─── EXP-103: New runtimes, frameworks, ORM, monitoring, desktop/mobile ───
+assertIncludes('Deno', inferSkills('Deno TypeScript runtime'), ['deno', 'typescript']);
+assertIncludes('Bun', inferSkills('Bun fast runtime'), ['bun']);
+assertIncludes('Remix', inferSkills('Remix React framework'), ['remix', 'react']);
+assertIncludes('Astro', inferSkills('Astro static site'), ['astro']);
+assertIncludes('Fastify', inferSkills('Fastify API server'), ['fastify']);
+assertIncludes('Koa', inferSkills('Koa middleware'), ['koa']);
+assertIncludes('Drizzle', inferSkills('Drizzle ORM TypeScript'), ['drizzle', 'typescript']);
+assertIncludes('TypeORM', inferSkills('TypeORM entities'), ['typeorm']);
+assertIncludes('Sequelize', inferSkills('Sequelize models'), ['sequelize']);
+assertIncludes('Mongoose', inferSkills('Mongoose schemas MongoDB'), ['mongoose', 'mongodb']);
+assertIncludes('Electron', inferSkills('Electron desktop app'), ['electron']);
+assertIncludes('Tauri', inferSkills('Tauri desktop Rust'), ['tauri', 'rust']);
+assertIncludes('Capacitor', inferSkills('Capacitor Ionic mobile'), ['capacitor', 'ionic']);
+assertIncludes('Sentry', inferSkills('Sentry error tracking'), ['sentry']);
+assertIncludes('Datadog', inferSkills('Datadog monitoring'), ['datadog']);
+assertIncludes('Grafana', inferSkills('Grafana dashboards'), ['grafana']);
+assertIncludes('Prometheus', inferSkills('Prometheus metrics'), ['prometheus']);
+
+// Korean equivalents
+assertIncludes('Deno Korean', inferSkills('데노 런타임'), ['deno']);
+assertIncludes('Electron Korean', inferSkills('일렉트론 데스크톱'), ['electron']);
+assertIncludes('Tauri Korean', inferSkills('타우리 데스크톱'), ['tauri']);
+assertIncludes('Sentry Korean', inferSkills('센트리 에러'), ['sentry']);
+assertIncludes('Grafana Korean', inferSkills('그라파나 모니터링'), ['grafana']);
+assertIncludes('Prometheus Korean', inferSkills('프로메테우스 메트릭'), ['prometheus']);
+assertIncludes('Sequelize Korean', inferSkills('시퀄라이즈 ORM'), ['sequelize']);
+assertIncludes('Mongoose Korean', inferSkills('몽구스 ODM'), ['mongoose']);
+
+// Disambiguation
+assertExcludes('Bun≠bunny', inferSkills('bunny rabbit'), ['bun']);
+assertExcludes('Koa≠koala', inferSkills('koala bear'), ['koa']);
+
 console.log(`\n📊 Skill Inference: ${passed}/${passed + failed} passed`);
 if (failed > 0) process.exit(1);

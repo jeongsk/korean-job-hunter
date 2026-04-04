@@ -1,20 +1,20 @@
 {
-  "timestamp": "2026-04-04T06:04:00Z",
-  "experiment_id": "EXP-102",
-  "skill": "job-scraping",
-  "focus": "salary_normalization_extended_formats",
-  "hypothesis": "normalizeSalary returned null for 3 common Korean salary format families: bare number ranges after 연봉 prefix, ₩ absolute won notation, and 천만 unit. These formats appear on LinkedIn Korea and Korean job aggregators.",
+  "timestamp": "2026-04-04T07:04:00Z",
+  "experiment_id": "EXP-103",
+  "skill": "job-scraping+job-matching+job-tracking",
+  "focus": "runtimes_orm_monitoring_desktop_mobile_skills",
+  "hypothesis": "19 common Korean job market skills were missing from skill-inference.js, causing zero-detection for Deno, Bun, Remix, Astro, Fastify, Koa, Drizzle, TypeORM, Sequelize, Mongoose, Electron, Tauri, Capacitor, Ionic, Sentry, Datadog, Grafana, and Prometheus",
   "metrics": {
-    "total_tests": "1209 (all pass)",
+    "total_tests": "1243 (all pass)",
     "npm_test": "working",
     "test_suites": 49,
     "all_passing": true,
     "regressions": 0,
-    "new_salary_formats": "3 (bare range, ₩ notation, 천만 unit)",
-    "new_tests": 17,
-    "skill_inference_count": 104,
-    "skill_korean_coverage": "100%",
-    "nlp_skill_patterns": 101,
-    "similarity_connections": "~150"
+    "new_skills": "19 (runtimes, frameworks, ORM, desktop/mobile, monitoring)",
+    "new_tests": 34,
+    "skill_inference_count": 122,
+    "similarity_connections": "~180",
+    "nlp_skill_patterns": 119,
+    "korean_equivalents_coverage": "100%"
   }
 }

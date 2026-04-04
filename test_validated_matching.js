@@ -30,7 +30,7 @@ const TIER1 = { // 100%
 
 const TIER2 = { // 75%
   'spring': ['spring boot', 'spring_boot'], 'spring boot': ['spring'], 'spring_boot': ['spring'],
-  'express': ['node.js', 'nestjs'], 'node.js': ['express', 'nestjs'], 'nestjs': ['node.js', 'express'],
+  'express': ['node.js', 'nestjs', 'fastify', 'koa'], 'node.js': ['express', 'nestjs', 'fastify', 'koa'], 'nestjs': ['node.js', 'express'],
   'fastapi': ['python', 'django', 'flask'], 'python': ['fastapi', 'django', 'flask'],
   'django': ['python', 'fastapi', 'flask'], 'flask': ['python', 'fastapi', 'django'],
   'aws': ['gcp', 'azure', 'cloud'], 'gcp': ['aws', 'azure', 'cloud'], 'azure': ['aws', 'gcp', 'cloud'],
@@ -74,6 +74,22 @@ const TIER2 = { // 75%
   'jpa': ['spring', 'java'], 'spring': ['jpa'], 'java': ['kotlin', 'jpa'], // JPA/Hibernate is Spring Data's ORM layer (merged with existing kotlin entry)
   'devops': ['docker', 'kubernetes', 'terraform', 'ci/cd'], // DevOps umbrella connects to core tools
   'aws lambda': ['aws'], 'aws s3': ['aws'], 'aws sqs': ['aws'], // AWS services connect to parent cloud
+  // EXP-103: New skill similarity connections
+  'deno': ['node.js', 'typescript'], 'node.js': ['deno'], // Deno is Node.js successor by same creator
+  'bun': ['node.js', 'deno', 'typescript'], 'node.js': ['bun'], // Bun/Deno are Node alternatives
+  'remix': ['react', 'next.js'], 'next.js': ['remix'], // React meta-framework alternatives
+  'astro': ['react', 'vue', 'svelte', 'next.js'], // Astro multi-framework SSG
+  'fastify': ['express', 'node.js'], 'koa': ['express', 'node.js'], // Node.js framework alternatives
+  'drizzle': ['typescript', 'postgresql', 'mysql'], // Drizzle ORM
+  'typeorm': ['typescript', 'mysql', 'postgresql'], // TypeORM
+  'sequelize': ['node.js', 'mysql', 'postgresql'], 'mysql': ['sequelize'], // Sequelize ORM
+  'mongoose': ['mongodb', 'node.js'], 'mongodb': ['mongoose'], // Mongoose is MongoDB's Node.js ODM
+  'electron': ['javascript', 'typescript', 'react'], // Electron desktop apps
+  'tauri': ['electron', 'rust'], 'electron': ['tauri'], // Tauri is Electron alternative
+  'capacitor': ['ionic', 'javascript'], 'ionic': ['capacitor'], // Capacitor is Ionic's native bridge
+  'sentry': ['javascript', 'python'], // Sentry error tracking
+  'datadog': ['aws', 'docker', 'kubernetes'], // Datadog cloud monitoring
+  'grafana': ['prometheus', 'docker', 'kubernetes'], 'prometheus': ['grafana'], // Grafana+Prometheus monitoring stack
 };
 
 const TIER3 = { // 25%
@@ -100,7 +116,7 @@ const TIER3 = { // 25%
   // EXP-101: Modern web tool connections
   'vite': ['next.js', 'react', 'vue', 'svelte'], 'next.js': ['vite'], // Vite is used with these frameworks
   'tailwind': ['react', 'vue', 'svelte', 'next.js'], // Tailwind pairs with frontend frameworks
-  'prisma': ['postgresql', 'mysql', 'mongodb', 'typescript'], // Prisma ORM connects to DBs and TS
+  'prisma': ['postgresql', 'mysql', 'mongodb', 'typescript', 'drizzle'], // Prisma ORM connects to DBs, TS, and ORM alternatives
   'vercel': ['next.js', 'react'], 'next.js': ['vercel'], // Vercel is Next.js's platform
   'trpc': ['typescript', 'next.js'], // tRPC requires TypeScript, commonly with Next.js
   'hono': ['typescript', 'node.js'], // Hono is a JS/TS framework
@@ -118,6 +134,13 @@ const TIER3 = { // 25%
   'fine-tuning': ['pytorch', 'tensorflow', 'machine learning'], // fine-tuning uses ML frameworks
   'stable diffusion': ['pytorch', 'computer vision'], // generative AI overlaps
   'vector database': ['elasticsearch', 'redis', 'mongodb'], // vector DB overlaps with search/NoSQL
+  // EXP-103: New skill partial overlaps
+  'deno': ['bun'], 'bun': ['deno'], // new JS runtimes
+  'drizzle': ['prisma', 'typeorm', 'sequelize'], 'typeorm': ['drizzle', 'sequelize'], 'sequelize': ['typeorm', 'drizzle'], // ORM alternatives
+  'electron': ['tauri'], // desktop framework alternatives
+  'capacitor': ['react native', 'flutter'], 'ionic': ['react native'], // cross-platform mobile
+  'sentry': ['datadog', 'grafana'], 'datadog': ['sentry'], 'grafana': ['sentry'], // monitoring alternatives
+  'prometheus': ['datadog', 'kubernetes'], // monitoring stacks
   'mlops': ['terraform', 'ci/cd'], // MLOps shares infra tooling with DevOps
   'langchain': ['python', 'typescript'], // LangChain runs on Python/TS
 };

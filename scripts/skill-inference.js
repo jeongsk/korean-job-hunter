@@ -145,6 +145,34 @@ const SKILL_MAP = {
 
   // Design
   'figma': /figma|피그마/i,
+
+  // Runtimes
+  'deno': /deno|데노/i,
+  'bun': /(?<!\w)bun(?!\w)/i,
+
+  // Frameworks - additional
+  'remix': /remix|레믹스/i,
+  'astro': /astro|아스트로/i,
+  'fastify': /fastify|패스티파이/i,
+  'koa': /(?<!\w)koa(?!\w)/i,
+
+  // ORM / Database tools
+  'drizzle': /drizzle|드리즐/i,
+  'typeorm': /typeorm|타입ORM/i,
+  'sequelize': /sequelize|시퀄라이즈/i,
+  'mongoose': /mongoose|몽구스/i,
+
+  // Desktop / Mobile cross-platform
+  'electron': /electron|일렉트론/i,
+  'tauri': /tauri|타우리/i,
+  'capacitor': /capacitor|캐패시터/i,
+  'ionic': /ionic|아이오닉/i,
+
+  // Monitoring / Observability
+  'sentry': /sentry|센트리/i,
+  'datadog': /datadog|데이터독/i,
+  'grafana': /grafana|그라파나/i,
+  'prometheus': /prometheus|프로메테우스/i,
 };
 
 /**

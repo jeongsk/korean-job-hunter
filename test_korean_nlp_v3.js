@@ -351,6 +351,25 @@ function parseKoreanQuery(input) {
     { canonical: 'storybook', patterns: [/storybook|스토리북/i] },
     { canonical: 'jest', patterns: [/(?<!\w)jest(?!\w)|제스트/i] },
     { canonical: 'cypress', patterns: [/(?<!\w)cypress(?!\w)|사이프레스/i] },
+    // EXP-103: Runtimes, frameworks, ORM, monitoring, desktop/mobile
+    { canonical: 'deno', patterns: [/(?<!\w)deno(?!\w)|데노/i] },
+    { canonical: 'bun', patterns: [/(?<!\w)bun(?!\w)/i] },
+    { canonical: 'remix', patterns: [/(?<!\w)remix(?!\w)|레믹스/i] },
+    { canonical: 'astro', patterns: [/(?<!\w)astro(?!\w)|아스트로/i] },
+    { canonical: 'fastify', patterns: [/(?<!\w)fastify(?!\w)|패스티파이/i] },
+    { canonical: 'koa', patterns: [/(?<!\w)koa(?!\w)|코아/i] },
+    { canonical: 'drizzle', patterns: [/(?<!\w)drizzle(?!\w)|드리즐/i] },
+    { canonical: 'typeorm', patterns: [/(?<!\w)typeorm(?!\w)|타입오알엠/i] },
+    { canonical: 'sequelize', patterns: [/(?<!\w)sequelize(?!\w)|시퀄라이즈/i] },
+    { canonical: 'mongoose', patterns: [/(?<!\w)mongoose(?!\w)|몽구스/i] },
+    { canonical: 'electron', patterns: [/(?<!\w)electron(?!\w)|일렉트론/i] },
+    { canonical: 'tauri', patterns: [/(?<!\w)tauri(?!\w)|타우리/i] },
+    { canonical: 'capacitor', patterns: [/(?<!\w)capacitor(?!\w)|캐패시터/i] },
+    { canonical: 'ionic', patterns: [/(?<!\w)ionic(?!\w)|아이오닉/i] },
+    { canonical: 'sentry', patterns: [/(?<!\w)sentry(?!\w)|센트리/i] },
+    { canonical: 'datadog', patterns: [/(?<!\w)datadog(?!\w)|데이터독/i] },
+    { canonical: 'grafana', patterns: [/(?<!\w)grafana(?!\w)|그라파나/i] },
+    { canonical: 'prometheus', patterns: [/(?<!\w)prometheus(?!\w)|프로메테우스/i] },
   ];
 
   for (const { canonical, patterns } of skillPatterns) {
@@ -584,6 +603,21 @@ const testCases = [
     note: "Korean 스토리북 maps to storybook" },
   { id: 90, input: "Vite React 공고", expectedFilters: ["j.skills LIKE '%vite%'", "j.skills LIKE '%react%'"], expectedOrder: "a.updated_at DESC",
     note: "Both Vite and React in English" },
+  // EXP-103: New runtime/ORM/monitoring NLP queries
+  { id: 91, input: "데노 공고", expectedFilters: ["j.skills LIKE '%deno%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 데노 maps to deno" },
+  { id: 92, input: "일렉트론 데스크톱 공고", expectedFilters: ["j.skills LIKE '%electron%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 일렉트론 maps to electron" },
+  { id: 93, input: "시퀄라이즈 공고", expectedFilters: ["j.skills LIKE '%sequelize%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 시퀄라이즈 maps to sequelize" },
+  { id: 94, input: "몽구스 MongoDB 공고", expectedFilters: ["j.skills LIKE '%mongoose%'", "j.skills LIKE '%mongodb%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 몽구스 + English MongoDB" },
+  { id: 95, input: "센트리 에러 공고", expectedFilters: ["j.skills LIKE '%sentry%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 센트리 maps to sentry" },
+  { id: 96, input: "그라파나 모니터링 공고", expectedFilters: ["j.skills LIKE '%grafana%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 그라파나 maps to grafana" },
+  { id: 97, input: "프로메테우스 공고", expectedFilters: ["j.skills LIKE '%prometheus%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 프로메테우스 maps to prometheus" },
 ];
 
 // Run tests

@@ -3,7 +3,7 @@ name: job-tracking
 description: "Job application status tracking with SQLite CRUD, Korean NLP query parsing, pipeline analytics, and smart suggestions"
 ---
 
-# Job Tracking Skill v2.11 (EXP-101: Modern Web Tool NLP Queries + Korean Equivalents)
+# Job Tracking Skill v2.12 (EXP-103: Runtime/ORM/Monitoring NLP Queries)
 
 ## Korean Natural Language Query Parsing
 
