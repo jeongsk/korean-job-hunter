@@ -73,6 +73,9 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_matches_score ON matches(score DESC);
   CREATE INDEX IF NOT EXISTS idx_applications_job_id ON applications(job_id);
   CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);
+  CREATE INDEX IF NOT EXISTS idx_jobs_deadline ON jobs(deadline);
+  CREATE INDEX IF NOT EXISTS idx_jobs_career_stage ON jobs(career_stage);
+  CREATE INDEX IF NOT EXISTS idx_jobs_employment_type ON jobs(employment_type);
 
   -- Safe column additions (no-op if column already exists)
   -- SQLite doesn't support IF NOT EXISTS for columns, so we use a pragma trick:

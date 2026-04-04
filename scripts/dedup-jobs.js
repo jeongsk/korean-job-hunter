@@ -147,6 +147,7 @@ function fieldScore(job) {
   if (job.employment_type && job.employment_type !== 'regular') score += 1;  // Non-default employment_type carries info
   if (job.career_stage && job.career_stage.trim()) score += 2;  // Career stage is 15% match weight
   if (job.reward && job.reward.trim()) score += 1;  // Referral bonus info
+  if (job.office_address && job.office_address.trim()) score += 1;  // Detailed address for commute calc
   // Prefer Wanted (usually richer)
   if (job.source === 'wanted') score += 1;
   return score;
@@ -160,7 +161,7 @@ function main() {
     process.exit(1);
   }
 
-  const raw = execSync(`sqlite3 -json "${DB_PATH}" "SELECT id, source, title, company, url, content, location, work_type, experience, salary, salary_min, salary_max, deadline, reward, skills, culture_keywords, employment_type, career_stage FROM jobs ORDER BY id"`, { encoding: 'utf8' });
+  const raw = execSync(`sqlite3 -json "${DB_PATH}" "SELECT id, source, title, company, url, content, location, office_address, work_type, experience, salary, salary_min, salary_max, deadline, reward, skills, culture_keywords, employment_type, career_stage FROM jobs ORDER BY id"`, { encoding: 'utf8' });
   const jobs = JSON.parse(raw);
 
   if (jobs.length === 0) {
@@ -211,7 +212,7 @@ function main() {
     const dupes = entries.slice(1);
 
     // Enrich keeper with fields from dupes if missing
-    const enrichFields = ['skills', 'culture_keywords', 'employment_type', 'salary', 'experience', 'work_type', 'location', 'career_stage', 'reward'];  // deadline handled separately below
+    const enrichFields = ['skills', 'culture_keywords', 'employment_type', 'salary', 'experience', 'work_type', 'location', 'career_stage', 'reward', 'content', 'office_address'];  // deadline handled separately below
     const enrichUpdates = {};
     for (const field of enrichFields) {
       if ((!keeper[field] || !keeper[field].trim()) && !enrichUpdates[field]) {
