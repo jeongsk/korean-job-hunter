@@ -1,20 +1,20 @@
 {
-  "timestamp": "2026-04-04T07:04:00Z",
-  "experiment_id": "EXP-103",
-  "skill": "job-scraping+job-matching+job-tracking",
-  "focus": "runtimes_orm_monitoring_desktop_mobile_skills",
-  "hypothesis": "19 common Korean job market skills were missing from skill-inference.js, causing zero-detection for Deno, Bun, Remix, Astro, Fastify, Koa, Drizzle, TypeORM, Sequelize, Mongoose, Electron, Tauri, Capacitor, Ionic, Sentry, Datadog, Grafana, and Prometheus",
+  "timestamp": "2026-04-04T09:04:00Z",
+  "experiment_id": "EXP-104",
+  "skill": "job-matching",
+  "focus": "domain_alignment_full_coverage",
+  "hypothesis": "PRIMARY_DOMAINS only mapped ~45 of 122 skills — 77 skills escaped domain alignment penalty",
   "metrics": {
-    "total_tests": "1243 (all pass)",
+    "total_tests": "1248 (all pass)",
     "npm_test": "working",
     "test_suites": 49,
     "all_passing": true,
     "regressions": 0,
-    "new_skills": "19 (runtimes, frameworks, ORM, desktop/mobile, monitoring)",
-    "new_tests": 34,
+    "primary_domains_entries": "77+",
     "skill_inference_count": 122,
     "similarity_connections": "~180",
     "nlp_skill_patterns": 119,
-    "korean_equivalents_coverage": "100%"
+    "korean_equivalents_coverage": "100%",
+    "domain_alignment_coverage": "100%"
   }
 }
