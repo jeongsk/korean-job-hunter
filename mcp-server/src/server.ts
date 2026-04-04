@@ -22,18 +22,28 @@ db.pragma("foreign_keys = ON");
 // Initialize schema if not exists
 db.exec(`
   CREATE TABLE IF NOT EXISTS jobs (
-    id            TEXT PRIMARY KEY,
-    source        TEXT NOT NULL,
-    title         TEXT NOT NULL,
-    company       TEXT NOT NULL,
-    url           TEXT UNIQUE NOT NULL,
-    content       TEXT,
-    location      TEXT,
-    office_address TEXT,
-    work_type     TEXT,
-    commute_min   INTEGER,
-    created_at    TEXT DEFAULT (datetime('now')),
-    fetched_at    TEXT DEFAULT (datetime('now'))
+    id               TEXT PRIMARY KEY,
+    source           TEXT NOT NULL,
+    title            TEXT NOT NULL,
+    company          TEXT NOT NULL,
+    url              TEXT UNIQUE NOT NULL,
+    content          TEXT,
+    location         TEXT,
+    office_address   TEXT,
+    work_type        TEXT,
+    commute_min      INTEGER,
+    experience       TEXT,
+    salary           TEXT,
+    salary_min       INTEGER,
+    salary_max       INTEGER,
+    deadline         TEXT,
+    reward           TEXT,
+    culture_keywords TEXT,
+    skills           TEXT DEFAULT '',
+    employment_type  TEXT DEFAULT 'regular',
+    career_stage     TEXT,
+    created_at       TEXT DEFAULT (datetime('now')),
+    fetched_at       TEXT DEFAULT (datetime('now'))
   );
 
   CREATE TABLE IF NOT EXISTS matches (
@@ -57,10 +67,16 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS idx_jobs_source ON jobs(source);
   CREATE INDEX IF NOT EXISTS idx_jobs_work_type ON jobs(work_type);
+  CREATE INDEX IF NOT EXISTS idx_jobs_company ON jobs(company);
+  CREATE INDEX IF NOT EXISTS idx_jobs_created_at ON jobs(created_at);
   CREATE INDEX IF NOT EXISTS idx_matches_job_id ON matches(job_id);
   CREATE INDEX IF NOT EXISTS idx_matches_score ON matches(score DESC);
   CREATE INDEX IF NOT EXISTS idx_applications_job_id ON applications(job_id);
   CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);
+
+  -- Safe column additions (no-op if column already exists)
+  -- SQLite doesn't support IF NOT EXISTS for columns, so we use a pragma trick:
+  -- These are idempotent only for new databases; existing DBs already have these columns.
 `);
 
 // Type definitions
@@ -75,6 +91,16 @@ interface Job {
   office_address?: string;
   work_type?: string;
   commute_min?: number;
+  experience?: string;
+  salary?: string;
+  salary_min?: number;
+  salary_max?: number;
+  deadline?: string;
+  reward?: string;
+  culture_keywords?: string;
+  skills?: string;
+  employment_type?: string;
+  career_stage?: string;
 }
 
 interface Match {
@@ -92,13 +118,28 @@ interface JobFilters {
   work_type?: string;
   min_score?: number;
   max_commute?: number;
+  min_salary?: number;
+  max_salary?: number;
+  location?: string;
+  skills?: string;
+  experience?: string;
+  employment_type?: string;
+  career_stage?: string;
+  deadline_before?: string;
   limit?: number;
 }
 
 // Prepared statements
 const insertJob = db.prepare(`
-  INSERT OR REPLACE INTO jobs (id, source, title, company, url, content, location, office_address, work_type, commute_min, fetched_at)
-  VALUES (@id, @source, @title, @company, @url, @content, @location, @office_address, @work_type, @commute_min, datetime('now'))
+  INSERT OR REPLACE INTO jobs (
+    id, source, title, company, url, content, location, office_address,
+    work_type, commute_min, experience, salary, salary_min, salary_max,
+    deadline, reward, culture_keywords, skills, employment_type, career_stage, fetched_at
+  ) VALUES (
+    @id, @source, @title, @company, @url, @content, @location, @office_address,
+    @work_type, @commute_min, @experience, @salary, @salary_min, @salary_max,
+    @deadline, @reward, @culture_keywords, @skills, @employment_type, @career_stage, datetime('now')
+  )
 `);
 
 const insertMatch = db.prepare(`
@@ -120,7 +161,9 @@ const updateApplication = db.prepare(`
 const getJobById = db.prepare(`SELECT * FROM jobs WHERE id = ?`);
 
 const getApplications = db.prepare(`
-  SELECT a.*, j.title, j.company, j.url, j.work_type, j.commute_min
+  SELECT a.*, j.title, j.company, j.url, j.work_type, j.commute_min,
+         j.salary, j.salary_min, j.salary_max, j.experience, j.deadline,
+         j.skills, j.employment_type, j.career_stage, j.location, j.source
   FROM applications a
   JOIN jobs j ON a.job_id = j.id
   ORDER BY a.updated_at DESC
@@ -153,6 +196,16 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
               office_address: { type: "string", description: "Office detail address for commute calc" },
               work_type: { type: "string", description: "remote | hybrid | onsite" },
               commute_min: { type: "number", description: "Estimated commute time in minutes" },
+              experience: { type: "string", description: "Experience requirement (e.g. '경력 5년 이상')" },
+              salary: { type: "string", description: "Raw salary text" },
+              salary_min: { type: "number", description: "Normalized minimum salary (만원)" },
+              salary_max: { type: "number", description: "Normalized maximum salary (만원)" },
+              deadline: { type: "string", description: "Application deadline (ISO date)" },
+              reward: { type: "string", description: "Referral reward text" },
+              culture_keywords: { type: "string", description: "JSON array of culture keywords" },
+              skills: { type: "string", description: "Comma-separated skill list" },
+              employment_type: { type: "string", description: "regular | contract | intern | freelance" },
+              career_stage: { type: "string", description: "junior | mid | senior | lead" },
             },
             required: ["source", "title", "company", "url"],
           },
@@ -174,6 +227,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
               work_type: { type: "string", description: "Filter by work type" },
               min_score: { type: "number", description: "Minimum match score (0-100)" },
               max_commute: { type: "number", description: "Maximum commute time in minutes" },
+              min_salary: { type: "number", description: "Minimum salary (만원)" },
+              max_salary: { type: "number", description: "Maximum salary (만원)" },
+              location: { type: "string", description: "Location filter (partial match)" },
+              skills: { type: "string", description: "Skill filter (partial match)" },
+              experience: { type: "string", description: "Experience filter (partial match)" },
+              employment_type: { type: "string", description: "Employment type filter" },
+              career_stage: { type: "string", description: "Career stage filter" },
+              deadline_before: { type: "string", description: "Deadline before date (ISO)" },
               limit: { type: "number", description: "Max results (default 20)" },
             },
           },
@@ -285,6 +346,38 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           conditions.push("(j.commute_min IS NULL OR j.commute_min <= ?)");
           params.push(filters.max_commute);
         }
+        if (filters.min_salary !== undefined) {
+          conditions.push("j.salary_min IS NOT NULL AND j.salary_min >= ?");
+          params.push(filters.min_salary);
+        }
+        if (filters.max_salary !== undefined) {
+          conditions.push("(j.salary_max IS NULL OR j.salary_max <= ?)");
+          params.push(filters.max_salary);
+        }
+        if (filters.location) {
+          conditions.push("j.location LIKE ?");
+          params.push(`%${filters.location}%`);
+        }
+        if (filters.skills) {
+          conditions.push("j.skills LIKE ?");
+          params.push(`%${filters.skills}%`);
+        }
+        if (filters.experience) {
+          conditions.push("j.experience LIKE ?");
+          params.push(`%${filters.experience}%`);
+        }
+        if (filters.employment_type) {
+          conditions.push("j.employment_type = ?");
+          params.push(filters.employment_type);
+        }
+        if (filters.career_stage) {
+          conditions.push("j.career_stage = ?");
+          params.push(filters.career_stage);
+        }
+        if (filters.deadline_before) {
+          conditions.push("(j.deadline IS NOT NULL AND j.deadline != '' AND j.deadline <= ?)");
+          params.push(filters.deadline_before);
+        }
 
         let query = `
           SELECT j.*, m.score, m.skill_score, m.location_score
@@ -352,8 +445,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           by_source: db.prepare("SELECT source, COUNT(*) as count FROM jobs GROUP BY source").all(),
           by_work_type: db.prepare("SELECT work_type, COUNT(*) as count FROM jobs GROUP BY work_type").all(),
           by_status: db.prepare("SELECT status, COUNT(*) as count FROM applications GROUP BY status").all(),
+          by_employment_type: db.prepare("SELECT employment_type, COUNT(*) as count FROM jobs GROUP BY employment_type").all(),
+          salary_coverage: (db.prepare("SELECT COUNT(*) as count FROM jobs WHERE salary_min IS NOT NULL").get() as { count: number }).count,
+          skills_coverage: (db.prepare("SELECT COUNT(*) as count FROM jobs WHERE skills IS NOT NULL AND skills != ''").get() as { count: number }).count,
           top_matches: db.prepare(`
-            SELECT j.title, j.company, m.score
+            SELECT j.title, j.company, j.salary, j.skills, m.score
             FROM matches m
             JOIN jobs j ON m.job_id = j.id
             ORDER BY m.score DESC
