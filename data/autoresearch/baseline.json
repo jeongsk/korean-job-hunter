@@ -1,6 +1,6 @@
 {
   "timestamp": "2026-04-04T10:04:00Z",
-  "experiment_id": "EXP-105",
+  "experiment_id": "EXP-106",
   "skill": "job-scraping",
   "focus": "dedup_salary_enrichment",
   "hypothesis": "Dedup salary enrichment required BOTH fields null — partial salary data was never enriched from duplicates",
