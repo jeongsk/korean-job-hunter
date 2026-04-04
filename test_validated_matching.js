@@ -145,6 +145,16 @@ const TIER3 = { // 25%
   'prometheus': ['datadog', 'kubernetes'], // monitoring stacks
   'mlops': ['terraform', 'ci/cd'], // MLOps shares infra tooling with DevOps
   'langchain': ['python', 'typescript'], // LangChain runs on Python/TS
+  // EXP-116: Blockchain/Security/Platform similarity connections
+  'solidity': ['blockchain', 'ethereum'], 'ethereum': ['solidity', 'blockchain'], 'blockchain': ['solidity', 'ethereum', 'smart contract'], 'smart contract': ['blockchain', 'solidity', 'ethereum'], // blockchain ecosystem
+  'web3': ['blockchain', 'ethereum', 'solidity'], // Web3 is blockchain-based
+  'devsecops': ['docker', 'kubernetes', 'ci/cd', 'terraform'], // DevSecOps is DevOps + security
+  'cybersecurity': ['devsecops', 'docker', 'kubernetes'], // security overlaps with infra
+  'penetration testing': ['cybersecurity'], // pentest is security subfield
+  'owasp': ['cybersecurity', 'penetration testing'], // OWASP is security standard
+  'sre': ['docker', 'kubernetes', 'terraform', 'prometheus', 'grafana'], // SRE shares infra/monitoring stack
+  'platform engineering': ['docker', 'kubernetes', 'terraform', 'ci/cd'], // platform eng is DevOps-adjacent
+  'istio': ['kubernetes', 'docker'], 'argocd': ['kubernetes', 'ci/cd'], // service mesh + GitOps on k8s
 };
 
 // Merge all tiers for lookup
@@ -223,6 +233,15 @@ const PRIMARY_DOMAINS = {
   'computer vision': 'python', 'nlp': 'python', 'huggingface': 'python',
   'fine-tuning': 'python', 'stable diffusion': 'python', 'rag': 'python',
   'prompt engineering': 'python', 'vector database': 'python',
+  // Blockchain / Web3 (EXP-116)
+  'solidity': 'blockchain', 'blockchain': 'blockchain', 'web3': 'blockchain',
+  'ethereum': 'blockchain', 'smart contract': 'blockchain',
+  // Security (EXP-116)
+  'devsecops': 'security', 'cybersecurity': 'security', 'owasp': 'security',
+  'penetration testing': 'security',
+  // Platform / SRE (EXP-116)
+  'sre': 'devops', 'platform engineering': 'devops',
+  'istio': 'devops', 'argocd': 'devops',
 };
 
 function detectPrimaryDomain(jobSkills) {

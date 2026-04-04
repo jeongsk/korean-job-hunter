@@ -273,5 +273,48 @@ assertIncludes('Mongoose Korean', inferSkills('몽구스 ODM'), ['mongoose']);
 assertExcludes('Bun≠bunny', inferSkills('bunny rabbit'), ['bun']);
 assertExcludes('Koa≠koala', inferSkills('koala bear'), ['koa']);
 
+// EXP-116: Blockchain / Web3
+assertIncludes('Solidity', inferSkills('Solidity 스마트컨트랙트 개발'), ['solidity']);
+assertIncludes('Solidity Korean', inferSkills('솔리디티 경험'), ['solidity']);
+assertIncludes('Blockchain', inferSkills('blockchain developer'), ['blockchain']);
+assertIncludes('Blockchain Korean', inferSkills('블록체인 플랫폼'), ['blockchain']);
+assertIncludes('Web3', inferSkills('Web3 dApp 개발'), ['web3']);
+assertIncludes('Web3 Korean', inferSkills('웹3 분야'), ['web3']);
+assertIncludes('Ethereum', inferSkills('Ethereum 스마트컨트랙트'), ['ethereum']);
+assertIncludes('Ethereum Korean', inferSkills('이더리움 DApp'), ['ethereum']);
+assertIncludes('Smart Contract', inferSkills('smart contract 개발'), ['smart contract']);
+assertIncludes('Smart Contract Korean', inferSkills('스마트컨트랙트 경험'), ['smart contract']);
+
+// EXP-116: Security
+assertIncludes('DevSecOps', inferSkills('DevSecOps 경험'), ['devsecops']);
+assertIncludes('DevSecOps Korean', inferSkills('데브시큐옵스'), ['devsecops']);
+assertIncludes('OWASP', inferSkills('OWASP Top 10'), ['owasp']);
+assertIncludes('Cybersecurity', inferSkills('cybersecurity analyst'), ['cybersecurity']);
+assertIncludes('Cybersecurity Korean 정보보안', inferSkills('정보보안 담당'), ['cybersecurity']);
+assertIncludes('Cybersecurity Korean 사이버보안', inferSkills('사이버보안 전문'), ['cybersecurity']);
+assertIncludes('Penetration Testing', inferSkills('penetration testing'), ['penetration testing']);
+assertIncludes('Penetration Testing Korean', inferSkills('모의해킹 수행'), ['penetration testing']);
+
+// EXP-116: Platform / SRE
+assertIncludes('SRE', inferSkills('SRE 엔지니어'), ['sre']);
+assertIncludes('SRE Korean', inferSkills('사이트 신뢰성 엔지니어'), ['sre']);
+assertIncludes('Platform Engineering', inferSkills('platform engineering'), ['platform engineering']);
+assertIncludes('Platform Engineering Korean', inferSkills('플랫폼 엔지니어링'), ['platform engineering']);
+assertIncludes('Istio', inferSkills('istio service mesh'), ['istio']);
+assertIncludes('Istio Korean', inferSkills('이스티오 메시'), ['istio']);
+assertIncludes('ArgoCD', inferSkills('argocd GitOps'), ['argocd']);
+assertIncludes('ArgoCD Korean', inferSkills('아르고시디 배포'), ['argocd']);
+
+// EXP-116: Skill count check
+const expectedSkillCount = 135; // 122 + 13 new
+const actualSkillCount = Object.keys(SKILL_MAP).length;
+if (actualSkillCount === expectedSkillCount) {
+  console.log(`✅ SKILL_MAP has ${actualSkillCount} entries`);
+  passed++;
+} else {
+  console.log(`❌ SKILL_MAP count: expected ${expectedSkillCount}, got ${actualSkillCount}`);
+  failed++;
+}
+
 console.log(`\n📊 Skill Inference: ${passed}/${passed + failed} passed`);
 if (failed > 0) process.exit(1);

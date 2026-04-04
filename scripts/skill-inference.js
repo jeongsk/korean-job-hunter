@@ -173,6 +173,22 @@ const SKILL_MAP = {
   'datadog': /datadog|데이터독/i,
   'grafana': /grafana|그라파나/i,
   'prometheus': /prometheus|프로메테우스/i,
+  // Blockchain / Web3
+  'solidity': /solidity|솔리디티/i,
+  'blockchain': /block[\s-]?chain|블록체인/i,
+  'web3': /web3|웹3/i,
+  'ethereum': /ethereum|이더리움/i,
+  'smart contract': /smart[\s-]?contract|스마트[\s-]*컨트랙트/i,
+  // Security
+  'devsecops': /devsecops|데브시큐옵스/i,
+  'owasp': /owasp/i,
+  'cybersecurity': /cyber[\s-]?secur|사이버보안|정보보안|information[\s-]?secur/i,
+  'penetration testing': /pen(?:etration)?[\s-]?test|침투테스트|모의해킹/i,
+  // Platform / Infrastructure roles
+  'sre': /site[\s-]?reliability|사이트[\s-]*신뢰성|(?<!\w)sre(?!\w)/i,
+  'platform engineering': /platform[\s-]?eng|플랫폼[\s-]*엔지니어링|플랫폼[\s-]*엔지니어/i,
+  'istio': /istio|이스티오/i,
+  'argocd': /argocd|아르고시디/i,
 };
 
 /**

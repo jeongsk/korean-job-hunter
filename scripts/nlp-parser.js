@@ -369,6 +369,22 @@ function parseKoreanQuery(input) {
     { canonical: 'datadog', patterns: [/(?<!\w)datadog(?!\w)|데이터독/i] },
     { canonical: 'grafana', patterns: [/(?<!\w)grafana(?!\w)|그라파나/i] },
     { canonical: 'prometheus', patterns: [/(?<!\w)prometheus(?!\w)|프로메테우스/i] },
+    // EXP-116: Blockchain / Web3
+    { canonical: 'smart contract', patterns: [/smart[\s-]?contract|스마트[\s-]*컨트랙트/i] },
+    { canonical: 'solidity', patterns: [/(?<!\w)solidity(?!\w)|솔리디티/i] },
+    { canonical: 'blockchain', patterns: [/block[\s-]?chain|블록체인/i] },
+    { canonical: 'ethereum', patterns: [/(?<!\w)ethereum(?!\w)|이더리움/i] },
+    { canonical: 'web3', patterns: [/(?<!\w)web3(?!\w)|웹3/i] },
+    // EXP-116: Security
+    { canonical: 'devsecops', patterns: [/(?<!\w)devsecops(?!\w)|데브시큐옵스/i] },
+    { canonical: 'cybersecurity', patterns: [/cyber[\s-]?secur|사이버보안|정보보안/i] },
+    { canonical: 'owasp', patterns: [/(?<!\w)owasp(?!\w)/i] },
+    { canonical: 'penetration testing', patterns: [/pen(?:etration)?[\s-]?test|침투테스트|모의해킹/i] },
+    // EXP-116: Platform / SRE
+    { canonical: 'platform engineering', patterns: [/platform[\s-]?eng|플랫폼[\s-]*(엔지니어링|엔지니어)/i] },
+    { canonical: 'sre', patterns: [/(?<!\w)sre(?!\w)|사이트[\s-]*신뢰성/i] },
+    { canonical: 'istio', patterns: [/(?<!\w)istio(?!\w)|이스티오/i] },
+    { canonical: 'argocd', patterns: [/(?<!\w)argocd(?!\w)|아르고시디/i] },
   ];
 
   for (const { canonical, patterns } of skillPatterns) {

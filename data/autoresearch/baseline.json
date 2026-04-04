@@ -1,17 +1,20 @@
 {
-  "timestamp": "2026-04-04T21:04:00Z",
-  "experiment_id": "EXP-115",
-  "skill": "job-tracking",
-  "focus": "nlp_work_type_keyword_leak_fix",
-  "hypothesis": "Work type Korean keywords (재택근무, 풀리모트, 원격근무, 전면재택, 완전재택) leaked into title/company keyword search because consumedWords only captured short forms (재택, 원격, 리모트). 주 N일 출근 hybrid pattern was missing from NLP parser entirely.",
+  "timestamp": "2026-04-04T22:04:00Z",
+  "experiment_id": "EXP-116",
+  "skill": "job-matching+job-scraping+job-tracking",
+  "focus": "blockchain_security_platform_skills",
+  "hypothesis": "Blockchain/Web3 (Solidity, Web3, Ethereum, Smart Contract), Security (DevSecOps, OWASP, Cybersecurity, Penetration Testing), and Platform/SRE (SRE, Platform Engineering, Istio, ArgoCD) skills were missing from skill-inference.js, similarity map, domain alignment, and NLP parser — 13 skills invisible to the entire pipeline",
   "metrics": {
-    "total_tests": "1322 (all pass)",
+    "total_tests": "1349 (all pass)",
     "npm_test": "working",
     "test_suites": 53,
     "all_passing": true,
     "regressions": 0,
-    "keyword_leaks_fixed": 7,
-    "hybrid_detection_added": true,
-    "new_test_cases": 7
+    "new_skills": 13,
+    "new_skill_tests": 27,
+    "new_similarity_connections": 24,
+    "new_domains": 2,
+    "skill_inference_count": 135,
+    "similarity_coverage": "100%"
   }
 }

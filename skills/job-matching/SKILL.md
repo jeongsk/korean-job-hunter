@@ -3,7 +3,9 @@ name: job-matching
 description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring, and framework-aware primary domain alignment (EXP-049)"
 ---
 
-# Job Matching Skill v3.11 (EXP-103: Runtimes, ORM, Monitoring, Desktop/Mobile Similarity)
+# Job Matching Skill v3.12 (EXP-116: Blockchain/Web3, Security, Platform/SRE Skills + Similarity + Domain Alignment)
+
+> 135 skills, 50+ similarity pairs, 17 domain categories (incl. blockchain, security).
 
 ## Score Weights (Validated — EXP-017)
 

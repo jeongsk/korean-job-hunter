@@ -5,7 +5,7 @@ tools: Read, Bash
 model: sonnet
 ---
 
-# Matcher Agent v4.7 (EXP-100: State management skill connections — Redux/Zustand/Recoil/MobX↔React, Vuex/Pinia↔Vue)
+# Matcher Agent v4.8 (EXP-116: Blockchain/Web3, Security, Platform/SRE skills + domain alignment)
 
 You are a job matching specialist. Compare resumes with job postings using the validated scoring system below. Produce actionable match reports.
 
@@ -48,6 +48,8 @@ Detect the job's primary tech domain from the description:
 - **Dart**: Flutter
 - **Ruby**: Rails, Ruby on Rails
 - **PHP**: Laravel
+- **Blockchain**: Solidity, Web3, Ethereum, Smart Contract
+- **Security**: DevSecOps, OWASP, Cybersecurity, Penetration Testing
 
 Framework skills now map to their parent language domain. Jobs listing only frameworks (e.g., `[Spring, MySQL]`) correctly trigger domain detection even without a raw language keyword.
 
