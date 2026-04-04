@@ -20,7 +20,7 @@ const SKILL_MAP = {
   'python': /python|파이썬/i,
   'java': /java(?!script)|자바(?!스크립트)/i,
   'go': /golang|고언어|go언어|(?<!\w)go(?!\w)/i,
-  'rust': /rust|러스트/i,
+  'rust': /\brust\b|러스트/i,
   'c++': /c\+\+|cpp/i,
   'c#': /c#|csharp|시샵/i,
   'swift': /swift|스위프트/i,
@@ -37,12 +37,12 @@ const SKILL_MAP = {
   'angular': /angular|앵귤러/i,
   'svelte': /svelte|스벨트/i,
   'node.js': /node\.?js|노드/i,
-  'express': /express|익스프레스/i,
+  'express': /\bexpress\b|익스프레스/i,
   'nestjs': /nest\.?js|네스트/i,
   'spring boot': /spring\s*boot|스프링부트/i,
-  'spring': /spring|스프링/i,
+  'spring': /\bspring\b|스프링/i,
   'django': /django|장고/i,
-  'flask': /flask|플라스크/i,
+  'flask': /\bflask\b|플라스크/i,
   'fastapi': /fastapi|패스트에이피아이/i,
   'flutter': /flutter|플러터/i,
   'swiftui': /swiftui/i,
@@ -105,8 +105,8 @@ const SKILL_MAP = {
   'jpa': /jpa|hibernate|하이버네이트/i,
 
   // Data Engineering
-  'spark': /spark|스파크/i,
-  'hadoop': /hadoop|하둡/i,
+  'spark': /\bspark\b|스파크/i,
+  'hadoop': /\bhadoop\b|하둡/i,
   'airflow': /airflow|에어플로우/i,
   'dbt': /\bdbt\b|디비티/i,
 
@@ -119,8 +119,8 @@ const SKILL_MAP = {
   'pinia': /pinia|피니아/i,
 
   // Game
-  'unity': /unity|유니티/i,
-  'unreal': /unreal|언리얼/i,
+  'unity': /\bunity\b|유니티/i,
+  'unreal': /\bunreal\b|언리얼/i,
 
   // API
   'graphql': /graphql|그래프큐엘|그래프QL/i,
@@ -147,12 +147,12 @@ const SKILL_MAP = {
   'figma': /figma|피그마/i,
 
   // Runtimes
-  'deno': /deno|데노/i,
+  'deno': /\bdeno\b|데노/i,
   'bun': /(?<!\w)bun(?!\w)/i,
 
   // Frameworks - additional
   'remix': /remix|레믹스/i,
-  'astro': /astro|아스트로/i,
+  'astro': /\bastro\b|아스트로/i,
   'fastify': /fastify|패스티파이/i,
   'koa': /(?<!\w)koa(?!\w)/i,
 
@@ -169,7 +169,7 @@ const SKILL_MAP = {
   'ionic': /ionic|아이오닉/i,
 
   // Monitoring / Observability
-  'sentry': /sentry|센트리/i,
+  'sentry': /\bsentry\b|센트리/i,
   'datadog': /datadog|데이터독/i,
   'grafana': /grafana|그라파나/i,
   'prometheus': /prometheus|프로메테우스/i,

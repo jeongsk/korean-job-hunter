@@ -305,6 +305,25 @@ assertIncludes('Istio Korean', inferSkills('이스티오 메시'), ['istio']);
 assertIncludes('ArgoCD', inferSkills('argocd GitOps'), ['argocd']);
 assertIncludes('ArgoCD Korean', inferSkills('아르고시디 배포'), ['argocd']);
 
+// EXP-117: False positive prevention tests
+// Skills that are also English words should not match in non-tech English contexts
+assert('FP: unity in community', inferSkills('community driven development'), []);
+assert('FP: unity in opportunity', inferSkills('opportunity for growth'), []);
+assert('FP: spark in sparkling', inferSkills('sparkling water brand'), []);
+assert('FP: astro in astronomy', inferSkills('astronomy research'), []);
+assert('FP: rust in trustworthy', inferSkills('trustworthy service'), []);
+assert('FP: deno in denotation', inferSkills('denotation of the term'), []);
+// Verify real skill detection still works with \b boundaries
+assertIncludes('Real: Unity standalone', inferSkills('Unity game developer'), ['unity']);
+assertIncludes('Real: Spark standalone', inferSkills('Apache Spark engineer'), ['spark']);
+assertIncludes('Real: Rust standalone', inferSkills('Rust systems programmer'), ['rust']);
+assertIncludes('Real: Astro standalone', inferSkills('Astro framework project'), ['astro']);
+assertIncludes('Real: Deno standalone', inferSkills('Deno runtime typescript'), ['deno']);
+assertIncludes('Real: Spring Boot', inferSkills('Spring Boot backend'), ['spring boot', 'spring']);
+assertIncludes('Real: Express.js', inferSkills('Express.js API server'), ['express']);
+assertIncludes('Real: Flask API', inferSkills('Flask Python API'), ['flask']);
+assertIncludes('Real: Sentry monitoring', inferSkills('Sentry error monitoring'), ['sentry']);
+
 // EXP-116: Skill count check
 const expectedSkillCount = 135; // 122 + 13 new
 const actualSkillCount = Object.keys(SKILL_MAP).length;
