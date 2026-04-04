@@ -1,16 +1,17 @@
 {
-  "timestamp": "2026-04-04T02:04:00Z",
-  "experiment_id": "EXP-098",
-  "skill": "job-scraping+job-tracking",
-  "focus": "deadline_normalization_pipeline",
-  "hypothesis": "Deadline urgency scoring (EXP-035, 24 tests) depends on ISO date fields but all 3 post-processors leave deadline as raw Korean text (D-3, ~04/30(수) 마감, 상시모집). The urgency computation and NLP deadline queries (마감임박, 오늘 마감) cannot work against raw text.",
+  "timestamp": "2026-04-04T03:04:00Z",
+  "experiment_id": "EXP-099",
+  "skill": "job-tracking",
+  "focus": "nlp_skill_query_coverage",
+  "hypothesis": "NLP skill query patterns had 42 entries while skill-inference.js had 88 skills — 48 skills including Linux, DevOps, Spark, Hadoop, Airflow, BigQuery, Snowflake, Unity, Unreal, Machine Learning, LangChain, LLM, NLP, fine-tuning, etc. were invisible to Korean natural language queries despite being extracted and stored in the skills column",
   "metrics": {
-    "total_tests": "1102 (all pass)",
+    "total_tests": "1114 (all pass)",
     "npm_test": "working",
     "test_suites": 48,
     "all_passing": true,
     "regressions": 0,
-    "deadline_formats_supported": "D-N, N일전, N주전, MM/DD, YYYY.MM.DD, YYYY/MM/DD, YYYY-MM-DD, 상시모집",
-    "post_processors_updated": "wanted + jobkorea + linkedin import"
+    "nlp_skill_patterns": "90 (was 42)",
+    "nlp_v3_tests": "78 (was 66)",
+    "new_skill_korean_equivalents": "48"
   }
 }

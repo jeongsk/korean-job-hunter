@@ -3,7 +3,7 @@ name: job-tracking
 description: "Job application status tracking with SQLite CRUD, Korean NLP query parsing, pipeline analytics, and smart suggestions"
 ---
 
-# Job Tracking Skill v2.8 (EXP-095: Employment Type & Career Stage NLP Filters)
+# Job Tracking Skill v2.9 (EXP-099: 88-Skill NLP Query Coverage)
 
 ## Korean Natural Language Query Parsing
 
@@ -72,6 +72,16 @@ description: "Job application status tracking with SQLite CRUD, Korean NLP query
 | k8s / 쿠버네티스 / Kubernetes | `j.skills LIKE '%kubernetes%'` | "k8s 서울 공고" |
 | 코틀린 / Kotlin | `j.skills LIKE '%kotlin%'` | "코틀린 관심 공고" |
 | Node.js / 노드 | `j.skills LIKE '%node.js%'` | "노드 공고" |
+| 리눅스 / Linux | `j.skills LIKE '%linux%'` | "리눅스 공고" |
+| 데브옵스 / DevOps | `j.skills LIKE '%devops%'` | "데브옵스 공고" |
+| 머신러닝 / ML | `j.skills LIKE '%machine learning%'` | "머신러닝 공고" |
+| 유니티 / Unity | `j.skills LIKE '%unity%'` | "유니티 게임 공고" |
+| 빅쿼리 / BigQuery | `j.skills LIKE '%bigquery%'` | "빅쿼리 공고" |
+| 랭체인 / LangChain | `j.skills LIKE '%langchain%'` | "랭체인 공고" |
+| 파인튜닝 / Fine-tuning | `j.skills LIKE '%fine-tuning%'` | "파인튜닝 공고" |
+| 자연어처리 / NLP | `j.skills LIKE '%nlp%'` | "자연어처리 공고" |
+
+_88 skills total (see test_korean_nlp_v3.js for full list)_
 
 ### Deadline Urgency Scoring (EXP-035)
 
