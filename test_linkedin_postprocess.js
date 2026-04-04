@@ -31,7 +31,7 @@ test('EXP-LI-002: junior title', () => {
 
 test('EXP-LI-003: lead title', () => {
   const r = extractExperienceLevel('Lead Software Engineer');
-  assert.strictEqual(r.level, 'senior');
+  assert.strictEqual(r.level, 'lead');
 });
 
 test('EXP-LI-004: no seniority', () => {
@@ -56,7 +56,47 @@ test('EXP-LI-007: mid-senior', () => {
 
 test('EXP-LI-008: principal', () => {
   const r = extractExperienceLevel('Principal Engineer');
+  assert.strictEqual(r.level, 'lead');
+});
+
+test('EXP-LI-009: staff title', () => {
+  const r = extractExperienceLevel('Staff Software Engineer');
+  assert.strictEqual(r.level, 'lead');
+});
+
+test('EXP-LI-010: tech lead title', () => {
+  const r = extractExperienceLevel('Tech Lead - Backend');
+  assert.strictEqual(r.level, 'lead');
+});
+
+test('EXP-LI-011: senior still senior', () => {
+  const r = extractExperienceLevel('Senior Backend Developer');
   assert.strictEqual(r.level, 'senior');
+});
+
+test('EXP-LI-012: sr. abbreviation', () => {
+  const r = extractExperienceLevel('Sr. Engineer');
+  assert.strictEqual(r.level, 'senior');
+});
+
+test('EXP-LI-013: leading not lead', () => {
+  const r = extractExperienceLevel('Leading Product Designer');
+  assert.strictEqual(r.level, '');
+});
+
+test('EXP-LI-014: career_stage for lead via parseLinkedInCard', () => {
+  const r = parseLinkedInCard({title: 'Lead Developer', company: 'Test', location: 'Seoul', link: 'https://example.com'});
+  assert.strictEqual(r.career_stage, 'lead');
+});
+
+test('EXP-LI-015: career_stage for staff via parseLinkedInCard', () => {
+  const r = parseLinkedInCard({title: 'Staff Engineer', company: 'Test', location: 'Seoul', link: 'https://example.com'});
+  assert.strictEqual(r.career_stage, 'lead');
+});
+
+test('EXP-LI-016: career_stage for senior stays senior', () => {
+  const r = parseLinkedInCard({title: 'Senior Developer', company: 'Test', location: 'Seoul', link: 'https://example.com'});
+  assert.strictEqual(r.career_stage, 'senior');
 });
 
 test('EXP-LI-009: Korean N년차 in description', () => {

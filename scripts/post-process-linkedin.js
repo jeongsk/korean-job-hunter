@@ -30,7 +30,9 @@ function normalizeLocation(loc) {
 const SENIORITY_PATTERNS = [
   { pattern: /\b(mid[\s-]?senior|중급|경력\s*\d+~\d+년|\d\+\s*years?|\d\s*-\s*\d\s*years?)/i, level: 'mid', minYears: 3 },
   { pattern: /(?:^|[\s(\[/,]|\b)(intern|인턴)(?:$|[\s)\]/,]|$)/i, level: 'intern', minYears: 0 },
-  { pattern: /(?:^|[\s(\[/,]|받)(senior|lead|principal|staff|sr\.?)(?:$|[\s)\]/,]|$)/i, level: 'senior', minYears: 5 },
+  { pattern: /(?:^|[\s(\[/,]|받)(principal|staff|tech\s*lead)(?:$|[\s)\]/,]|$)/i, level: 'lead', minYears: 10 },
+  { pattern: /(?:^|[\s(\[/,]|받)(lead)(?:$|[\s)\]/,]|$)/i, level: 'lead', minYears: 8 },
+  { pattern: /(?:^|[\s(\[/,]|받)(senior|sr\.?)(?:$|[\s)\]/,]|$)/i, level: 'senior', minYears: 5 },
   { pattern: /(?:^|[\s(\[/,]|받)(junior|entry[\s-]?level|jr\.?|신입|associate|초보)(?:$|[\s)\]/,]|$)/i, level: 'junior', minYears: 0 },
 ];
 
@@ -196,6 +198,7 @@ module.exports = { parseLinkedInCard, normalizeLocation, extractExperienceLevel,
 // === Career Stage Derivation (EXP-077) ===
 // LinkedIn uses extracted level + minYears, not Korean experience text
 function deriveCareerStage(level, minYears) {
+  if (level === 'lead') return 'lead';
   if (level === 'senior') return 'senior';
   if (level === 'mid') return 'mid';
   if (level === 'junior') return 'junior';

@@ -158,7 +158,7 @@ JobKorea cards now go through `post-process-jobkorea.js` which applies `normaliz
 ## LinkedIn Post-Processor (EXP-070)
 
 LinkedIn cards now go through `post-process-linkedin.js` which enriches raw `{title, company, location, link}` data with:
-- **Experience level**: senior/lead/principal → senior, mid-senior → mid, junior/신입 → junior, intern → intern
+- **Experience level**: senior → senior, lead/principal/staff → lead, mid-senior → mid, junior/신입 → junior, intern → intern
 - **Skills**: 50+ tech patterns inferred from title + description
 - **Salary**: 연봉/월급/억/면접후결정 via shared normalizeSalary()
 - **Work type**: remote/hybrid/onsite detection
