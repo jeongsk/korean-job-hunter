@@ -212,7 +212,9 @@ function main() {
     const dupes = entries.slice(1);
 
     // Enrich keeper with fields from dupes if missing
-    const enrichFields = ['skills', 'culture_keywords', 'employment_type', 'salary', 'experience', 'work_type', 'location', 'career_stage', 'reward', 'content', 'office_address'];  // deadline handled separately below
+    // MERGE fields (union) for skills and culture_keywords — partial sets from different sources should combine
+    const enrichFields = ['employment_type', 'salary', 'experience', 'work_type', 'location', 'career_stage', 'reward', 'content', 'office_address'];
+    const mergeFields = ['skills', 'culture_keywords'];  // These union across all sources
     const enrichUpdates = {};
     for (const field of enrichFields) {
       if ((!keeper[field] || !keeper[field].trim()) && !enrichUpdates[field]) {
@@ -222,6 +224,41 @@ function main() {
             break;
           }
         }
+      }
+    }
+    // Merge (union) skills and culture_keywords from all duplicates
+    for (const field of mergeFields) {
+      const keeperSet = new Set(
+        (keeper[field] || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
+      );
+      let changed = false;
+      for (const d of dupes) {
+        if (d[field] && d[field].trim()) {
+          for (const item of d[field].split(',')) {
+            const normalized = item.trim();
+            if (normalized && !keeperSet.has(normalized.toLowerCase())) {
+              keeperSet.add(normalized.toLowerCase());
+              changed = true;
+            }
+          }
+        }
+      }
+      if (changed) {
+        // Rebuild preserving original casing: use keeper's items as-is, add new ones from dupes
+        const result = (keeper[field] || '').split(',').map(s => s.trim()).filter(Boolean);
+        const resultLower = new Set(result.map(s => s.toLowerCase()));
+        for (const d of dupes) {
+          if (d[field] && d[field].trim()) {
+            for (const item of d[field].split(',')) {
+              const trimmed = item.trim();
+              if (trimmed && !resultLower.has(trimmed.toLowerCase())) {
+                result.push(trimmed);
+                resultLower.add(trimmed.toLowerCase());
+              }
+            }
+          }
+        }
+        enrichUpdates[field] = result.join(',');
       }
     }
     // Enrich deadline with date preference: actual ISO dates preferred over 상시모집

@@ -478,12 +478,14 @@ WHERE replace(replace(replace(lower(a.company),'(주)',''),'㈜',''),'주식회�
     = replace(replace(replace(lower(b.company),'(주)',''),'㈜',''),'주식회사','');
 ```
 
-### CLI: Run dedup script (EXP-054)
+### CLI: Run dedup script (EXP-054, EXP-111: skill/culture merge)
 ```bash
 # Dry run (show duplicates without modifying DB)
 node scripts/dedup-jobs.js --dry-run
 
 # Actually remove duplicates (keeps entry with most complete fields)
+# Skills and culture_keywords are MERGED (unioned) across all sources —
+# a keeper with "React, TypeScript" also gains "AWS, Docker" from JobKorea duplicate.
 node scripts/dedup-jobs.js
 
 # JSON output for programmatic use
