@@ -247,10 +247,10 @@ korean-job-hunter/
 ├── data/                   # 데이터
 │   ├── jobs.db             # SQLite DB
 │   ├── resume/             # 이력서
-│   └── autoresearch/       # 실험 결과
+│   └── autoresearch/       # 실험 결과 (개발 환경, 프로젝트에 미포함)
 ├── reports/                # 개선 리포트
 ├── skills/                 # 공유 Skills
-│   ├── autoresearch/SKILL.md  # 자율 개선 루프
+│   ├── autoresearch/SKILL.md  # (개발 환경 전용, ~/.claude/skills/에 위치)
 │   ├── job-matching/SKILL.md
 │   ├── job-scraping/SKILL.md
 │   └── job-tracking/SKILL.md

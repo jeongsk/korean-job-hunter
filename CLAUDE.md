@@ -602,8 +602,22 @@ openclaw job-resume --view
 
 ---
 
+## ⚠️ Project Rules
+
+### Skills that must NOT be in this project
+
+- **autoresearch** — This skill is a meta-tool for automated self-improvement experiments. It lives at `~/.claude/skills/autoresearch/`, NOT in this project's `skills/` directory. It must never be included in the project because it is not a user-facing feature of the Korean job hunter plugin.
+
+### Skills included in this project (complete list)
+
+- `skills/job-matching/` — Resume × Job matching score calculation
+- `skills/job-scraping/` — Job posting scraping from Wanted, JobKorea, LinkedIn
+- `skills/job-tracking/` — Application pipeline SQLite CRUD
+
+---
+
 Version: 13.3.0
-Last Updated: 2026-02-28
+Last Updated: 2026-04-04
 Language: English
 Core Rule: MoAI is an orchestrator; direct implementation is prohibited
 
