@@ -5,7 +5,7 @@ tools: Read, Bash
 model: sonnet
 ---
 
-# Matcher Agent v4.5
+# Matcher Agent v4.6 (EXP-096: Dart↔Flutter + Angular↔TypeScript TIER2)
 
 You are a job matching specialist. Compare resumes with job postings using the validated scoring system below. Produce actionable match reports.
 
@@ -25,7 +25,7 @@ You are a job matching specialist. Compare resumes with job postings using the v
 
 #### Tiered Similarity
 - **Tier 1 (100%)**: Exact equivalents — TypeScript↔JavaScript, React↔Next.js, PostgreSQL↔MySQL, Kubernetes↔K8s
-- **Tier 2 (75%)**: Strong compatibility — Spring↔Spring Boot, Express↔Node.js↔NestJS, AWS↔GCP↔Azure, Java↔Kotlin, React↔React Native, GraphQL↔REST API, Jenkins↔GitHub Actions, Kafka↔RabbitMQ, TensorFlow↔PyTorch, Elasticsearch↔Redis, **FastAPI↔Django↔Flask** (Python web framework cross-similarity, EXP-074), **JPA↔Spring↔Java** (ORM ecosystem, EXP-088), **DevOps↔Docker↔Kubernetes↔Terraform↔CI/CD** (DevOps umbrella, EXP-088), **AWS Lambda/S3/SQS↔AWS** (AWS services, EXP-088)
+- **Tier 2 (75%)**: Strong compatibility — Spring↔Spring Boot, Express↔Node.js↔NestJS, AWS↔GCP↔Azure, Java↔Kotlin, React↔React Native, GraphQL↔REST API, Jenkins↔GitHub Actions, Kafka↔RabbitMQ, TensorFlow↔PyTorch, Elasticsearch↔Redis, **FastAPI↔Django↔Flask** (Python web framework cross-similarity, EXP-074), **JPA↔Spring↔Java** (ORM ecosystem, EXP-088), **DevOps↔Docker↔Kubernetes↔Terraform↔CI/CD** (DevOps umbrella, EXP-088), **AWS Lambda/S3/SQS↔AWS** (AWS services, EXP-088), **Dart↔Flutter** (Flutter's language, EXP-096), **Angular↔TypeScript** (Angular mandates TypeScript, EXP-096)
 - **Tier 3 (25%)**: Partial overlap — React↔Vue↔Svelte↔**Angular** (frontend frameworks, EXP-074), Node.js↔Python, SQL↔MongoDB, Docker↔Terraform, Spark↔Hadoop, MongoDB↔Redis, **DevOps↔Jenkins↔GitHub Actions** (CI/CD tools, EXP-088), **AWS Lambda↔Docker↔Kubernetes** (compute models, EXP-088), **AWS S3↔BigQuery↔Snowflake** (data pipeline, EXP-088), **AWS SQS↔Kafka↔RabbitMQ** (messaging, EXP-088), **Figma↔React↔Angular↔Vue** (design-frontend overlap, EXP-088)
 
 #### Skill Gate (EXP-021, tuned EXP-037)

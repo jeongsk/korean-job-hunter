@@ -51,6 +51,8 @@ const TIER2 = { // 75%
   'php': ['laravel'], 'laravel': ['php'], // PHP ecosystem
   'swiftui': ['swift'], 'swift': ['swiftui'], // Apple ecosystem
   'jetpack compose': ['kotlin'], 'kotlin': ['jetpack compose'], // Android modern UI
+  'dart': ['flutter'], 'flutter': ['dart'], // Flutter ecosystem (promoted from TIER3, EXP-096: Dart IS Flutter's language, as close as swift↔swiftUI)
+  'angular': ['typescript'], 'typescript': ['angular'], // Angular mandates TypeScript (EXP-096)
   'redux': ['react'], // React state management (one-way: redux→react only)
   'bigquery': ['snowflake'], 'snowflake': ['bigquery'], // cloud data warehouses
   'airflow': ['dbt'], 'dbt': ['airflow'], // data orchestration
@@ -78,7 +80,6 @@ const TIER3 = { // 25%
   // EXP-087: Orphaned skill partial overlaps
   'go': ['c++', 'java'], 'rust': ['c++'], 'c++': ['go', 'rust'], // systems/compiled languages
   'c#': ['java'], // managed languages
-  'dart': ['flutter'], 'flutter': ['dart'], // Flutter ecosystem
   'r': ['python'], 'python': ['r'], // data science languages
   // EXP-088: Remaining orphan partial overlaps
   'devops': ['jenkins', 'github actions'], // DevOps connects to CI/CD tools
@@ -583,6 +584,7 @@ const simTests = [
   ['Django', 'Flask', 0.75], // Python web frameworks
   ['Angular', 'React', 0.25], // frontend frameworks
   ['Angular', 'Vue', 0.25], // frontend frameworks
+  ['Angular', 'TypeScript', 0.75], // Angular mandates TypeScript (EXP-096)
   // EXP-087: Orphaned skill similarity tests
   ['Go', 'Rust', 0.75], // systems languages
   ['C#', '.NET', 0.75], // .NET ecosystem
@@ -596,7 +598,7 @@ const simTests = [
   ['Nuxt', 'Vue', 1.0], // nuxt alias
   ['Go', 'C++', 0.25], // systems/compiled
   ['Rust', 'C++', 0.25], // systems/compiled
-  ['Dart', 'Flutter', 0.25], // Flutter ecosystem
+  ['Dart', 'Flutter', 0.75], // Flutter ecosystem (EXP-096: promoted to TIER2 — Dart IS Flutter's language)
   ['R', 'Python', 0.25], // data science
   ['Hadoop', 'BigQuery', 0.25], // big data → cloud DW
 ];

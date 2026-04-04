@@ -3,7 +3,7 @@ name: job-matching
 description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring, and framework-aware primary domain alignment (EXP-049)"
 ---
 
-# Job Matching Skill v3.6 (EXP-087: Expanded Similarity Map)
+# Job Matching Skill v3.7 (EXP-096: Dart↔Flutter + Angular↔TypeScript TIER2)
 
 ## Score Weights (Validated — EXP-017)
 
@@ -66,6 +66,8 @@ This prevents infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflati
 - TensorFlow ↔ PyTorch (ML frameworks — EXP-064)
 - Elasticsearch ↔ Redis (real-time data stores — EXP-064)
 - Oracle ↔ MSSQL (enterprise RDBMS — EXP-064)
+- Dart ↔ Flutter (Flutter's language — EXP-096, promoted from TIER3)
+- Angular ↔ TypeScript (Angular mandates TypeScript — EXP-096)
 - JPA ↔ Spring ↔ Java (ORM ecosystem — EXP-088)
 - DevOps ↔ Docker ↔ Kubernetes ↔ Terraform ↔ CI/CD (DevOps umbrella — EXP-088)
 - AWS Lambda/S3/SQS ↔ AWS (AWS services to parent cloud — EXP-088)

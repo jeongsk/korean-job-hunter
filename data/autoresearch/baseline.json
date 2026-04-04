@@ -1,17 +1,16 @@
 {
-  "timestamp": "2026-04-03T22:04:00Z",
-  "experiment_id": "EXP-094",
-  "skill": "job-scraping",
-  "focus": "dedup_field_completeness",
-  "hypothesis": "career_stage missing from fieldScore, reward missing from both fieldScore and enrichFields — data silently lost during dedup",
+  "timestamp": "2026-04-04T00:04:00Z",
+  "experiment_id": "EXP-096",
+  "skill": "job-matching",
+  "focus": "similarity_map_tier_promotion",
+  "hypothesis": "dart↔flutter at TIER3 (25%) undervalues Flutter's language — swift↔swiftUI is TIER2 (75%), and angular↔typescript has no connection despite Angular mandating TypeScript",
   "metrics": {
-    "total_tests": "1040 (all pass)",
+    "total_tests": "1051 (all pass)",
     "npm_test": "working",
     "test_suites": 47,
     "all_passing": true,
     "regressions": 0,
-    "career_stage_in_fieldScore": true,
-    "reward_in_fieldScore": true,
-    "reward_in_enrichFields": true
+    "dart_flutter_tier": "TIER2 (75%)",
+    "angular_typescript_tier": "TIER2 (75%)"
   }
 }
