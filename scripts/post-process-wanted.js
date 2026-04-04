@@ -332,6 +332,44 @@ function normalizeSalary(raw) {
     }
   }
 
+  // Try bare number range (no 만원/원 suffix) when preceded by 연봉/월급
+  if (min === null && /연봉|월급|연수입/.test(text)) {
+    const bareRange = text.match(/(\d[\d,]*)\s*[~\-]\s*(\d[\d,]*)/);
+    if (bareRange) {
+      min = parseInt(bareRange[1].replace(/,/g, ''));
+      max = parseInt(bareRange[2].replace(/,/g, ''));
+      // Sanity check: typical 만원 range is 2000~20000
+      if (min < 100 || max > 99999 || min > max) { min = null; max = null; }
+    }
+  }
+
+  // Try 천만 unit: 5천만원, 3천만
+  if (min === null) {
+    const cheonMatch = text.match(/(\d+(?:\.\d+)?)\s*천만/);
+    if (cheonMatch) {
+      const val = Math.round(parseFloat(cheonMatch[1]) * 1000);
+      if (/이상|↑/.test(text)) { min = val; } else { min = val; max = val; }
+    }
+  }
+
+  // Try ₩ / KRW absolute won notation (₩50,000,000 → 5000만원)
+  if (min === null) {
+    const wonPattern = /[₩￥]\s*([\d,]+)\s*[~\-]\s*[₩￥]?\s*([\d,]+)/;
+    const wonRangeMatch = text.match(wonPattern);
+    if (wonRangeMatch) {
+      min = Math.round(parseInt(wonRangeMatch[1].replace(/,/g, '')) / 10000);
+      max = Math.round(parseInt(wonRangeMatch[2].replace(/,/g, '')) / 10000);
+    } else {
+      const wonSingle = text.match(/[₩￥]\s*([\d,]+)/);
+      if (wonSingle) {
+        const val = Math.round(parseInt(wonSingle[1].replace(/,/g, '')) / 10000);
+        if (val > 0) {
+          if (/이상|↑/.test(text)) { min = val; } else { min = val; max = val; }
+        }
+      }
+    }
+  }
+
   if (min === null) return null;
   if (isMonthly) { min *= 12; if (max) max *= 12; }
   return { min, max: max || min };
