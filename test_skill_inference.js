@@ -249,6 +249,16 @@ assertIncludes('Datadog', inferSkills('Datadog monitoring'), ['datadog']);
 assertIncludes('Grafana', inferSkills('Grafana dashboards'), ['grafana']);
 assertIncludes('Prometheus', inferSkills('Prometheus metrics'), ['prometheus']);
 
+// Korean equivalents - AI/ML sync (EXP-113)
+assertIncludes('머신러닝', inferSkills('머신러닝 엔지니어'), ['machine learning']);
+assertIncludes('머신 러닝', inferSkills('머신 러닝 모델'), ['machine learning']);
+assertIncludes('벡터데이터베이스', inferSkills('벡터데이터베이스'), ['vector database']);
+assertIncludes('벡터 디비', inferSkills('벡터 디비'), ['vector database']);
+assertIncludes('디비티', inferSkills('디비티 데이터'), ['dbt']);
+assertIncludes('다트', inferSkills('다트 플러터'), ['dart']);
+assertIncludes('레일즈', inferSkills('레일즈 백엔드'), ['rails']);
+assertIncludes('디퓨전', inferSkills('디퓨전 이미지 생성'), ['stable diffusion']);
+
 // Korean equivalents
 assertIncludes('Deno Korean', inferSkills('데노 런타임'), ['deno']);
 assertIncludes('Electron Korean', inferSkills('일렉트론 데스크톱'), ['electron']);

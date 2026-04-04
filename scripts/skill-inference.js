@@ -27,7 +27,7 @@ const SKILL_MAP = {
   'kotlin': /kotlin|코틀린/i,
   'ruby': /ruby|루비/i,
   'php': /php/i,
-  'dart': /(?<!\w)dart(?!\w)/i,
+  'dart': /(?<!\w)dart(?!\w)|다트/i,
   'r': /(?<!\w)r\s*language|(?<!\w)rlang|(?<=\s)r(?=\s|$)/i,
 
   // Frameworks
@@ -48,7 +48,7 @@ const SKILL_MAP = {
   'swiftui': /swiftui/i,
   'jetpack compose': /jetpack\s*compose/i,
   'laravel': /laravel|라라벨/i,
-  'rails': /rails|루비온레일즈/i,
+  'rails': /rails|루비온레일즈|레일즈/i,
   '.net': /\.net|asp\.net/i,
 
   // Modern Web Tools (EXP-101)
@@ -108,7 +108,7 @@ const SKILL_MAP = {
   'spark': /spark|스파크/i,
   'hadoop': /hadoop|하둡/i,
   'airflow': /airflow|에어플로우/i,
-  'dbt': /\bdbt\b/i,
+  'dbt': /\bdbt\b|디비티/i,
 
   // Frontend State/UI
   'redux': /redux|리덕스/i,
@@ -130,16 +130,16 @@ const SKILL_MAP = {
   // AI/ML
   'tensorflow': /tensorflow|텐서플로우|텐서플로/i,
   'pytorch': /pytorch|파이토치/i,
-  'machine learning': /machine\s*learning|(?<![a-z])ml(?=\s|엔지니어|개발자|모델|engineer|$)/i,
+  'machine learning': /machine\s*learning|머신러닝|머신\s*러닝|(?<![a-z])ml(?=\s|엔지니어|개발자|모델|engineer|$)/i,
   'llm': /(?<![a-z])llm(?!\w)|large\s*language\s*model/i,
   'rag': /(?<![a-z])rag(?!\w)|검색증강생성/i,
   'langchain': /langchain|랭체인/i,
   'mlops': /mlops|엠엘옵스/i,
-  'vector database': /vector\s*database|vector\s*db|벡터\s*db|pinecone|weaviate|chroma\s*db|milvus/i,
+  'vector database': /vector\s*database|벡터데이터베이스|벡터\s*디비|vector\s*db|벡터\s*db|pinecone|weaviate|chroma\s*db|milvus/i,
   'fine-tuning': /fine[\s-]?tun|파인튜닝|미세조정/i,
   'huggingface': /hugging\s*face|허깅페이스/i,
   'prompt engineering': /prompt\s*engineer|프롬프트\s*엔지니어/i,
-  'stable diffusion': /stable\s*diffusion|스테이블\s*디퓨전/i,
+  'stable diffusion': /stable\s*diffusion|스테이블\s*디퓨전|디퓨전/i,
   'computer vision': /computer\s*vision|컴퓨터\s*비전/i,
   'nlp': /(?<![a-z])nlp(?!\w)|자연어\s*처리/i,
 
