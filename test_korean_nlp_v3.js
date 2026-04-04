@@ -298,6 +298,11 @@ function parseKoreanQuery(input) {
     { canonical: 'snowflake', patterns: [/snowflake|스노우플레이크/i] },
     { canonical: 'jpa', patterns: [/\bjpa\b/i] },
     { canonical: 'redux', patterns: [/redux|리덕스/i] },
+    { canonical: 'zustand', patterns: [/zustand|주스탄드/i] },
+    { canonical: 'recoil', patterns: [/recoil|리코일/i] },
+    { canonical: 'mobx', patterns: [/mobx|몹엑스/i] },
+    { canonical: 'vuex', patterns: [/vuex|뷰엑스/i] },
+    { canonical: 'pinia', patterns: [/pinia|피니아/i] },
     { canonical: 'unity', patterns: [/unity|유니티/i] },
     { canonical: 'unreal', patterns: [/unreal|언리얼/i] },
     { canonical: 'machine learning', patterns: [/machine\s*learning|머신러닝|머신\s*러닝/i] },
@@ -353,7 +358,7 @@ function parseKoreanQuery(input) {
   }
 
   // === Remaining Korean keywords (title/company search) ===
-  const stopWords = new Set(['면접', '면접보는', '면접잡힌', '정규직', '계약직', '파견', '인턴', '프리랜서', '프리랜스', '시니어', '주니어', '미드', '미들', '리드', '포지션', '레벨', '수준', '지원', '지원한', '지원할', '지원예정', '지원완료', '관심', '북마크', '찜', '찜해둔', '합격', '합격한', '오퍼', '탈락', '탈락한', '거절', '불합격', '재택', '재택으로', '원격', '리모트', '하이브리드', '점수', '점수순으로', '매칭', '최신', '빼고', '제외', '말고', '있어', '보여', '보여줘', '공고', '거', '곳', '다', '중에', '할', '한', '수', '있는', '순으로', '보는', '잡힌', '해둔', '예정', '완료', '했', '을', '를', '이', '가', '에서', '의', '에', '연봉', '급여', '연수입', '마감임박', '곧마감', '마감순', '오늘', '내일', '마감', '기한', '데드라인', '경력', '년', '년차', '이상', '남은', '빠른순', '쓰는', '하는', '쓰는곳', '하는곳', '파이썬', '도커', '코틀린', '스프링', '장고', '플라스크', '넥스트', '뷰', '앵귤러', '노드', '익스프레스', '플러터', '쿠버네티스', '테라폼', '러스트', '스위프트', '루비', '레디스', '피그마', '리액트', '자바스크립트', '타입스크립트', '자바', '고언어', '부트', '리눅스', '엔진엑스', '데브옵스', '스파크', '하둡', '에어플로우', '디비티', '빅쿼리', '스노우플레이크', '리덕스', '유니티', '언리얼', '머신러닝', '래빗엠큐', '오라클', '다트', '스벨트', '스위프트유아이', '네스트', '넉스트', '라라벨', '레일즈', '닷넷', '앤서블', '랭체인', '허깅페이스', '파인튜닝', '프롬프트', '디퓨전', '벡터', '자연어', '자연어처리', '비전', '컴퓨터', '컴퓨터비전', '머신러닝', '파인튜닝', '프롬프트엔지니어링', '스테이블', '디퓨전', '벡터디비']);
+  const stopWords = new Set(['면접', '면접보는', '면접잡힌', '정규직', '계약직', '파견', '인턴', '프리랜서', '프리랜스', '시니어', '주니어', '미드', '미들', '리드', '포지션', '레벨', '수준', '지원', '지원한', '지원할', '지원예정', '지원완료', '관심', '북마크', '찜', '찜해둔', '합격', '합격한', '오퍼', '탈락', '탈락한', '거절', '불합격', '재택', '재택으로', '원격', '리모트', '하이브리드', '점수', '점수순으로', '매칭', '최신', '빼고', '제외', '말고', '있어', '보여', '보여줘', '공고', '거', '곳', '다', '중에', '할', '한', '수', '있는', '순으로', '보는', '잡힌', '해둔', '예정', '완료', '했', '을', '를', '이', '가', '에서', '의', '에', '연봉', '급여', '연수입', '마감임박', '곧마감', '마감순', '오늘', '내일', '마감', '기한', '데드라인', '경력', '년', '년차', '이상', '남은', '빠른순', '쓰는', '하는', '쓰는곳', '하는곳', '파이썬', '도커', '코틀린', '스프링', '장고', '플라스크', '넥스트', '뷰', '앵귤러', '노드', '익스프레스', '플러터', '쿠버네티스', '테라폼', '러스트', '스위프트', '루비', '레디스', '피그마', '리액트', '자바스크립트', '타입스크립트', '자바', '고언어', '부트', '리눅스', '엔진엑스', '데브옵스', '스파크', '하둡', '에어플로우', '디비티', '빅쿼리', '스노우플레이크', '리덕스', '주스탄드', '리코일', '몹엑스', '뷰엑스', '피니아', '유니티', '언리얼', '머신러닝', '래빗엠큐', '오라클', '다트', '스벨트', '스위프트유아이', '네스트', '넉스트', '라라벨', '레일즈', '닷넷', '앤서블', '랭체인', '허깅페이스', '파인튜닝', '프롬프트', '디퓨전', '벡터', '자연어', '자연어처리', '비전', '컴퓨터', '컴퓨터비전', '머신러닝', '파인튜닝', '프롬프트엔지니어링', '스테이블', '디퓨전', '벡터디비']);
   const koreanWords = text.match(/[가-힣]{2,}/g) || [];
   for (const word of koreanWords) {
     if (!stopWords.has(word) && !consumedWords.has(word)) {
@@ -541,6 +546,17 @@ const testCases = [
     note: "Korean 파인튜닝 maps to fine-tuning" },
   { id: 78, input: "자연어처리 공고", expectedFilters: ["j.skills LIKE '%nlp%'"], expectedOrder: "a.updated_at DESC",
     note: "Korean 자연어처리 maps to nlp" },
+  // EXP-100: State management skill NLP queries
+  { id: 79, input: "주스탄드 쓰는 공고", expectedFilters: ["j.skills LIKE '%zustand%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 주스탄드 maps to zustand" },
+  { id: 80, input: "리코일 상태관리 공고", expectedFilters: ["j.skills LIKE '%recoil%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 리코일 maps to recoil" },
+  { id: 81, input: "뷰엑스 공고 있어?", expectedFilters: ["j.skills LIKE '%vuex%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 뷰엑스 maps to vuex" },
+  { id: 82, input: "피니아 쓰는 공고", expectedFilters: ["j.skills LIKE '%pinia%'"], expectedOrder: "a.updated_at DESC",
+    note: "Korean 피니아 maps to pinia" },
+  { id: 83, input: "리덕스 주스탄드 공고", expectedFilters: ["j.skills LIKE '%redux%'", "j.skills LIKE '%zustand%'"], expectedOrder: "a.updated_at DESC",
+    note: "Both 리덕스→redux and 주스탄드→zustand matched" },
 ];
 
 // Run tests

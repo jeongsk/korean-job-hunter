@@ -98,6 +98,11 @@ const SKILL_MAP = {
 
   // Frontend State/UI
   'redux': /redux|리덕스/i,
+  'zustand': /zustand|주스탄드/i,
+  'recoil': /recoil|리코일/i,
+  'mobx': /mobx/i,
+  'vuex': /vuex|뷰엑스/i,
+  'pinia': /pinia|피니아/i,
 
   // Game
   'unity': /unity|유니티/i,

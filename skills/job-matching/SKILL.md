@@ -3,7 +3,7 @@ name: job-matching
 description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring, and framework-aware primary domain alignment (EXP-049)"
 ---
 
-# Job Matching Skill v3.8 (EXP-097: AI/LLM skills + ML regex fix)
+# Job Matching Skill v3.9 (EXP-100: State management skill connections)
 
 ## Score Weights (Validated — EXP-017)
 

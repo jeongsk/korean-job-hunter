@@ -1,17 +1,18 @@
 {
-  "timestamp": "2026-04-04T03:04:00Z",
-  "experiment_id": "EXP-099",
-  "skill": "job-tracking",
-  "focus": "nlp_skill_query_coverage",
-  "hypothesis": "NLP skill query patterns had 42 entries while skill-inference.js had 88 skills — 48 skills including Linux, DevOps, Spark, Hadoop, Airflow, BigQuery, Snowflake, Unity, Unreal, Machine Learning, LangChain, LLM, NLP, fine-tuning, etc. were invisible to Korean natural language queries despite being extracted and stored in the skills column",
+  "timestamp": "2026-04-04T04:04:00Z",
+  "experiment_id": "EXP-100",
+  "skill": "job-matching+job-tracking+job-scraping",
+  "focus": "state_management_skill_coverage",
+  "hypothesis": "State management libraries (zustand, recoil, mobx, vuex, pinia) appear frequently in Korean frontend postings but were missing from skill-inference.js and similarity map",
   "metrics": {
-    "total_tests": "1114 (all pass)",
+    "total_tests": "1131 (all pass)",
     "npm_test": "working",
     "test_suites": 48,
     "all_passing": true,
     "regressions": 0,
-    "nlp_skill_patterns": "90 (was 42)",
-    "nlp_v3_tests": "78 (was 66)",
-    "new_skill_korean_equivalents": "48"
+    "skill_inference_count": "93 (was 88)",
+    "similarity_connections": "~130 (was ~120)",
+    "nlp_skill_patterns": "95 (was 90)",
+    "nlp_v3_tests": "83 (was 78)"
   }
 }

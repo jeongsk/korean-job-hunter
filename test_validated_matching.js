@@ -35,7 +35,7 @@ const TIER2 = { // 75%
   'django': ['python', 'fastapi', 'flask'], 'flask': ['python', 'fastapi', 'django'],
   'aws': ['gcp', 'azure', 'cloud'], 'gcp': ['aws', 'azure', 'cloud'], 'azure': ['aws', 'gcp', 'cloud'],
   'java': ['kotlin'], 'kotlin': ['java'], // JVM interoperable (EXP-062)
-  'react': ['react native'], 'react native': ['react'], // shared React paradigm (EXP-062)
+  'react': ['react native', 'redux'], 'react native': ['react'], // shared React paradigm + state management (EXP-062, EXP-100)
   // EXP-064: Detail-skill similarity pairs
   'graphql': ['rest api'], 'rest api': ['graphql'], // API paradigms (EXP-088: fixed underscore→space to match skill-inference key)
   'jenkins': ['github actions'], 'github actions': ['jenkins', 'ci/cd'], // CI/CD (EXP-093: fixed underscore→space + merged duplicate key)
@@ -53,7 +53,9 @@ const TIER2 = { // 75%
   'jetpack compose': ['kotlin'], 'kotlin': ['jetpack compose'], // Android modern UI
   'dart': ['flutter'], 'flutter': ['dart'], // Flutter ecosystem (promoted from TIER3, EXP-096: Dart IS Flutter's language, as close as swift↔swiftUI)
   'angular': ['typescript'], 'typescript': ['angular'], // Angular mandates TypeScript (EXP-096)
-  'redux': ['react'], // React state management (one-way: redux→react only)
+  'redux': ['react'], // React state management (EXP-100)
+  'zustand': ['react'], 'recoil': ['react'], 'mobx': ['react'], // React state management (EXP-100)
+  'vuex': ['vue'], 'pinia': ['vue'], 'vue': ['vuex', 'pinia'], // Vue state management (EXP-100)
   'bigquery': ['snowflake'], 'snowflake': ['bigquery'], // cloud data warehouses
   'airflow': ['dbt'], 'dbt': ['airflow'], // data orchestration
   'linux': ['docker', 'nginx'], // OS/container/infra stack
@@ -98,6 +100,9 @@ const TIER3 = { // 25%
   // EXP-097: AI/LLM partial overlaps
   'llm': ['rag', 'huggingface'], // LLM ecosystem
   'prompt engineering': ['llm'], // prompt engineering is LLM-specific
+  // EXP-100: State management partial overlaps
+  'redux': ['zustand', 'recoil', 'mobx'], 'zustand': ['redux', 'recoil', 'mobx'], // React state management alternatives
+  'vuex': ['pinia'], 'pinia': ['vuex'], // Vue state management alternatives
   'fine-tuning': ['pytorch', 'tensorflow', 'machine learning'], // fine-tuning uses ML frameworks
   'stable diffusion': ['pytorch', 'computer vision'], // generative AI overlaps
   'vector database': ['elasticsearch', 'redis', 'mongodb'], // vector DB overlaps with search/NoSQL
@@ -623,6 +628,14 @@ const simTests = [
   ['Dart', 'Flutter', 0.75], // Flutter ecosystem (EXP-096: promoted to TIER2 — Dart IS Flutter's language)
   ['R', 'Python', 0.25], // data science
   ['Hadoop', 'BigQuery', 0.25], // big data → cloud DW
+  // EXP-100: State management ↔ framework connections
+  ['Redux', 'React', 0.75], // React state management
+  ['Zustand', 'React', 0.75], // React state management
+  ['Recoil', 'React', 0.75], // React state management
+  ['Vuex', 'Vue', 0.75], // Vue state management
+  ['Pinia', 'Vue', 0.75], // Vue state management
+  ['Redux', 'Zustand', 0.25], // React state alternatives (partial overlap)
+  ['Vuex', 'Pinia', 0.25], // Vue state alternatives (partial overlap)
 ];
 for (const [a, b, expected] of simTests) {
   const actual = getSimilarity(a, b);

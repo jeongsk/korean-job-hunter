@@ -125,6 +125,11 @@ assertIncludes('BigQuery Korean', inferSkills('빅쿼리 데이터'), ['bigquery
 assertIncludes('Snowflake English', inferSkills('Snowflake Data Warehouse'), ['snowflake']);
 assertIncludes('Redux English', inferSkills('Redux State Management'), ['redux']);
 assertIncludes('Redux Korean', inferSkills('리덕스 상태관리'), ['redux']);
+assertIncludes('Zustand English', inferSkills('Zustand for state management'), ['zustand']);
+assertIncludes('Recoil English', inferSkills('Recoil state management'), ['recoil']);
+assertIncludes('MobX English', inferSkills('MobX observable state'), ['mobx']);
+assertIncludes('Vuex English', inferSkills('Vuex store management'), ['vuex']);
+assertIncludes('Pinia English', inferSkills('Pinia store for Vue'), ['pinia']);
 assertIncludes('Unity English', inferSkills('Unity Game Developer'), ['unity']);
 assertIncludes('Unity Korean', inferSkills('유니티 게임개발'), ['unity']);
 assertIncludes('Unreal English', inferSkills('Unreal Engine 5'), ['unreal']);
