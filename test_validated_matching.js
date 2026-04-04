@@ -60,6 +60,14 @@ const TIER2 = { // 75%
   'ci/cd': ['jenkins', 'github actions'], // CI/CD ecosystem (EXP-093: removed duplicate 'github actions' key, merged into line above)
   'unity': ['unreal'], 'unreal': ['unity'], // game engines
   'machine learning': ['tensorflow', 'pytorch'], // ML concept
+  // EXP-097: AI/LLM ecosystem connections
+  'llm': ['machine learning', 'pytorch', 'tensorflow'], 'machine learning': ['llm'], // LLM is an ML subfield
+  'langchain': ['llm'], 'llm': ['langchain'], // LangChain is the primary LLM orchestration framework
+  'rag': ['llm', 'vector database'], 'vector database': ['rag'], // RAG combines LLM with vector search
+  'mlops': ['machine learning', 'docker', 'kubernetes'], // MLOps connects ML with DevOps
+  'computer vision': ['machine learning', 'pytorch', 'tensorflow'], // CV is an ML subfield
+  'nlp': ['machine learning', 'llm'], 'machine learning': ['nlp'], // NLP is an ML subfield
+  'huggingface': ['pytorch', 'tensorflow', 'llm'], // HuggingFace hosts ML models
   // EXP-088: Remaining orphan connections
   'jpa': ['spring', 'java'], 'spring': ['jpa'], 'java': ['kotlin', 'jpa'], // JPA/Hibernate is Spring Data's ORM layer (merged with existing kotlin entry)
   'devops': ['docker', 'kubernetes', 'terraform', 'ci/cd'], // DevOps umbrella connects to core tools
@@ -87,6 +95,14 @@ const TIER3 = { // 25%
   'aws s3': ['bigquery', 'snowflake'], // storage↔data warehouse pipeline
   'aws sqs': ['kafka', 'rabbitmq'], // managed↔self-hosted messaging
   'figma': ['angular', 'react', 'vue'], // design tools overlap with frontend frameworks
+  // EXP-097: AI/LLM partial overlaps
+  'llm': ['rag', 'huggingface'], // LLM ecosystem
+  'prompt engineering': ['llm'], // prompt engineering is LLM-specific
+  'fine-tuning': ['pytorch', 'tensorflow', 'machine learning'], // fine-tuning uses ML frameworks
+  'stable diffusion': ['pytorch', 'computer vision'], // generative AI overlaps
+  'vector database': ['elasticsearch', 'redis', 'mongodb'], // vector DB overlaps with search/NoSQL
+  'mlops': ['terraform', 'ci/cd'], // MLOps shares infra tooling with DevOps
+  'langchain': ['python', 'typescript'], // LangChain runs on Python/TS
 };
 
 // Merge all tiers for lookup
@@ -113,6 +129,12 @@ const PRIMARY_DOMAINS = {
   '.net': 'c#', 'asp.net': 'c#',
   'ruby on rails': 'ruby', 'rails': 'ruby', 'ruby': 'ruby',
   'php': 'php', 'laravel': 'php',
+  // AI/ML domain (EXP-097)
+  'tensorflow': 'python', 'pytorch': 'python', 'machine learning': 'python',
+  'llm': 'python', 'langchain': 'python', 'mlops': 'python',
+  'computer vision': 'python', 'nlp': 'python', 'huggingface': 'python',
+  'fine-tuning': 'python', 'stable diffusion': 'python', 'rag': 'python',
+  'prompt engineering': 'python', 'vector database': 'python',
 };
 
 function detectPrimaryDomain(jobSkills) {

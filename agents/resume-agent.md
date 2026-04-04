@@ -136,7 +136,7 @@ Score each domain by counting matching skills. Pick highest. If top 2 are tied (
 
 ## Korean Skill Extraction (NLP)
 
-**Primary source: `scripts/skill-inference.js`** — this is the single source of truth for all 77 skill patterns (Korean + English). Always use `inferSkills(text)` from that module rather than maintaining separate keyword maps.
+**Primary source: `scripts/skill-inference.js`** — this is the single source of truth for all 88+ skill patterns (Korean + English). Always use `inferSkills(text)` from that module rather than maintaining separate keyword maps.
 
 ### Quick Reference: Skill Categories in skill-inference.js
 

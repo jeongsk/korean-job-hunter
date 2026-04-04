@@ -35,6 +35,17 @@ function assertIncludes(name, actual, expected) {
   }
 }
 
+function assertExcludes(name, actual, excluded) {
+  const found = excluded.filter(e => actual.includes(e));
+  if (found.length > 0) {
+    console.log(`❌ ${name}: should NOT include ${found.join(',')}, got [${actual.join(',')}]`);
+    failed++;
+  } else {
+    console.log(`✅ ${name}`);
+    passed++;
+  }
+}
+
 // ─── Korean Keywords ───
 assert('Korean python', inferSkills('파이썬 백엔드 개발자'), ['python']);
 assert('Korean spring', inferSkills('스프링 경력 채용'), ['spring']);
@@ -125,6 +136,36 @@ assertIncludes('AWS SQS', inferSkills('AWS SQS Messaging'), ['aws', 'aws sqs']);
 assertIncludes('Linux+Nginx+Docker', inferSkills('Linux Nginx Docker 배포'), ['linux', 'nginx', 'docker']);
 assertIncludes('Spark+Airflow+BigQuery', inferSkills('Spark Airflow BigQuery'), ['spark', 'airflow', 'bigquery']);
 assertIncludes('CI/CD+Jenkins+Docker', inferSkills('CI/CD Jenkins Docker'), ['ci/cd', 'jenkins', 'docker']);
+
+// ─── EXP-097: AI/LLM skills + ML regex fix ───
+assertIncludes('LLM English', inferSkills('LLM Engineer'), ['llm']);
+assertIncludes('LLM Korean', inferSkills('대규모언어모델 개발'), []); // Korean LLM name not supported (use English)
+assertIncludes('Large Language Model', inferSkills('Large Language Model Research'), ['llm']);
+assertIncludes('RAG English', inferSkills('RAG Pipeline Developer'), ['rag']);
+assertIncludes('RAG Korean', inferSkills('검색증강생성 시스템'), ['rag']);
+assertIncludes('LangChain English', inferSkills('LangChain Developer'), ['langchain']);
+assertIncludes('LangChain Korean', inferSkills('랭체인 기반 서비스'), ['langchain']);
+assertIncludes('MLOps English', inferSkills('MLOps Engineer'), ['mlops']);
+assertIncludes('Vector DB English', inferSkills('Pinecone Vector Search'), ['vector database']);
+assertIncludes('Vector DB Korean', inferSkills('벡터 DB 검색'), ['vector database']);
+assertIncludes('Weaviate', inferSkills('Weaviate Vector Database'), ['vector database']);
+assertIncludes('Fine-tuning English', inferSkills('Fine-tuning Specialist'), ['fine-tuning']);
+assertIncludes('Fine-tuning Korean', inferSkills('파인튜닝 엔지니어'), ['fine-tuning']);
+assertIncludes('HuggingFace English', inferSkills('HuggingFace Model'), ['huggingface']);
+assertIncludes('HuggingFace Korean', inferSkills('허깅페이스 플랫폼'), ['huggingface']);
+assertIncludes('Prompt Engineering English', inferSkills('Prompt Engineering AI'), ['prompt engineering']);
+assertIncludes('Prompt Engineering Korean', inferSkills('프롬프트 엔지니어'), ['prompt engineering']);
+assertIncludes('Stable Diffusion', inferSkills('Stable Diffusion Artist'), ['stable diffusion']);
+assertIncludes('Computer Vision English', inferSkills('Computer Vision Researcher'), ['computer vision']);
+assertIncludes('Computer Vision Korean', inferSkills('컴퓨터 비전 전문가'), ['computer vision']);
+assertIncludes('NLP English', inferSkills('NLP Research Scientist'), ['nlp']);
+assertIncludes('NLP Korean', inferSkills('자연어 처리 개발자'), ['nlp']);
+
+// ─── EXP-097: ML regex false positive fix ───
+assertExcludes('HTML is NOT ML', inferSkills('html css javascript'), ['machine learning']);
+assertExcludes('XML is NOT ML', inferSkills('xml parser developer'), ['machine learning']);
+assertIncludes('ML Engineer IS ML', inferSkills('ML Engineer'), ['machine learning']);
+assertIncludes('ML 개발자 IS ML', inferSkills('ML 개발자'), ['machine learning']);
 
 console.log(`\n📊 Skill Inference: ${passed}/${passed + failed} passed`);
 if (failed > 0) process.exit(1);

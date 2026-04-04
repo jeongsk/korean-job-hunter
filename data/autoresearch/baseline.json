@@ -1,16 +1,18 @@
 {
-  "timestamp": "2026-04-04T00:04:00Z",
-  "experiment_id": "EXP-096",
-  "skill": "job-matching",
-  "focus": "similarity_map_tier_promotion",
-  "hypothesis": "dart↔flutter at TIER3 (25%) undervalues Flutter's language — swift↔swiftUI is TIER2 (75%), and angular↔typescript has no connection despite Angular mandating TypeScript",
+  "timestamp": "2026-04-04T01:04:00Z",
+  "experiment_id": "EXP-097",
+  "skill": "job-matching+skill-inference",
+  "focus": "ai_llm_skills_ml_regex_fix",
+  "hypothesis": "ML regex false positive matches html/xml; AI/LLM skills (llm, rag, langchain, mlops, vector db, fine-tuning, etc.) missing from skill inference and similarity map",
   "metrics": {
-    "total_tests": "1051 (all pass)",
+    "total_tests": "1077 (all pass)",
     "npm_test": "working",
     "test_suites": 47,
     "all_passing": true,
     "regressions": 0,
-    "dart_flutter_tier": "TIER2 (75%)",
-    "angular_typescript_tier": "TIER2 (75%)"
+    "skill_map_entries": 88,
+    "similarity_connections": "60+",
+    "ml_regex_false_positive_html": "fixed",
+    "ml_regex_false_positive_xml": "fixed"
   }
 }

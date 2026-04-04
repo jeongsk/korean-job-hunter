@@ -3,7 +3,7 @@ name: job-matching
 description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring, and framework-aware primary domain alignment (EXP-049)"
 ---
 
-# Job Matching Skill v3.7 (EXP-096: Dart↔Flutter + Angular↔TypeScript TIER2)
+# Job Matching Skill v3.8 (EXP-097: AI/LLM skills + ML regex fix)
 
 ## Score Weights (Validated — EXP-017)
 
@@ -64,6 +64,13 @@ This prevents infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflati
 - Terraform ↔ Ansible (IaC/config management — EXP-064)
 - Kafka ↔ RabbitMQ (message queues — EXP-064)
 - TensorFlow ↔ PyTorch (ML frameworks — EXP-064)
+- LLM ↔ Machine Learning ↔ PyTorch ↔ TensorFlow (AI/ML ecosystem — EXP-097)
+- LangChain ↔ LLM (LLM orchestration — EXP-097)
+- RAG ↔ LLM ↔ Vector Database (retrieval-augmented generation — EXP-097)
+- Computer Vision ↔ Machine Learning ↔ PyTorch ↔ TensorFlow (CV is ML subfield — EXP-097)
+- NLP ↔ Machine Learning ↔ LLM (NLP is ML subfield — EXP-097)
+- HuggingFace ↔ PyTorch ↔ TensorFlow ↔ LLM (model hosting — EXP-097)
+- MLOps ↔ Machine Learning ↔ Docker ↔ Kubernetes (ML+DevOps — EXP-097)
 - Elasticsearch ↔ Redis (real-time data stores — EXP-064)
 - Oracle ↔ MSSQL (enterprise RDBMS — EXP-064)
 - Dart ↔ Flutter (Flutter's language — EXP-096, promoted from TIER3)
@@ -87,6 +94,13 @@ This prevents infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflati
 - AWS S3 ↔ BigQuery ↔ Snowflake (data pipeline — EXP-088)
 - AWS SQS ↔ Kafka ↔ RabbitMQ (messaging — EXP-088)
 - Figma ↔ React ↔ Angular ↔ Vue (design-frontend overlap — EXP-088)
+- LLM ↔ RAG ↔ HuggingFace (LLM ecosystem — EXP-097)
+- Prompt Engineering ↔ LLM (prompting is LLM-specific — EXP-097)
+- Fine-tuning ↔ PyTorch ↔ TensorFlow ↔ Machine Learning (fine-tuning uses ML frameworks — EXP-097)
+- Stable Diffusion ↔ PyTorch ↔ Computer Vision (generative AI — EXP-097)
+- Vector Database ↔ Elasticsearch ↔ Redis ↔ MongoDB (vector/search/NoSQL overlap — EXP-097)
+- MLOps ↔ Terraform ↔ CI/CD (MLOps shares infra with DevOps — EXP-097)
+- LangChain ↔ Python ↔ TypeScript (LangChain runs on Python/TS — EXP-097)
 - Pandas ↔ Spark (data processing — EXP-064)
 - GraphQL ↔ gRPC (modern API protocols — EXP-064)
 - MongoDB ↔ Redis (NoSQL stores — EXP-064)

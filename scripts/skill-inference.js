@@ -4,6 +4,7 @@
  * Supports Korean equivalents (파이썬→python, 스프링→spring, etc.)
  *
  * EXP-083: Added Linux, Nginx, CI/CD, DevOps, Spark, Hadoop, Airflow, dbt, JPA, Redux, Unity, Unreal, BigQuery, Snowflake, AWS Lambda/S3/SQS.
+ * EXP-097: Fixed ML regex false positive (html/xml), added AI/LLM skills (llm, rag, langchain, mlops, vector db, fine-tuning, huggingface, prompt engineering, stable diffusion, computer vision, nlp).
  * This is the single source of truth for skill pattern matching.
  */
 
@@ -110,7 +111,18 @@ const SKILL_MAP = {
   // AI/ML
   'tensorflow': /tensorflow/i,
   'pytorch': /pytorch/i,
-  'machine learning': /machine\s*learning|ml(?=\s|$)/i,
+  'machine learning': /machine\s*learning|(?<![a-z])ml(?=\s|엔지니어|개발자|모델|engineer|$)/i,
+  'llm': /(?<![a-z])llm(?!\w)|large\s*language\s*model/i,
+  'rag': /(?<![a-z])rag(?!\w)|검색증강생성/i,
+  'langchain': /langchain|랭체인/i,
+  'mlops': /mlops|엠엘옵스/i,
+  'vector database': /vector\s*database|vector\s*db|벡터\s*db|pinecone|weaviate|chroma\s*db|milvus/i,
+  'fine-tuning': /fine[\s-]?tun|파인튜닝|미세조정/i,
+  'huggingface': /hugging\s*face|허깅페이스/i,
+  'prompt engineering': /prompt\s*engineer|프롬프트\s*엔지니어/i,
+  'stable diffusion': /stable\s*diffusion/i,
+  'computer vision': /computer\s*vision|컴퓨터\s*비전/i,
+  'nlp': /(?<![a-z])nlp(?!\w)|자연어\s*처리/i,
 
   // Design
   'figma': /figma/i,
