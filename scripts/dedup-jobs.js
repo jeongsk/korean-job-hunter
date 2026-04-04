@@ -132,7 +132,12 @@ function fieldScore(job) {
   if (job.company) score++;
   if (job.salary && job.salary.trim()) score += 2;
   if (job.salary_min || job.salary_max) score += 1;  // Normalized salary range is valuable
-  if (job.deadline && job.deadline.trim()) score += 2;
+  if (job.deadline && job.deadline.trim()) {
+    const dl = job.deadline.trim();
+    if (/^\d{4}-\d{2}-\d{2}/.test(dl)) score += 3;  // Actual date is high-value for urgency scoring
+    else if (dl === '상시모집') score += 1;  // Rolling recruitment — less actionable
+    else score += 2;  // Other format (partial date etc.)
+  }
   if (job.experience && job.experience.trim()) score++;
   if (job.work_type && job.work_type.trim()) score++;
   if (job.location && job.location.trim()) score++;
@@ -206,13 +211,31 @@ function main() {
     const dupes = entries.slice(1);
 
     // Enrich keeper with fields from dupes if missing
-    const enrichFields = ['skills', 'culture_keywords', 'employment_type', 'salary', 'deadline', 'experience', 'work_type', 'location', 'career_stage', 'reward'];
+    const enrichFields = ['skills', 'culture_keywords', 'employment_type', 'salary', 'experience', 'work_type', 'location', 'career_stage', 'reward'];  // deadline handled separately below
     const enrichUpdates = {};
     for (const field of enrichFields) {
       if ((!keeper[field] || !keeper[field].trim()) && !enrichUpdates[field]) {
         for (const d of dupes) {
           if (d[field] && d[field].trim()) {
             enrichUpdates[field] = d[field].trim();
+            break;
+          }
+        }
+      }
+    }
+    // Enrich deadline with date preference: actual ISO dates preferred over 상시모집
+    if (!keeper.deadline || !keeper.deadline.trim() || keeper.deadline.trim() === '상시모집') {
+      for (const d of dupes) {
+        if (d.deadline && d.deadline.trim() && /^\d{4}-\d{2}-\d{2}/.test(d.deadline.trim())) {
+          enrichUpdates.deadline = d.deadline.trim();
+          break;  // Prefer first actual date
+        }
+      }
+      // Fall back to any non-empty deadline if keeper has none at all
+      if (!enrichUpdates.deadline && (!keeper.deadline || !keeper.deadline.trim())) {
+        for (const d of dupes) {
+          if (d.deadline && d.deadline.trim()) {
+            enrichUpdates.deadline = d.deadline.trim();
             break;
           }
         }
