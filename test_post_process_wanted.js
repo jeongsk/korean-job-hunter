@@ -125,6 +125,27 @@ test('salary-no-leak-to-title',
   { salary: '연봉 5000~8000만원', title: v => !v.includes('연봉') && !v.includes('5000') }
 );
 
+// === Comma-formatted reward (EXP-112) ===
+test('reward-comma-thousand',
+  '프론트엔드 개발자카카오경력 3~10년보상금 1,000만원',
+  { company: '카카오', reward: '보상금 1,000만원', title: v => !v.includes('보상금') }
+);
+
+test('reward-comma-2000',
+  '시니어 소프트웨어 엔지니어버티고우게임즈 (Vertigo Games)경력 7~12년보상금 2,000만원',
+  { company: '버티고우게임즈', reward: '보상금 2,000만원', title: v => !v.includes('보상금') }
+);
+
+test('reward-comma-1500',
+  'Data Engineer빅히트경력 5년 이상보상금 1,500만원',
+  { company: '빅히트', reward: '보상금 1,500만원', title: v => !v.includes('보상금') }
+);
+
+test('reward-no-comma-unchanged',
+  '백엔드 웹프로그래머키트웍스경력 3-7년합격보상금 100만원',
+  { company: '키트웍스', reward: '보상금 100만원' }
+);
+
 // === Live data: English parenthetical cleanup (EXP-066) ===
 test('live-company-english-parens-in-company',
   '풀스택 개발자룰루랩(lululab)경력 3-5년합격보상금 100만원',

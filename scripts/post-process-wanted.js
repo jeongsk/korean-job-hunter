@@ -123,7 +123,7 @@ function parseWantedJob(raw) {
   if (em2 && !r.experience) { r.experience = '경력 무관'; t = t.replace(em2[0], ' '); }
 
   // === Reward ===
-  const rm = t.match(/(보상금|합격금|성과금)[\s]*(\d+만원)/);
+  const rm = t.match(/(보상금|합격금|성과금)[\s]*([\d,]+만원)/);
   if (rm) { r.reward = rm[0]; t = t.replace(rm[0], ' '); }
 
   // === Salary (from detail pages or inline) ===
