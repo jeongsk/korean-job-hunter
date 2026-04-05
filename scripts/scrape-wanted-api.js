@@ -11,7 +11,7 @@
 const https = require('https');
 const { URL } = require('url');
 const { inferSkills, deriveCareerStage } = require('./skill-inference');
-const { extractCultureKeywords, normalizeSalary, normalizeDeadline } = require('./post-process-wanted');
+const { extractCultureKeywords, normalizeSalary, normalizeDeadline, extractSalaryLine } = require('./post-process-wanted');
 
 function fetchJSON(url) {
   return new Promise((resolve, reject) => {
@@ -194,6 +194,18 @@ async function main() {
       if (detail.full_location) job.full_location = detail.full_location;
       if (detail.geo_location) job.geo_location = detail.geo_location;
       if (detail.description) job.description = detail.description;
+      // Extract salary from detail JD description (EXP-126)
+      if (detail.description && !job.salary) {
+        const salaryLine = extractSalaryLine(detail.description);
+        if (salaryLine) {
+          job.salary = salaryLine;
+          const norm = normalizeSalary(salaryLine);
+          if (norm) {
+            job.salary_min = norm.min;
+            job.salary_max = norm.max;
+          }
+        }
+      }
       // Extract specific experience range from detail description
       if (detail.description) {
         const expRange = extractExperienceRange(detail.description);

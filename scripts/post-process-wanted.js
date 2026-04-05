@@ -413,4 +413,35 @@ if (require.main === module) {
 
 // deriveCareerStage now imported from skill-inference.js (EXP-091)
 
-module.exports = { parseWantedJob, extractCultureKeywords, normalizeSalary, normalizeDeadline, escapeRegExp, deriveCareerStage };
+// Extract salary-relevant line(s) from JD description text
+// EXP-126: Used by API detail enrichment to populate salary fields
+function extractSalaryLine(description) {
+  if (!description) return null;
+  // Try to find lines/sections mentioning salary
+  // Common patterns in Korean JDs:
+  // - "연봉 : 5000~8000만원"
+  // - "연봉 1억 이상"
+  // - "월급 300~500만원"
+  // - "면접후결정" / "회사내규에 따름"
+  // - Embedded in bullet points: "- 연봉: 6000만원 이상"
+
+  // First check for 면접후결정 (negotiable)
+  if (/면접후결정|회사내규에\s*따름|협의/.test(description)) return '면접후결정';
+
+  // Look for explicit salary patterns in order of specificity
+  const patterns = [
+    /연봉\s*[\:：]?\s*\d[\d,]*(?:\s*[~\-]\s*\d[\d,]*)?\s*(?:만원|천만|억|원)?(?:\s*이상)?/,
+    /월급\s*[\:：]?\s*\d[\d,]*(?:\s*[~\-]\s*\d[\d,]*)?\s*(?:만원|천만|억|원)?(?:\s*이상)?/,
+    /₩\s*[\d,]+(?:\s*[~\-]\s*₩?\s*[\d,]+)?/,
+    /(\d[\d,]*)\s*[~\-]\s*(\d[\d,]*)\s*만\s*원/,
+    /(\d+(?:\.\d+)?)\s*[~\-]\s*(\d+(?:\.\d+)?)\s*억/,
+  ];
+
+  for (const p of patterns) {
+    const m = description.match(p);
+    if (m) return m[0].trim();
+  }
+  return null;
+}
+
+module.exports = { parseWantedJob, extractCultureKeywords, normalizeSalary, normalizeDeadline, escapeRegExp, deriveCareerStage, extractSalaryLine };
