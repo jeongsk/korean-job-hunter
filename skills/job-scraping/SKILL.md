@@ -40,15 +40,77 @@ agent-browser --user-agent "$UA" open "..."
 ## Fallback Chain
 
 ```
-1차: agent-browser + custom User-Agent ← PRIMARY
-2차: web_fetch (정적 페이지 마크다운 변환)
-3차: web_search (공고 검색으로 URL 발견)
-4차: 수동 (사용자에게 알림)
+1차: Wanted API (scrape-wanted-api.js) ← PRIMARY for Wanted (bypasses 403)
+2차: agent-browser + custom User-Agent ← PRIMARY for JobKorea/LinkedIn
+3차: web_fetch (정적 페이지 마크다운 변환)
+4차: web_search (공고 검색으로 URL 발견)
+5차: 수동 (사용자에게 알림)
 ```
+
+> **Note (2026-04-05):** Wanted.co.kr 검색 페이지는 브라우저 자동화 시 403을 반환할 수 있음.
+> 대신 Wanted의 비공개(但 공개 접근 가능) JSON API를 사용하여 403을 우회함.
+> `scripts/scrape-wanted-api.js`가 1차 방식.
 
 ---
 
 ## Source 1: Wanted (wanted.co.kr) ✅ 검증완료
+
+### ⚡ API-based Scraping (PRIMARY — bypasses 403)
+
+Wanted's search API endpoint is publicly accessible and returns structured JSON, completely bypassing browser 403 issues.
+
+```bash
+# Basic search (listings only)
+node scripts/scrape-wanted-api.js --keyword "프론트엔드" --limit 20
+
+# With detail pages (skills, full description, location)
+node scripts/scrape-wanted-api.js --keyword "원격" --limit 20 --details
+
+# Pagination
+node scripts/scrape-wanted-api.js --keyword "백엔드" --limit 50 --offset 50
+```
+
+**API Endpoints:**
+- **Search**: `GET /api/chaos/search/v1/results?keyword={}&limit=20&offset=0&tab=position&query={}`
+- **Detail**: `GET /api/v1/jobs/{wdId}?lang=ko`
+
+**Search Response Structure (positions.data[]):**
+```json
+{
+  "id": 351790,
+  "position": "프론트엔드 개발자",
+  "company": { "name": "겟차" },
+  "address": { "country": "한국", "location": "서울", "full_location": "서울 강남구 ..." },
+  "employment_type": "regular",
+  "due_time": "2026-04-20T00:00:00",
+  "reward": { "formatted_total": "100만원" },
+  "is_newbie": false
+}
+```
+
+**Detail Response Structure:**
+```json
+{
+  "jd": "<full HTML description>",
+  "position": "프론트엔드 개발자",
+  "company_name": "겟차",
+  "address": { "full_location": "서울 강남구 ...", "geo_location": { "location": { "lat": ..., "lng": ... } } }
+}
+```
+
+**Advantages over browser scraping:**
+- No 403 bot detection issues
+- Structured JSON — no CSS selector parsing needed
+- Company name, location, employment_type already separated
+- Faster (no browser overhead, no sleep needed)
+- Includes geo coordinates for commute calculation
+
+**Limitations:**
+- No salary data in API response (enrich via post-processing or title parsing)
+- No explicit work_type field (infer from JD text or detail page)
+- No explicit experience years (only `is_newbie` boolean)
+
+### Browser-based Scraping (FALLBACK)
 
 ### 셀렉터
 - **`a[href*="/wd/"]`** — CSS class 셀렉터(`.JobCard_container`)는 작동하지 않음
