@@ -1,20 +1,17 @@
 {
-  "timestamp": "2026-04-04T22:04:00Z",
-  "experiment_id": "EXP-116",
-  "skill": "job-matching+job-scraping+job-tracking",
-  "focus": "blockchain_security_platform_skills",
-  "hypothesis": "Blockchain/Web3 (Solidity, Web3, Ethereum, Smart Contract), Security (DevSecOps, OWASP, Cybersecurity, Penetration Testing), and Platform/SRE (SRE, Platform Engineering, Istio, ArgoCD) skills were missing from skill-inference.js, similarity map, domain alignment, and NLP parser — 13 skills invisible to the entire pipeline",
+  "timestamp": "2026-04-05T01:04:00Z",
+  "experiment_id": "EXP-119",
+  "skill": "job-scraping",
+  "focus": "api_scraper_enrichment_parity",
+  "hypothesis": "Wanted API scraper used 35 inline skill patterns instead of shared 135-skill module and missed culture/salary/deadline/career_stage/work_type enrichment entirely",
   "metrics": {
-    "total_tests": "1349 (all pass)",
+    "total_tests": "1393 (all pass)",
     "npm_test": "working",
-    "test_suites": 53,
+    "test_suites": 54,
     "all_passing": true,
     "regressions": 0,
-    "new_skills": 13,
-    "new_skill_tests": 27,
-    "new_similarity_connections": 24,
-    "new_domains": 2,
-    "skill_inference_count": 135,
-    "similarity_coverage": "100%"
+    "api_skill_patterns": "35→135+",
+    "api_enrichment_modules": "0→5",
+    "api_new_fields": 6
   }
 }

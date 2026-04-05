@@ -10,6 +10,8 @@
 
 const https = require('https');
 const { URL } = require('url');
+const { inferSkills, deriveCareerStage } = require('./skill-inference');
+const { extractCultureKeywords, normalizeSalary, normalizeDeadline } = require('./post-process-wanted');
 
 function fetchJSON(url) {
   return new Promise((resolve, reject) => {
@@ -54,6 +56,12 @@ function parsePosition(pos) {
   // Derive experience from newbie flag (API doesn't give exact years)
   let experience = isNewbie ? '신입가능' : '경력';
 
+  // Normalize deadline to ISO date
+  const normalizedDeadline = normalizeDeadline(dueTime);
+
+  // Derive career stage from experience text
+  const careerStage = deriveCareerStage(experience);
+
   return {
     id,
     title,
@@ -61,17 +69,23 @@ function parsePosition(pos) {
     experience,
     location,
     country,
-    employment_type: employmentType,
-    deadline: dueTime,
+    employment_type: employmentType === 'full_time' ? 'regular' : (employmentType || 'regular'),
+    deadline: normalizedDeadline || dueTime,
+    deadline_raw: dueTime,
     reward,
     link,
     source: 'wanted-api',
-    work_type: 'onsite', // API doesn't include work type; enriched via detail page
-    salary: null,         // API doesn't include salary; enriched via detail page
+    work_type: null,      // enriched via detail page
+    salary: null,         // enriched via detail page
+    salary_min: null,
+    salary_max: null,
+    career_stage: careerStage,
+    culture_keywords: [],
+    skills: [],
   };
 }
 
-async function fetchDetail(wdId) {
+async function fetchDetail(wdId, title) {
   try {
     const data = await fetchJSON(`https://www.wanted.co.kr/api/v1/jobs/${wdId}?lang=ko`);
     // Wanted detail API returns flat structure with 'jd' as full description text
@@ -79,33 +93,36 @@ async function fetchDetail(wdId) {
     const fullLocation = data?.address?.full_location || data?.address?.location || '';
     const geoLocation = data?.address?.geo_location?.location || null;
 
-    // Extract skills from JD text using simple pattern matching
-    const SKILL_PATTERNS = [
-      /React(?:\.js|\.Native)?/gi, /Next\.?js/gi, /TypeScript/gi, /JavaScript/gi,
-      /Vue(?:\.js)?/gi, /Angular/gi, /Svelte/gi, /Node\.?js/gi, /Python/gi, /Java\b/gi,
-      /Spring(?:\s*Boot)?/gi, /Django/gi, /Flask/gi, /Go(?:lang)?/gi, /Rust/gi,
-      /Kotlin/gi, /Swift/gi, /Flutter/gi, /React\s*Native/gi,
-      /AWS/gi, /GCP/gi, /Azure/gi, /Docker/gi, /Kubernetes/gi, /k8s/gi,
-      /Terraform/gi, /GraphQL/gi, /PostgreSQL/gi, /MySQL/gi, /MongoDB/gi, /Redis/gi,
-      /Elasticsearch/gi, /Kafka/gi, /RabbitMQ/gi, /Nginx/gi,
-    ];
-    const foundSkills = new Set();
-    for (const pat of SKILL_PATTERNS) {
-      const m = description.match(pat);
-      if (m) foundSkills.add(m[0]);
-    }
+    // Use shared skill inference (135+ skills) instead of inline patterns
+    const foundSkills = inferSkills(title + ' ' + description);
+
+    // Extract culture keywords from JD text
+    const cultureKeywords = extractCultureKeywords(description);
+
+    // Detect work type from description
+    const workType = detectWorkType(description);
 
     return {
       description,
       full_location: fullLocation,
       geo_location: geoLocation,
-      skills: [...foundSkills],
+      skills: foundSkills,
+      culture_keywords: cultureKeywords,
+      work_type: workType,
       salary: null,
-      work_type: null,
     };
   } catch {
     return { description: '', full_location: '', geo_location: null, skills: [], salary: null, work_type: null };
   }
+}
+
+function detectWorkType(text) {
+  if (!text) return null;
+  const t = text.toLowerCase();
+  if (/(전면\s*재택|완전\s*재택|풀\s*리모트|full\s*remote|100%\s*remote|원격\s*근무)/.test(t)) return 'remote';
+  if (/(주\s*\d\s*일\s*출근|hybrid|하이브리드|부분\s*재택)/.test(t)) return 'hybrid';
+  if (/(재택|remote|리모트|원격)/.test(t)) return 'remote';
+  return 'onsite';
 }
 
 async function main() {
@@ -147,11 +164,18 @@ async function main() {
     console.error(`[scrape-wanted-api] Fetching details for ${jobs.length} jobs...`);
     for (const job of jobs) {
       if (!job.id) continue;
-      const detail = await fetchDetail(job.id);
-      if (detail.skills?.length) job.skills = detail.skills.join(', ');
+      const detail = await fetchDetail(job.id, job.title);
+      if (detail.skills?.length) job.skills = detail.skills;
+      if (detail.culture_keywords?.length) job.culture_keywords = detail.culture_keywords;
+      if (detail.work_type) job.work_type = detail.work_type;
       if (detail.full_location) job.full_location = detail.full_location;
       if (detail.geo_location) job.geo_location = detail.geo_location;
       if (detail.description) job.description = detail.description;
+      // Re-derive career_stage with detail text for better accuracy
+      if (detail.description) {
+        const stage = deriveCareerStage(job.experience + ' ' + detail.description);
+        if (stage && stage !== 'mid') job.career_stage = stage; // prefer more specific
+      }
       // Small delay to be respectful
       await new Promise(r => setTimeout(r, 500));
     }
