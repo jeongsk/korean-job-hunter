@@ -272,6 +272,8 @@ function parseKoreanQuery(input) {
   const locations = ['영등포', '서울', '경기', '부산', '대전', '인천', '광주', '대구', '울산', '수원', '이천', '판교', '강남', '송파', '성수', '역삼', '잠실', '마포', '용산', '구로', '분당', '일산', '평촌', '세종', '여의도', '신촌', '홍대', '건대', '동탄', '청주', '천안', '양재', '논현', '신사', '삼성', '방배', '광화문', '을지로', '종로', '시흥', '안양', '안산', '평택', '파주', '김포', '창원', '포항'];
   for (const loc of locations) {
     if (consumedWords.has(loc)) continue;
+    // Skip if already matched as company (e.g., 삼성 is both company and location)
+    if (filters.some(f => f.includes(`company LIKE '%${loc}%'`))) continue;
     if (text.includes(loc)) {
       if (negationMatch) {
         const beforeNeg = text.substring(0, negationIdx).trim();
@@ -308,7 +310,7 @@ function parseKoreanQuery(input) {
     { canonical: 'flask', patterns: [/flask|플라스크/i] },
     { canonical: 'fastapi', patterns: [/fastapi/i] },
     { canonical: 'next.js', patterns: [/next\.?js|넥스트/i] },
-    { canonical: 'vue', patterns: [/vue(?:\.?js)?|뷰/i] },
+    { canonical: 'vue', patterns: [/vue(?:\.?js)?|뷰(?![가-힣])/i] },
     { canonical: 'angular', patterns: [/angular|앵귤러/i] },
     { canonical: 'node.js', patterns: [/node\.?js|노드/i] },
     { canonical: 'express', patterns: [/express|익스프레스/i] },
@@ -359,7 +361,7 @@ function parseKoreanQuery(input) {
     { canonical: 'c#', patterns: [/c#\s*|시샵/i] },
     { canonical: 'c++', patterns: [/c\+\+/i] },
     { canonical: 'php', patterns: [/php/i] },
-    { canonical: 'dart', patterns: [/dart|다트/i] },
+    { canonical: 'dart', patterns: [/dart|다트(?![가-힣])/i] },
     { canonical: 'svelte', patterns: [/svelte|스벨트/i] },
     { canonical: 'swiftui', patterns: [/swiftui|스위프트유아이/i] },
     { canonical: 'jetpack compose', patterns: [/jetpack\s*compose|젯팩\s*컴포즈/i] },

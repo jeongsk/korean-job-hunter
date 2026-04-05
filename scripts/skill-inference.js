@@ -27,13 +27,13 @@ const SKILL_MAP = {
   'kotlin': /kotlin|코틀린/i,
   'ruby': /ruby|루비/i,
   'php': /php/i,
-  'dart': /(?<!\w)dart(?!\w)|다트/i,
+  'dart': /(?<!\w)dart(?!\w)|다트(?![가-힣])/i,
   'r': /(?<!\w)r\s*language|(?<!\w)rlang|(?<=\s)r(?=\s|$)/i,
 
   // Frameworks
   'next.js': /next\.?js|넥스트/i,
   'nuxt': /nuxt|넉스트/i,
-  'vue': /vue(?:\.?js)?|뷰/i,
+  'vue': /vue(?:\.?js)?|뷰(?![가-힣])/i,
   'angular': /angular|앵귤러/i,
   'svelte': /svelte|스벨트/i,
   'node.js': /node\.?js|노드/i,
