@@ -218,6 +218,16 @@ const ROLE_SKILL_MAP = {
   'qa': ['jest', 'cypress'],
   '테스트': ['jest', 'cypress'],
   'sre': ['kubernetes', 'prometheus', 'docker'],
+  '임베디드': ['c++', 'linux', 'python'],
+  '인프라': ['aws', 'docker', 'kubernetes', 'linux'],
+  '게임': ['unity', 'c++', 'c#'],
+  '데이터 분석': ['python', 'sql'],
+  '데이터분석': ['python', 'sql'],
+  '보안': ['cybersecurity'],
+  '기술 리드': ['python', 'java', 'aws'],
+  '솔루션 아키텍트': ['aws', 'docker', 'kubernetes'],
+  '인공지능': ['python', 'tensorflow', 'pytorch'],
+  'ai': ['python', 'tensorflow', 'pytorch'],
 };
 
 function inferSkills(text) {

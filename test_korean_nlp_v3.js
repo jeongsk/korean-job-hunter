@@ -228,6 +228,9 @@ const testCases = [
     note: "주 N일 출근 pattern should detect hybrid work type" },
   { id: 104, input: "하이브리드 서울 공고", expectedFilters: ["j.work_type = 'hybrid'", "j.location LIKE '%서울%'"], expectedOrder: "a.updated_at DESC",
     note: "하이브리드 with location should not leak work_type keyword" },
+  // EXP-122: Particle stripping fix - 인프라 should not be stripped to 인프
+  { id: 105, input: "인프라 공고", expectedFilters: ["(j.title LIKE '%인프라%' OR j.company LIKE '%인프라%')"], expectedOrder: "a.updated_at DESC",
+    note: "인프라 should not have 라 stripped as particle" },
 ];
 
 // Run tests
