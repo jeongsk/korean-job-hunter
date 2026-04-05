@@ -244,15 +244,17 @@ function inferSkills(text) {
     }
   }
 
-  // Role-based fallback: if no explicit skills found, infer from role names (EXP-121)
-  if (skills.length === 0) {
-    const lowerText = text.toLowerCase();
-    for (const [role, roleSkills] of Object.entries(ROLE_SKILL_MAP)) {
-      const roleRegex = new RegExp(role, 'i');
-      if (roleRegex.test(lowerText)) {
-        for (const s of roleSkills) {
-          if (!skills.includes(s)) skills.push(s);
-        }
+  // Role-based supplement: add skills from role names (EXP-121, EXP-130)
+  // Always supplement — not just when zero skills found.
+  // Previously only fired when skills.length===0, but most Korean role titles
+  // (데브옵스, 보안, 머신러닝 etc.) already match a SKILL_MAP entry, so the
+  // role-supplementary skills (docker, kubernetes, ci/cd etc.) were never added.
+  const lowerText = text.toLowerCase();
+  for (const [role, roleSkills] of Object.entries(ROLE_SKILL_MAP)) {
+    const roleRegex = new RegExp(role, 'i');
+    if (roleRegex.test(lowerText)) {
+      for (const s of roleSkills) {
+        if (!skills.includes(s)) skills.push(s);
       }
     }
   }

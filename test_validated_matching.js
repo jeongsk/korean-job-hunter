@@ -8,7 +8,7 @@
  * and don't reflect the validated algorithm documented in SKILL.md.
  */
 
-const { SKILL_MAP } = require('./scripts/skill-inference');
+const { SKILL_MAP, inferSkills } = require('./scripts/skill-inference');
 
 // === Validated v4 Weights (EXP-017) ===
 const WEIGHTS = {
@@ -1069,6 +1069,26 @@ console.log('\n--- Employment Type Tests (EXP-085) ---');
   const ok = score < 50; // Should be heavily penalized (40% penalty on already-low base)
   console.log(`${ok ? '✅' : '❌'} Domain penalty for Python dev vs JS runtime job: score=${score} (expected < 50)`);
   ok ? passed++ : failed++;
+}
+
+// EXP-130: Role-based skill supplement improves matching discrimination
+{
+  // 데브옵스 job title for a Docker/Kubernetes candidate should score higher now
+  // because ROLE_SKILL_MAP supplements docker+kubernetes+ci/cd for 데브옵스
+  const devopsJobText = '데브옵스 엔지니어';
+  const devopsSkills = inferSkills(devopsJobText);
+  const hasK8s = devopsSkills.includes('kubernetes');
+  const hasDocker = devopsSkills.includes('docker');
+  const hasCICD = devopsSkills.includes('ci/cd');
+  const ok = hasK8s && hasDocker && hasCICD;
+  console.log(`${ok ? '✅' : '❌'} Role supplement: 데브옵스 → k8s=${hasK8s}, docker=${hasDocker}, ci/cd=${hasCICD}`);
+  ok ? passed++ : failed++;
+
+  // sre job should get k8s+prometheus+docker
+  const sreSkills = inferSkills('sre 엔지니어');
+  const sreOk = sreSkills.includes('kubernetes') && sreSkills.includes('prometheus');
+  console.log(`${sreOk ? '✅' : '❌'} Role supplement: sre → ${sreSkills.join(',')}`);
+  sreOk ? passed++ : failed++;
 }
 
 // Summary

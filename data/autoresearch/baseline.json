@@ -1,19 +1,17 @@
 {
-  "timestamp": "2026-04-05T11:04:00Z",
-  "experiment_id": "EXP-129",
-  "skill": "job-matching",
-  "focus": "match_skill_inference_integration",
-  "hypothesis": "Match test runner used hardcoded 13-skill map instead of inferSkills() with 135+ skills — integrating shared skill inference improves matching accuracy and test coverage",
+  "timestamp": "2026-04-05T12:04:00Z",
+  "experiment_id": "EXP-130",
+  "skill": "job-scraping+job-matching",
+  "focus": "role_based_skill_supplement",
+  "hypothesis": "ROLE_SKILL_MAP only fired when skills.length===0 but most Korean role titles already match a SKILL_MAP entry — role-based supplementary skills were dead for real job titles",
   "metrics": {
-    "total_tests": "1583 (all pass)",
+    "total_tests": "1593 (all pass)",
     "npm_test": "working",
     "test_suites": 61,
     "all_passing": true,
     "regressions": 0,
-    "discrimination_test_cases": "12 (was 7)",
-    "skill_patterns_in_matcher": "135+ via inferSkills (was 13 hardcoded)",
-    "tier2_similarity_entries": "45+ (was 7)",
-    "tier3_domain_entries": "13 (was 5)",
-    "domain_categories": "19 structured (was 8 manual)"
+    "skill_inference_count": "135+",
+    "role_skill_map_entries": "28",
+    "role_supplement_now_active": "always (was fallback-only)"
   }
 }
