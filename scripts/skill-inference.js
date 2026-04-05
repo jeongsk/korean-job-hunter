@@ -230,6 +230,26 @@ const ROLE_SKILL_MAP = {
   '솔루션 아키텍트': ['aws', 'docker', 'kubernetes'],
   '인공지능': ['python', 'tensorflow', 'pytorch'],
   'ai': ['python', 'tensorflow', 'pytorch'],
+  // English role titles common in Korean job market (EXP-133)
+  'backend': ['node.js', 'python', 'java'],
+  'back-end': ['node.js', 'python', 'java'],
+  'fullstack': ['react', 'node.js', 'typescript'],
+  'full stack': ['react', 'node.js', 'typescript'],
+  'full-stack': ['react', 'node.js', 'typescript'],
+  'data engineer': ['spark', 'airflow', 'python'],
+  'data scientist': ['python', 'machine learning'],
+  'data analyst': ['python', 'sql'],
+  'devops': ['docker', 'kubernetes', 'ci/cd'],
+  'mobile': ['flutter', 'react native'],
+  'android': ['kotlin', 'java'],
+  'cloud': ['aws', 'docker', 'kubernetes'],
+  'security': ['cybersecurity'],
+  'platform engineer': ['kubernetes', 'docker', 'linux'],
+  'site reliability': ['kubernetes', 'prometheus', 'docker'],
+  'embedded': ['c++', 'linux', 'python'],
+  'game': ['unity', 'c++', 'c#'],
+  'design': ['figma'],
+  'infra': ['aws', 'docker', 'kubernetes', 'linux'],
 };
 
 function inferSkills(text) {
