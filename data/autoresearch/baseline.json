@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-04-05T03:04:00Z",
-  "experiment_id": "EXP-121",
-  "skill": "job-scraping+job-matching",
-  "focus": "role_based_skill_inference_career_stage_bare",
-  "hypothesis": "Wanted API returns '경력' without year range → deriveCareerStage returns null. Korean role titles (프론트엔드 개발자) have zero extractable tech skills → skills always empty for ~50% of listings",
+  "timestamp": "2026-04-05T04:04:00Z",
+  "experiment_id": "EXP-122",
+  "skill": "job-tracking+job-scraping+job-matching",
+  "focus": "infra_particle_fix_role_expansion",
+  "hypothesis": "Particle stripping of 라 breaks 인프라 queries. 9 common Korean role titles have no skill inference fallback.",
   "metrics": {
-    "total_tests": "1428 (all pass)",
+    "total_tests": "1437 (all pass)",
     "npm_test": "working",
     "test_suites": 55,
     "all_passing": true,
     "regressions": 0,
-    "derive_career_stage_bare": "null → mid",
-    "role_based_inference": "9 role mappings added",
-    "new_tests": 15
+    "particle_인프라": "인프라% (fixed, was 인프%)",
+    "new_role_mappings": 9,
+    "role_skill_map_entries": 26
   }
 }
