@@ -1,17 +1,18 @@
 {
-  "timestamp": "2026-04-05T12:04:00Z",
-  "experiment_id": "EXP-130",
+  "timestamp": "2026-04-05T13:04:00Z",
+  "experiment_id": "EXP-131",
   "skill": "job-scraping+job-matching",
-  "focus": "role_based_skill_supplement",
-  "hypothesis": "ROLE_SKILL_MAP only fired when skills.length===0 but most Korean role titles already match a SKILL_MAP entry — role-based supplementary skills were dead for real job titles",
+  "focus": "search_time_skill_extraction",
+  "hypothesis": "parsePosition returned skills:[] for all API jobs — inferSkills(title) at search time gives meaningful skills without --details flag",
   "metrics": {
-    "total_tests": "1593 (all pass)",
+    "total_tests": "1609 (all pass)",
     "npm_test": "working",
-    "test_suites": 61,
+    "test_suites": 62,
     "all_passing": true,
     "regressions": 0,
     "skill_inference_count": "135+",
-    "role_skill_map_entries": "28",
-    "role_supplement_now_active": "always (was fallback-only)"
+    "role_skill_map_entries": "30",
+    "api_search_skills": "populated from title",
+    "real_api_hit_rate": "11/12 프론트엔드 jobs"
   }
 }
