@@ -72,24 +72,36 @@ const testCases = [
     note: "마감 임박 with space should match 마감임박 pattern" },
 
   // 신입 should be detected as experience filter
-  { id: 33, input: "신입 공고 있어?", expectedFilters: ["(j.experience LIKE '%신입%' OR j.experience LIKE '%무관%')"], expectedOrder: "a.updated_at DESC",
-    note: "신입 should trigger experience filter, not generic keyword search" },
+  { id: 33, input: "신입 공고 있어?", expectedFilters: ["(j.career_stage = 'entry' OR j.experience LIKE '%신입%' OR j.experience LIKE '%무관%')"], expectedOrder: "a.updated_at DESC",
+    note: "신입 should trigger experience filter using career_stage + LIKE fallback" },
 
   // 신입 + status combined
-  { id: 34, input: "신입 관심 공고", expectedFilters: ["a.status = 'interested'", "(j.experience LIKE '%신입%' OR j.experience LIKE '%무관%')"], expectedOrder: "a.updated_at DESC" },
+  { id: 34, input: "신입 관심 공고", expectedFilters: ["a.status = 'interested'", "(j.career_stage = 'entry' OR j.experience LIKE '%신입%' OR j.experience LIKE '%무관%')"], expectedOrder: "a.updated_at DESC" },
 
   // 마감순 should still be sort order, not trigger deadline filter
   { id: 35, input: "관심 공고 마감순", expectedFilters: ["a.status = 'interested'"], expectedOrder: "j.deadline ASC",
     note: "마감순 is sort order, 마감 should not leak into deadline filter" },
   // EXP-056: N년차 and 경력 standalone patterns
-  { id: 36, input: "5년차 공고 있어?", expectedFilters: ["j.experience LIKE '%5%'"], expectedOrder: "a.updated_at DESC",
-    note: "N년차 should trigger experience filter without keyword leak" },
-  { id: 37, input: "3년차 관심 공고", expectedFilters: ["a.status = 'interested'", "j.experience LIKE '%3%'"], expectedOrder: "a.updated_at DESC",
-    note: "N년차 + status composite without keyword leak" },
-  { id: 38, input: "경력 공고 있어?", expectedFilters: ["(j.experience NOT LIKE '%신입%' OR j.experience LIKE '%무관%')"], expectedOrder: "a.updated_at DESC",
-    note: "standalone 경력 excludes 신입-only jobs" },
-  { id: 39, input: "경력 5년 이상 서울", expectedFilters: ["j.experience LIKE '%5%'", "j.location LIKE '%서울%'"], expectedOrder: "a.updated_at DESC",
-    note: "경력 N년 + location composite (경력 is stopword, not leaked)" },
+  { id: 36, input: "5년차 공고 있어?", expectedFilters: ["j.career_stage IN ('mid','senior','lead')"], expectedOrder: "a.updated_at DESC",
+    note: "N년차 should trigger career_stage filter (5년차→mid+)" },
+  { id: 37, input: "3년차 관심 공고", expectedFilters: ["a.status = 'interested'", "j.career_stage IN ('entry','junior','mid','senior','lead')"], expectedOrder: "a.updated_at DESC",
+    note: "3년차 = junior level, show all tiers they qualify for" },
+  { id: 38, input: "경력 공고 있어?", expectedFilters: ["(j.career_stage IN ('junior','mid','senior','lead') OR (j.experience NOT LIKE '%신입%' OR j.experience LIKE '%무관%'))"], expectedOrder: "a.updated_at DESC",
+    note: "standalone 경력 uses career_stage with LIKE fallback" },
+  { id: 39, input: "경력 5년 이상 서울", expectedFilters: ["j.career_stage IN ('mid','senior','lead')", "j.location LIKE '%서울%'"], expectedOrder: "a.updated_at DESC",
+    note: "경력 N년 이상 uses career_stage filter (5년→mid+)" },
+
+  // --- EXP-125: career_stage-based experience queries ---
+  { id: 106, input: "10년 이상 공고", expectedFilters: ["j.career_stage IN ('senior','lead')"], expectedOrder: "a.updated_at DESC",
+    note: "10년 이상 → senior+ only (no false match on '10' in unrelated text)" },
+  { id: 107, input: "15년 이상 공고", expectedFilters: ["j.career_stage = 'lead'"], expectedOrder: "a.updated_at DESC",
+    note: "15년 이상 → lead only" },
+  { id: 108, input: "3년 이상 공고", expectedFilters: ["j.career_stage IN ('entry','junior','mid','senior','lead')"], expectedOrder: "a.updated_at DESC",
+    note: "3년 이상 → all except those requiring >3yrs explicitly excluded" },
+  { id: 109, input: "7년 이상 공고", expectedFilters: ["j.career_stage IN ('mid','senior','lead')"], expectedOrder: "a.updated_at DESC",
+    note: "7년 이상 → mid+ (7≤7 in deriveCareerStage = mid)" },
+  { id: 110, input: "10년차 공고 있어?", expectedFilters: ["j.career_stage IN ('senior','lead')"], expectedOrder: "a.updated_at DESC",
+    note: "10년차 → senior+ (deriveCareerStage(10)=senior, show that tier and above)" },
 
   // --- EXP-078: Skill-based filtering ---
   { id: 40, input: "React 공고 있어?", expectedFilters: ["j.skills LIKE '%react%'"], expectedOrder: "a.updated_at DESC",

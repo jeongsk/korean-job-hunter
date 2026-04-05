@@ -65,9 +65,9 @@ const testCases = [
   { id: 12, input: "관심 공고 마감순", expectedFilters: ["a.status = 'interested'"], expectedOrder: "j.deadline ASC" },
   { id: 13, input: "카카오 빼고 지원한 거", expectedFilters: ["a.status = 'applied'", "j.company NOT LIKE '%카카오%'"], expectedOrder: "a.updated_at DESC" },
   { id: 14, input: "재택 공고 있어?", expectedFilters: ["j.work_type = 'remote'"], expectedOrder: "a.updated_at DESC" },
-  { id: 15, input: "5년차 공고 있어?", expectedFilters: ["j.experience LIKE '%5%'"], expectedOrder: "a.updated_at DESC" },
+  { id: 15, input: "5년차 공고 있어?", expectedFilters: ["j.career_stage IN ('mid','senior','lead')"], expectedOrder: "a.updated_at DESC" },
   { id: 16, input: "마감임박 공고", expectedFilters: ["j.deadline IS NOT NULL AND j.deadline != '' AND julianday(j.deadline) - julianday('now') BETWEEN 0 AND 7"], expectedOrder: "a.updated_at DESC" },
-  { id: 17, input: "신입 공고 있어?", expectedFilters: ["(j.experience LIKE '%신입%' OR j.experience LIKE '%무관%')"], expectedOrder: "a.updated_at DESC" },
+  { id: 17, input: "신입 공고 있어?", expectedFilters: ["(j.career_stage = 'entry' OR j.experience LIKE '%신입%' OR j.experience LIKE '%무관%')"], expectedOrder: "a.updated_at DESC" },
 
   // --- Additional salary + composite tests ---
   { id: 18, input: "연봉 5000 이상 백엔드", expectedFilters: ["j.salary_min >= 5000"], note: "Salary + job keyword, no leak of '5000'" },

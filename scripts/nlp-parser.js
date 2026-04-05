@@ -149,24 +149,48 @@ function parseKoreanQuery(input) {
 
   // === Experience filter ===
   if (/신입/.test(text)) {
-    filters.push("(j.experience LIKE '%신입%' OR j.experience LIKE '%무관%')");
+    filters.push("(j.career_stage = 'entry' OR j.experience LIKE '%신입%' OR j.experience LIKE '%무관%')");
     consumedWords.add('신입');
   }
   const expMatch = text.match(/(\d+)\s*년\s*(이상|이상의)?/);
   if (expMatch) {
-    filters.push(`j.experience LIKE '%${expMatch[1]}%'`);
+    const years = parseInt(expMatch[1]);
+    // Map N년 이상 to career_stage for accurate filtering (not fragile LIKE '%N%')
+    // Matches deriveCareerStage logic: ≤3→junior, ≤7→mid, ≤12→senior, >12→lead
+    if (years <= 3) {
+      filters.push("j.career_stage IN ('entry','junior','mid','senior','lead')");
+    } else if (years <= 7) {
+      filters.push("j.career_stage IN ('mid','senior','lead')");
+    } else if (years <= 12) {
+      filters.push("j.career_stage IN ('senior','lead')");
+    } else {
+      filters.push("j.career_stage = 'lead'");
+    }
     consumedWords.add(expMatch[0]);
   }
   // N년차 pattern (e.g., "5년차" = 5th year of experience)
   const yoeMatch = text.match(/(\d+)\s*년차/);
   if (yoeMatch && !expMatch) {
-    filters.push(`j.experience LIKE '%${yoeMatch[1]}%'`);
+    const years = parseInt(yoeMatch[1]);
+    // N년차 means "I'm at N-th year" → show jobs suitable for that level
+    // More inclusive than N년 이상: show current tier and one below
+    if (years <= 1) {
+      filters.push("j.career_stage IN ('entry','junior','mid','senior','lead')");
+    } else if (years <= 3) {
+      filters.push("j.career_stage IN ('entry','junior','mid','senior','lead')");
+    } else if (years <= 7) {
+      filters.push("j.career_stage IN ('junior','mid','senior','lead')");
+    } else if (years <= 12) {
+      filters.push("j.career_stage IN ('mid','senior','lead')");
+    } else {
+      filters.push("j.career_stage IN ('senior','lead')");
+    }
     consumedWords.add(yoeMatch[0]);
     consumedWords.add('년차');
   }
   // "경력" standalone → show experienced jobs (exclude 신입-only)
   if (/경력/.test(text) && !/신입/.test(text) && !expMatch && !yoeMatch) {
-    filters.push("(j.experience NOT LIKE '%신입%' OR j.experience LIKE '%무관%')");
+    filters.push("(j.career_stage IN ('junior','mid','senior','lead') OR (j.experience NOT LIKE '%신입%' OR j.experience LIKE '%무관%'))");
     consumedWords.add('경력');
   }
 
