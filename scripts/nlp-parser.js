@@ -28,7 +28,7 @@ function parseKoreanQuery(input) {
 
   // === Status detection ===
   const statusPatterns = [
-    { regex: /면접(잡힌|보는)?/, status: 'interview', words: ['면접', '면접보는', '면접잡힌'] },
+    { regex: /면접(?!후결정)(잡힌|보는)?/, status: 'interview', words: ['면접', '면접보는', '면접잡힌'] },
     { regex: /지원(완료|한|했)/, status: 'applied', words: ['지원완료', '지원한', '지원했'] },
     { regex: /(관심|북마크|찜해둔|찜)/, status: 'interested', words: ['관심', '북마크', '찜해둔', '찜'] },
     { regex: /(합격|오퍼)/, status: 'offer', words: ['합격', '합격한', '오퍼'] },
@@ -110,6 +110,14 @@ function parseKoreanQuery(input) {
       filters.push("j.salary IS NOT NULL AND j.salary != ''");
     }
   }
+  // 면접후결정 (negotiable salary) — NOT an interview status
+  if (/면접\s*후\s*결정|면접후결정/.test(text)) {
+    filters.push("(j.salary LIKE '%면접후결정%' OR j.salary LIKE '%협의%' OR j.salary IS NULL OR j.salary = '')");
+    consumedWords.add('면접후결정');
+    consumedWords.add('면접');
+    consumedWords.add('후');
+    consumedWords.add('결정');
+  }
 
   // === Employment type filter (EXP-095) ===
   if (/정규직/.test(text)) {
@@ -152,7 +160,7 @@ function parseKoreanQuery(input) {
     filters.push("(j.career_stage = 'entry' OR j.experience LIKE '%신입%' OR j.experience LIKE '%무관%')");
     consumedWords.add('신입');
   }
-  const expMatch = text.match(/(\d+)\s*년\s*(이상|이상의)?/);
+  const expMatch = text.match(/(\d+)\s*년(?!차)\s*(이상|이상의)?/);
   if (expMatch) {
     const years = parseInt(expMatch[1]);
     // Map N년 이상 to career_stage for accurate filtering (not fragile LIKE '%N%')
@@ -169,21 +177,35 @@ function parseKoreanQuery(input) {
     consumedWords.add(expMatch[0]);
   }
   // N년차 pattern (e.g., "5년차" = 5th year of experience)
-  const yoeMatch = text.match(/(\d+)\s*년차/);
+  // Also handles "N년차 이상" (minimum experience) with tighter filtering
+  const yoeMatch = text.match(/(\d+)\s*년차(\s*이상)?/);
   if (yoeMatch && !expMatch) {
     const years = parseInt(yoeMatch[1]);
-    // N년차 means "I'm at N-th year" → show jobs suitable for that level
-    // More inclusive than N년 이상: show current tier and one below
-    if (years <= 1) {
-      filters.push("j.career_stage IN ('entry','junior','mid','senior','lead')");
-    } else if (years <= 3) {
-      filters.push("j.career_stage IN ('entry','junior','mid','senior','lead')");
-    } else if (years <= 7) {
-      filters.push("j.career_stage IN ('junior','mid','senior','lead')");
-    } else if (years <= 12) {
-      filters.push("j.career_stage IN ('mid','senior','lead')");
+    const isMinimum = !!yoeMatch[2]; // "이상" suffix → minimum threshold
+    if (isMinimum) {
+      // N년차 이상: restrictive, matching N년 이상 logic
+      if (years <= 3) {
+        filters.push("j.career_stage IN ('mid','senior','lead')");
+      } else if (years <= 7) {
+        filters.push("j.career_stage IN ('mid','senior','lead')");
+      } else if (years <= 12) {
+        filters.push("j.career_stage IN ('senior','lead')");
+      } else {
+        filters.push("j.career_stage = 'lead'");
+      }
     } else {
-      filters.push("j.career_stage IN ('senior','lead')");
+      // N년차 alone: show jobs suitable for that experience level
+      if (years <= 1) {
+        filters.push("j.career_stage IN ('entry','junior','mid','senior','lead')");
+      } else if (years <= 3) {
+        filters.push("j.career_stage IN ('entry','junior','mid','senior','lead')");
+      } else if (years <= 7) {
+        filters.push("j.career_stage IN ('mid','senior','lead')");
+      } else if (years <= 12) {
+        filters.push("j.career_stage IN ('senior','lead')");
+      } else {
+        filters.push("j.career_stage = 'lead'");
+      }
     }
     consumedWords.add(yoeMatch[0]);
     consumedWords.add('년차');
@@ -428,7 +450,7 @@ function parseKoreanQuery(input) {
   }
 
   // === Remaining Korean keywords (title/company search) ===
-  const stopWords = new Set(['면접', '면접보는', '면접잡힌', '정규직', '계약직', '파견', '인턴', '프리랜서', '프리랜스', '시니어', '주니어', '미드', '미들', '리드', '포지션', '레벨', '수준', '지원', '지원한', '지원할', '지원예정', '지원완료', '관심', '북마크', '찜', '찜해둔', '합격', '합격한', '오퍼', '탈락', '탈락한', '거절', '불합격', '재택', '재택으로', '재택근무', '전면재택', '원격', '원격근무', '리모트', '풀리모트', '완전재택', '하이브리드', '출근', '상시모집', '수시모집', '상시채용', '전부', '모두', '모든', '점수', '점수순으로', '매칭', '최신', '빼고', '제외', '말고', '있어', '보여', '보여줘', '공고', '거', '곳', '다', '중에', '할', '한', '수', '있는', '순으로', '보는', '잡힌', '해둔', '예정', '완료', '했', '을', '를', '이', '가', '에서', '의', '에', '연봉', '급여', '연수입', '마감임박', '곧마감', '마감순', '오늘', '내일', '마감', '기한', '데드라인', '경력', '년', '년차', '이상', '남은', '빠른순', '쓰는', '하는', '쓰는곳', '하는곳', '파이썬', '도커', '코틀린', '스프링', '장고', '플라스크', '넥스트', '뷰', '앵귤러', '노드', '익스프레스', '플러터', '쿠버네티스', '테라폼', '러스트', '스위프트', '루비', '레디스', '피그마', '리액트', '자바스크립트', '타입스크립트', '자바', '고언어', '부트', '리눅스', '엔진엑스', '데브옵스', '스파크', '하둡', '에어플로우', '디비티', '빅쿼리', '스노우플레이크', '리덕스', '주스탄드', '리코일', '몹엑스', '뷰엑스', '피니아', '유니티', '언리얼', '머신러닝', '래빗엠큐', '오라클', '다트', '스벨트', '스위프트유아이', '네스트', '넉스트', '라라벨', '레일즈', '닷넷', '앤서블', '랭체인', '허깅페이스', '파인튜닝', '프롬프트', '디퓨전', '벡터', '자연어', '자연어처리', '비전', '컴퓨터', '컴퓨터비전', '머신러닝', '파인튜닝', '프롬프트엔지니어링', '스테이블', '디퓨전', '벡터디비', '바이트', '테일윈드', '프리즈마', '버셀', '파이어베이스', '수파베이스', '스토리북', '제스트', '사이프레스', '호노',
+  const stopWords = new Set(['면접', '면접보는', '면접잡힌', '면접후결정', '결정', '정규직', '계약직', '파견', '인턴', '프리랜서', '프리랜스', '시니어', '주니어', '미드', '미들', '리드', '포지션', '레벨', '수준', '지원', '지원한', '지원할', '지원예정', '지원완료', '관심', '북마크', '찜', '찜해둔', '합격', '합격한', '오퍼', '탈락', '탈락한', '거절', '불합격', '재택', '재택으로', '재택근무', '전면재택', '원격', '원격근무', '리모트', '풀리모트', '완전재택', '하이브리드', '출근', '상시모집', '수시모집', '상시채용', '전부', '모두', '모든', '점수', '점수순으로', '매칭', '최신', '빼고', '제외', '말고', '있어', '보여', '보여줘', '공고', '거', '곳', '다', '중에', '할', '한', '수', '있는', '순으로', '보는', '잡힌', '해둔', '예정', '완료', '했', '을', '를', '이', '가', '에서', '의', '에', '연봉', '급여', '연수입', '마감임박', '곧마감', '마감순', '오늘', '내일', '마감', '기한', '데드라인', '경력', '년', '년차', '이상', '남은', '빠른순', '쓰는', '하는', '쓰는곳', '하는곳', '파이썬', '도커', '코틀린', '스프링', '장고', '플라스크', '넥스트', '뷰', '앵귤러', '노드', '익스프레스', '플러터', '쿠버네티스', '테라폼', '러스트', '스위프트', '루비', '레디스', '피그마', '리액트', '자바스크립트', '타입스크립트', '자바', '고언어', '부트', '리눅스', '엔진엑스', '데브옵스', '스파크', '하둡', '에어플로우', '디비티', '빅쿼리', '스노우플레이크', '리덕스', '주스탄드', '리코일', '몹엑스', '뷰엑스', '피니아', '유니티', '언리얼', '머신러닝', '래빗엠큐', '오라클', '다트', '스벨트', '스위프트유아이', '네스트', '넉스트', '라라벨', '레일즈', '닷넷', '앤서블', '랭체인', '허깅페이스', '파인튜닝', '프롬프트', '디퓨전', '벡터', '자연어', '자연어처리', '비전', '컴퓨터', '컴퓨터비전', '머신러닝', '파인튜닝', '프롬프트엔지니어링', '스테이블', '디퓨전', '벡터디비', '바이트', '테일윈드', '프리즈마', '버셀', '파이어베이스', '수파베이스', '스토리북', '제스트', '사이프레스', '호노',
     // EXP-128: Korean skill aliases from EXP-103 (runtimes/ORM/monitoring/desktop/mobile)
     '데노', '레믹스', '아스트로', '패스티파이', '코아', '드리즐', '타입오알엠', '타우리', '캐패시터', '아이오닉', '데이터독',
     // EXP-128: Korean skill aliases from EXP-116 (blockchain/security/platform)
