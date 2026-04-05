@@ -13,6 +13,32 @@ const { URL } = require('url');
 const { inferSkills, deriveCareerStage } = require('./skill-inference');
 const { extractCultureKeywords, normalizeSalary, normalizeDeadline, extractSalaryLine } = require('./post-process-wanted');
 
+// EXP-132: Wanted category_tag ID → role title mapping
+// The search API returns category_tag.id on each position but no title.
+// We maintain a known mapping so ambiguous titles like "Product Engineer"
+// with category_tag.id=669 (프론트엔드 개발자) get appropriate skills.
+const CATEGORY_MAP = {
+  // 개발 (parent_id: 518)
+  669: '프론트엔드 개발자',
+  672: '백엔드 개발자',
+  899: '풀스택 개발자',
+  873: '시니어 개발자',     // senior-level dev, broad
+  939: '개발자',            // generic dev
+  660: '안드로이드 개발자',
+  655: 'iOS 개발자',
+  677: '데이터 엔지니어',
+  678: '데이터 사이언티스트',
+  674: 'DevOps / 시스템 관리자',
+  663: '소프트웨어 엔지니어',
+  895: '머신러닝 엔지니어',
+  665: 'QA 엔지니어',
+  681: '보안 엔지니어',
+  794: '프로덕트 매니저',
+  795: '프로덕트 디자이너',
+  // 비개발 (parent_id: 507)
+  565: '기획',
+};
+
 function fetchJSON(url) {
   return new Promise((resolve, reject) => {
     const parsed = new URL(url);
@@ -65,7 +91,20 @@ function parsePosition(pos) {
   // Extract skills from title at search time (EXP-131)
   // Previously skills were always [] — only populated via --details flag.
   // Title-based inference gives meaningful skills for matching without detail fetch.
-  const skills = inferSkills(title);
+  let skills = inferSkills(title);
+
+  // EXP-132: Use category_tag as fallback when title yields no skills.
+  // API returns category_tag.id which maps to job role categories.
+  // category_tags from the search response provides id→title mapping.
+  if (skills.length === 0 && pos.category_tag?.id) {
+    const catTitle = CATEGORY_MAP[pos.category_tag.id];
+    if (catTitle) {
+      const categorySkills = inferSkills(catTitle);
+      if (categorySkills.length > 0) {
+        skills = categorySkills;
+      }
+    }
+  }
 
   return {
     id,
