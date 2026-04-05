@@ -59,7 +59,7 @@ assert(extractExperienceRange('자격요건\n- 10년 이상의 소프트웨어 �
 
 // Career stage derivation with extracted range
 console.log('  Career stage from extracted range');
-assert(deriveCareerStage('6년 이상') === 'mid', '6년 → mid');
+assert(deriveCareerStage('6년 이상') === 'mid', '6년 이상 → mid');
 assert(deriveCareerStage('3~5년') === 'mid', '3~5년 → mid');
 assert(deriveCareerStage('10년 이상') === 'senior', '10년 → senior');
 assert(deriveCareerStage('1년 이상') === 'junior', '1년 → junior');

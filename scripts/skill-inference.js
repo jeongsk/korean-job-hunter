@@ -304,14 +304,18 @@ function deriveCareerStage(experience) {
   const upMatch = exp.match(/(\d+)\s*년\s*↑/);
   const singleMatch = exp.match(/(\d+)\s*년/);
   let years = null;
-  if (rangeMatch) years = parseInt(rangeMatch[2]);
-  else if (minMatch) years = parseInt(minMatch[1]);
-  else if (upMatch) years = parseInt(upMatch[1]);
+  let isMinimum = false; // "N년 이상" — minimum experience, not exact
+  if (rangeMatch) years = parseInt(rangeMatch[2]); // upper bound of range
+  else if (minMatch) { years = parseInt(minMatch[1]); isMinimum = true; }
+  else if (upMatch) { years = parseInt(upMatch[1]); isMinimum = true; }
   else if (singleMatch) years = parseInt(singleMatch[1]);
   if (years === null) return null;
-  if (years <= 3) return 'junior';
-  if (years <= 7) return 'mid';
-  if (years <= 12) return 'senior';
+  // For minimum-experience patterns ("N년 이상"), bump by +1 to reflect
+  // the target seniority level: "3년 이상" expects mid-level developers.
+  const ref = isMinimum ? years + 1 : years;
+  if (ref <= 3) return 'junior';
+  if (ref <= 7) return 'mid';
+  if (ref <= 12) return 'senior';
   return 'lead';
 }
 

@@ -78,7 +78,7 @@ assert(dcs('3~7년') === 'mid', '3~7년 → mid');
 assert(dcs('1~3년') === 'junior', '1~3년 → junior');
 assert(dcs('5~10년') === 'senior', '5~10년 → senior');
 assert(dcs('10~15년') === 'lead', '10~15년 → lead');
-assert(dcs('3년 이상') === 'junior', '3년 이상 → junior');
+assert(dcs('3년 이상') === 'mid', '3년 이상 → mid');
 assert(dcs('8년 이상') === 'senior', '8년 이상 → senior');
 assert(dcs('5년↑') === 'mid', '5년↑ → mid');
 assert(dcs('2년') === 'junior', '2년 → junior');
