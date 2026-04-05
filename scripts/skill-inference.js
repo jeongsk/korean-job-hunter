@@ -33,7 +33,7 @@ const SKILL_MAP = {
   // Frameworks
   'next.js': /next\.?js|넥스트/i,
   'nuxt': /nuxt|넉스트/i,
-  'vue': /vue\.?js?|뷰/i,
+  'vue': /vue(?:\.?js)?|뷰/i,
   'angular': /angular|앵귤러/i,
   'svelte': /svelte|스벨트/i,
   'node.js': /node\.?js|노드/i,
