@@ -67,8 +67,24 @@ function fetchJSON(url) {
   });
 }
 
+/**
+ * Clean company name from Wanted API by removing Korean legal entity prefixes.
+ * Wanted API returns names like "(주)카카오", "주식회사 토스", "㈜배달의민족".
+ * These prefixes break company matching, dedup, and NLP queries.
+ */
+function cleanCompanyName(name) {
+  if (!name) return '회사명 미상';
+  return name
+    .replace(/^㈜\s*/, '')           // ㈜ prefix
+    .replace(/^\(주\)\s*/, '')       // (주) prefix
+    .replace(/^주식회사\s*/, '')     // 주식회사 prefix
+    .replace(/^유한회사\s*/, '')     // 유한회사 prefix
+    .replace(/^\(유\)\s*/, '')       // (유) prefix
+    .trim() || '회사명 미상';
+}
+
 function parsePosition(pos) {
-  const company = pos.company?.name || '회사명 미상';
+  const company = cleanCompanyName(pos.company?.name);
   const title = pos.position || '직무 미상';
   const id = String(pos.id || '');
   const link = id ? `https://www.wanted.co.kr/wd/${id}` : '';
