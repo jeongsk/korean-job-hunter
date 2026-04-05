@@ -3,7 +3,7 @@
  * Verifies Korean + English keyword extraction, normalization, and edge cases.
  */
 
-const { inferSkills, SKILL_MAP } = require('./scripts/skill-inference');
+const { inferSkills, deriveCareerStage, SKILL_MAP } = require('./scripts/skill-inference');
 
 let passed = 0, failed = 0;
 
@@ -323,6 +323,31 @@ assertIncludes('Real: Spring Boot', inferSkills('Spring Boot backend'), ['spring
 assertIncludes('Real: Express.js', inferSkills('Express.js API server'), ['express']);
 assertIncludes('Real: Flask API', inferSkills('Flask Python API'), ['flask']);
 assertIncludes('Real: Sentry monitoring', inferSkills('Sentry error monitoring'), ['sentry']);
+
+// EXP-121: Role-based skill inference (fallback when no explicit tech keywords)
+console.log('\n--- EXP-121: Role-based skill inference ---');
+assertIncludes('Role: 프론트엔드 개발자', inferSkills('프론트엔드 개발자'), ['react', 'typescript']);
+assertIncludes('Role: 백엔드 엔지니어', inferSkills('백엔드 엔지니어'), ['node.js', 'python']);
+assertIncludes('Role: 풀스택 개발자', inferSkills('풀스택 개발자'), ['react', 'node.js']);
+assertIncludes('Role: 안드로이드 개발자', inferSkills('안드로이드 개발자'), ['kotlin', 'java']);
+assertIncludes('Role: 데이터 엔지니어', inferSkills('데이터 엔지니어'), ['spark', 'airflow']);
+assertIncludes('Role: 시니어 프론트엔드 개발자', inferSkills('시니어 프론트엔드 개발자'), ['react', 'typescript']);
+assert('Role: React 개발자 uses explicit not fallback', inferSkills('React 개발자'), ['react']);
+assert('Role: unknown role → empty', inferSkills('Product Engineer'), []);
+
+// EXP-121: deriveCareerStage bare "경력"
+console.log('\n--- EXP-121: deriveCareerStage bare 경력 ---');
+function assertEq(msg, actual, expected) {
+  if (actual === expected) { console.log(`✅ ${msg}`); passed++; }
+  else { console.log(`❌ ${msg}: got ${actual}, expected ${expected}`); failed++; }
+}
+assertEq('bare 경력 → mid', deriveCareerStage('경력'), 'mid');
+assertEq('경력 10년 이상 → senior', deriveCareerStage('경력 10년 이상'), 'senior');
+assertEq('경력 3-5년 → mid', deriveCareerStage('경력 3-5년'), 'mid');
+assertEq('경력무관 → null', deriveCareerStage('경력무관'), null);
+assertEq('신입 → entry', deriveCareerStage('신입'), 'entry');
+assertEq('null → null', deriveCareerStage(null), null);
+assertEq('empty string → null', deriveCareerStage(''), null);
 
 // EXP-116: Skill count check
 const expectedSkillCount = 135; // 122 + 13 new

@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-04-05T01:04:00Z",
-  "experiment_id": "EXP-119",
-  "skill": "job-scraping",
-  "focus": "api_scraper_enrichment_parity",
-  "hypothesis": "Wanted API scraper used 35 inline skill patterns instead of shared 135-skill module and missed culture/salary/deadline/career_stage/work_type enrichment entirely",
+  "timestamp": "2026-04-05T03:04:00Z",
+  "experiment_id": "EXP-121",
+  "skill": "job-scraping+job-matching",
+  "focus": "role_based_skill_inference_career_stage_bare",
+  "hypothesis": "Wanted API returns '경력' without year range → deriveCareerStage returns null. Korean role titles (프론트엔드 개발자) have zero extractable tech skills → skills always empty for ~50% of listings",
   "metrics": {
-    "total_tests": "1393 (all pass)",
+    "total_tests": "1428 (all pass)",
     "npm_test": "working",
-    "test_suites": 54,
+    "test_suites": 55,
     "all_passing": true,
     "regressions": 0,
-    "api_skill_patterns": "35→135+",
-    "api_enrichment_modules": "0→5",
-    "api_new_fields": 6
+    "derive_career_stage_bare": "null → mid",
+    "role_based_inference": "9 role mappings added",
+    "new_tests": 15
   }
 }

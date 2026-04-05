@@ -197,6 +197,29 @@ const SKILL_MAP = {
  * @param {string} text - Job title or combined title+description
  * @returns {string[]} Array of matched skill names
  */
+// Role-based skill mapping: Korean role names → likely skills (EXP-121)
+// Used as fallback when no explicit tech keywords found in title+description
+const ROLE_SKILL_MAP = {
+  '프론트엔드': ['react', 'typescript', 'javascript'],
+  '백엔드': ['node.js', 'python', 'java'],
+  '풀스택': ['react', 'node.js', 'typescript'],
+  '데브옵스': ['docker', 'kubernetes', 'ci/cd'],
+  '데이터 엔지니어': ['spark', 'airflow', 'python'],
+  '데이터 사이언티스트': ['python', 'machine learning'],
+  '머신러닝': ['python', 'machine learning', 'tensorflow'],
+  '모바일': ['flutter', 'react native'],
+  '안드로이드': ['kotlin', 'java'],
+  '아이오에스': ['swift', 'swiftui'],  // iOS Korean
+  'iOS': ['swift', 'swiftui'],
+  '디자인': ['figma'],
+  '클라우드': ['aws', 'docker', 'kubernetes'],
+  '시큐리티': ['cybersecurity'],
+  '정보보안': ['cybersecurity'],
+  'qa': ['jest', 'cypress'],
+  '테스트': ['jest', 'cypress'],
+  'sre': ['kubernetes', 'prometheus', 'docker'],
+};
+
 function inferSkills(text) {
   if (!text || typeof text !== 'string') return [];
   const skills = [];
@@ -208,6 +231,19 @@ function inferSkills(text) {
   for (const [skill, regex] of sorted) {
     if (regex.test(text)) {
       skills.push(skill);
+    }
+  }
+
+  // Role-based fallback: if no explicit skills found, infer from role names (EXP-121)
+  if (skills.length === 0) {
+    const lowerText = text.toLowerCase();
+    for (const [role, roleSkills] of Object.entries(ROLE_SKILL_MAP)) {
+      const roleRegex = new RegExp(role, 'i');
+      if (roleRegex.test(lowerText)) {
+        for (const s of roleSkills) {
+          if (!skills.includes(s)) skills.push(s);
+        }
+      }
     }
   }
 
@@ -227,6 +263,8 @@ function deriveCareerStage(experience) {
   if (/신입[·/].*경력|경력[·/].*신입/.test(exp)) return 'entry'; // 신입·경력 = entry-level friendly
   if (/신입/.test(exp) && !/경력/.test(exp)) return 'entry';
   if (/무관/.test(exp)) return null;
+  // Bare "경력" without year numbers → mid default (EXP-121)
+  if (/경력/.test(exp) && !/\d/.test(exp)) return 'mid';
   const rangeMatch = exp.match(/(\d+)\s*[~-]\s*(\d+)\s*년/);
   const minMatch = exp.match(/(\d+)\s*년\s*이상/);
   const upMatch = exp.match(/(\d+)\s*년\s*↑/);
