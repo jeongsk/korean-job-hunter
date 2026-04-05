@@ -62,6 +62,11 @@ function parsePosition(pos) {
   // Derive career stage from experience text
   const careerStage = deriveCareerStage(experience);
 
+  // Extract skills from title at search time (EXP-131)
+  // Previously skills were always [] — only populated via --details flag.
+  // Title-based inference gives meaningful skills for matching without detail fetch.
+  const skills = inferSkills(title);
+
   return {
     id,
     title,
@@ -81,7 +86,7 @@ function parsePosition(pos) {
     salary_max: null,
     career_stage: careerStage,
     culture_keywords: [],
-    skills: [],
+    skills,
   };
 }
 

@@ -201,6 +201,8 @@ const SKILL_MAP = {
 // Used as fallback when no explicit tech keywords found in title+description
 const ROLE_SKILL_MAP = {
   '프론트엔드': ['react', 'typescript', 'javascript'],
+  '프론트': ['react', 'typescript', 'javascript'],
+  'frontend': ['react', 'typescript', 'javascript'],
   '백엔드': ['node.js', 'python', 'java'],
   '풀스택': ['react', 'node.js', 'typescript'],
   '데브옵스': ['docker', 'kubernetes', 'ci/cd'],
