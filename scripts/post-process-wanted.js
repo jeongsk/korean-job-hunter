@@ -109,9 +109,21 @@ function parseWantedJob(raw) {
   t = t.replace(/\[.*?\]/g, '').replace(/(?!\([^)]*)\/(?![^(]*\))/g, ' ').trim();
 
   // === Bare location ===
+  // EXP-133: Guard against matching city names inside company names
+  // e.g., 삼성 in 삼성전자, 여의도 in 여의도금융 etc.
+  const COMPANY_SUFFIXES = /^(전자|생명|증권|카드|자동차|중공업|건설|물산|전기|화재|금융|은행|투자|캐피탈|저축은행|에스디에스|네트웍스|웰스토리|바이오|에이치알|디스플레이|모터스|글로벌|홀딩스|인베스트먼트|시스템|정밀|에어로스페이스|에너지|헬스케어|반도체|소재|엔지니어링|엔터테인먼트|웹툰|벤처스|스튜디오|게임즈|인터넷|로지스틱스|엠엘비|푸드|리테일|오토모티브|모빌리티)/;
   if (!r.location) {
     const lp = t.match(new RegExp(CITIES + '(?:\\s+[가-힣]{2,3}(?:구|시|군|동))?'));
-    if (lp) r.location = lp[0];
+    if (lp) {
+      // Check if the matched location is followed by a company suffix (e.g., 삼성→전자)
+      const afterMatch = t.substring(lp.index + lp[0].length).trim();
+      const afterFirst = afterMatch.match(/^([가-힣]{2,6})/);
+      if (afterFirst && COMPANY_SUFFIXES.test(afterFirst[1])) {
+        // Skip — this is part of a company name
+      } else {
+        r.location = lp[0];
+      }
+    }
   }
   if (r.location) t = t.replace(new RegExp(escapeRegExp(r.location), 'g'), ' ').trim();
 
@@ -151,7 +163,9 @@ function parseWantedJob(raw) {
   // Sort by length DESC for longest match
   kInd.sort((a, b) => b.length - a.length);
   for (const ind of kInd) {
-    const m = t.match(new RegExp(escapeRegExp(ind) + '\\s*([^\\s,]+(?:\\s[^\\s,]+)?)'));
+    // EXP-133: Only capture Korean company name characters, stop at role suffixes
+    // Previously ([^\s,]+(?:\s[^\s,]+)?) was too greedy, e.g., "㈜삼성전자 백엔드" → "삼성전자 백엔드"
+    const m = t.match(new RegExp(escapeRegExp(ind) + '\\s*([A-Za-z가-힣]+(?:[A-Za-z가-힣·]*)?)'));
     if (m) { cm = m[0]; break; }
   }
 
@@ -183,8 +197,12 @@ function parseWantedJob(raw) {
   }
 
   if (cm) {
-    r.company = cm.replace(/^[\s㈜]+/, '').replace(/^\(주\)\s*/, '');
+    r.company = cm.replace(/^[\s㈜]+/, '').replace(/^\(주\)\s*/, '').replace(/^(주식회사|유한회사)\s*/, '');
     if (!cm.includes('㈜') && !cm.includes('주식회사') && !cm.includes('(주)')) {
+      t = t.replace(new RegExp(escapeRegExp(cm), 'g'), ' ');
+    } else {
+      // EXP-133: Remove indicator-prefixed company name from title text too
+      // e.g., "㈜삼성전자 백엔드 엔지니어" → " 백엔드 엔지니어"
       t = t.replace(new RegExp(escapeRegExp(cm), 'g'), ' ');
     }
   }
@@ -202,12 +220,20 @@ function parseWantedJob(raw) {
   // === Remove adjacent English parenthetical after company removal (EXP-066) ===
   // e.g., "버티고우게임즈 (Vertigo Games)" → company extracted as "버티고우게임즈",
   // but "(Vertigo Games)" still in text. Remove it.
+  // EXP-133: Guard against removing role-level parentheticals (Senior/Junior/Lead)
+  // and tech-skill parentheticals (JAVA/Python/React) that belong in the title.
+  const ROLE_LEVEL_WORDS = /^(senior|junior|lead|principal|staff|manager|director|intern|sr|jr|mid|entry|expert|specialist|associate|executive|vp|head|chief|해외|신입|경력)/i;
+  const TECH_SKILL_WORDS = /^(java|python|react|typescript|javascript|node|angular|vue|kotlin|swift|go|rust|c\+\+|c#|ruby|php|scala|r|sql|docker|kubernetes|aws|gcp|azure|flutter|swiftui|spring|django|fastapi|nestjs|next\.js|svelte|tailwind|graphql|figma)$/i;
   if (r.company && r.company !== '회사명 미상' && r.company.length >= 2) {
     const escCmp = escapeRegExp(r.company);
     // Match: company name (removed → spaces) followed by optional spaces then (English)
     const adjParen = t.match(new RegExp('\\s+\\(\\s*([A-Z][A-Za-z0-9\\s&.\\-]+)\\s*\\)'));
     if (adjParen && !/\//.test(adjParen[0]) && adjParen[1].trim().length > 2) {
-      t = t.replace(adjParen[0], ' ');
+      const content = adjParen[1].trim();
+      // Skip removal if content is a role level or tech skill — belongs in title
+      if (!ROLE_LEVEL_WORDS.test(content) && !TECH_SKILL_WORDS.test(content)) {
+        t = t.replace(adjParen[0], ' ');
+      }
     }
   }
 
