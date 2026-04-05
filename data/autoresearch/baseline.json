@@ -1,18 +1,19 @@
 {
-  "timestamp": "2026-04-05T10:04:00Z",
-  "experiment_id": "EXP-128",
-  "skill": "job-tracking",
-  "focus": "nlp_keyword_leak_korean_aliases",
-  "hypothesis": "23 Korean skill aliases added in EXP-103 (runtimes/ORM/monitoring), EXP-116 (blockchain/security/platform), and EXP-101 (modern web tools) were never added to NLP parser stopWords — they leak into title/company LIKE search as spurious filters",
+  "timestamp": "2026-04-05T11:04:00Z",
+  "experiment_id": "EXP-129",
+  "skill": "job-matching",
+  "focus": "match_skill_inference_integration",
+  "hypothesis": "Match test runner used hardcoded 13-skill map instead of inferSkills() with 135+ skills — integrating shared skill inference improves matching accuracy and test coverage",
   "metrics": {
     "total_tests": "1583 (all pass)",
     "npm_test": "working",
     "test_suites": 61,
     "all_passing": true,
     "regressions": 0,
-    "keyword_leaks_before": 23,
-    "keyword_leaks_after": 0,
-    "particle_truncation_fixes": 3,
-    "new_test_cases": 28
+    "discrimination_test_cases": "12 (was 7)",
+    "skill_patterns_in_matcher": "135+ via inferSkills (was 13 hardcoded)",
+    "tier2_similarity_entries": "45+ (was 7)",
+    "tier3_domain_entries": "13 (was 5)",
+    "domain_categories": "19 structured (was 8 manual)"
   }
 }
