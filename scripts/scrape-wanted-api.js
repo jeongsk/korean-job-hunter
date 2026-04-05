@@ -116,6 +116,29 @@ async function fetchDetail(wdId, title) {
   }
 }
 
+/**
+ * Extract specific experience year range from JD description text.
+ * Returns extracted range string (e.g., "6년 이상", "3~5년") or null.
+ */
+function extractExperienceRange(description) {
+  if (!description) return null;
+  // Priority 1: "N년 이상" or "N년~M년 이상"
+  let m = description.match(/(\d+)\s*년\s*~\s*(\d+)\s*년?\s*이상/);
+  if (m) return `${m[1]}~${m[2]}년 이상`;
+  // Priority 2: "N~M년" or "N-M년"
+  m = description.match(/(\d+)\s*[~-]\s*(\d+)\s*년/);
+  if (m) return `${m[1]}~${m[2]}년`;
+  // Priority 3: "N년 이상"
+  m = description.match(/(\d+)\s*년\s*이상/);
+  if (m) return `${m[1]}년 이상`;
+  // Priority 4: "N년 차" or "N년차"
+  m = description.match(/(\d+)\s*년\s*차/);
+  if (m) return `${m[1]}년차`;
+  // Priority 5: "신입" in qualification section
+  if (/자격요건[^]*신입/.test(description)) return '신입';
+  return null;
+}
+
 function detectWorkType(text) {
   if (!text) return null;
   const t = text.toLowerCase();
@@ -171,10 +194,18 @@ async function main() {
       if (detail.full_location) job.full_location = detail.full_location;
       if (detail.geo_location) job.geo_location = detail.geo_location;
       if (detail.description) job.description = detail.description;
-      // Re-derive career_stage with detail text for better accuracy
+      // Extract specific experience range from detail description
       if (detail.description) {
-        const stage = deriveCareerStage(job.experience + ' ' + detail.description);
-        if (stage && stage !== 'mid') job.career_stage = stage; // prefer more specific
+        const expRange = extractExperienceRange(detail.description);
+        if (expRange) {
+          job.experience = expRange;
+          // Re-derive career_stage with specific range for better accuracy
+          job.career_stage = deriveCareerStage(expRange);
+        } else {
+          // Fallback: derive from combined text
+          const stage = deriveCareerStage(job.experience + ' ' + detail.description);
+          if (stage && stage !== 'mid') job.career_stage = stage;
+        }
       }
       // Small delay to be respectful
       await new Promise(r => setTimeout(r, 500));
