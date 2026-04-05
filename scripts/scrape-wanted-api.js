@@ -119,7 +119,7 @@ function parsePosition(pos) {
     reward,
     link,
     source: 'wanted-api',
-    work_type: null,      // enriched via detail page
+    work_type: detectWorkType(title),  // detect from title; enriched via detail page
     salary: null,         // enriched via detail page
     salary_min: null,
     salary_max: null,
