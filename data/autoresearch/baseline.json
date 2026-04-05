@@ -1,17 +1,18 @@
 {
-  "timestamp": "2026-04-05T04:04:00Z",
-  "experiment_id": "EXP-122",
-  "skill": "job-tracking+job-scraping+job-matching",
-  "focus": "infra_particle_fix_role_expansion",
-  "hypothesis": "Particle stripping of 라 breaks 인프라 queries. 9 common Korean role titles have no skill inference fallback.",
+  "timestamp": "2026-04-05T05:04:00Z",
+  "experiment_id": "EXP-123",
+  "skill": "job-scraping",
+  "focus": "api_experience_extraction_accuracy",
+  "hypothesis": "Wanted API scraper always sets experience to bare '경력' instead of extracting specific year ranges from detail descriptions",
   "metrics": {
-    "total_tests": "1437 (all pass)",
+    "total_tests": "1456 (all pass)",
     "npm_test": "working",
-    "test_suites": 55,
+    "test_suites": 56,
     "all_passing": true,
     "regressions": 0,
-    "particle_인프라": "인프라% (fixed, was 인프%)",
-    "new_role_mappings": 9,
-    "role_skill_map_entries": 26
+    "api_experience_before": "bare '경력'/'신입가능'",
+    "api_experience_after": "specific ranges (e.g., '6년 이상', '3~5년')",
+    "experience_patterns": 5,
+    "new_tests": 19
   }
 }
