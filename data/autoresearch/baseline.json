@@ -1,19 +1,18 @@
 {
-  "timestamp": "2026-04-05T09:04:00Z",
-  "experiment_id": "EXP-127",
-  "skill": "job-tracking+job-scraping",
-  "focus": "nlp_location_coverage",
-  "hypothesis": "NLP parser location list (23) was missing 5 locations from CITIES regex (28) — jobs scraped with those locations were stored but undiscoverable via NLP queries",
+  "timestamp": "2026-04-05T10:04:00Z",
+  "experiment_id": "EXP-128",
+  "skill": "job-tracking",
+  "focus": "nlp_keyword_leak_korean_aliases",
+  "hypothesis": "23 Korean skill aliases added in EXP-103 (runtimes/ORM/monitoring), EXP-116 (blockchain/security/platform), and EXP-101 (modern web tools) were never added to NLP parser stopWords — they leak into title/company LIKE search as spurious filters",
   "metrics": {
-    "total_tests": "1555 (all pass)",
+    "total_tests": "1583 (all pass)",
     "npm_test": "working",
-    "test_suites": 60,
+    "test_suites": 61,
     "all_passing": true,
     "regressions": 0,
-    "nlp_locations_before": 23,
-    "nlp_locations_after": 48,
-    "cities_locations_before": 28,
-    "cities_locations_after": 48,
-    "cities_nlp_coverage": "100%"
+    "keyword_leaks_before": 23,
+    "keyword_leaks_after": 0,
+    "particle_truncation_fixes": 3,
+    "new_test_cases": 28
   }
 }
