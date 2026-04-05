@@ -3,7 +3,7 @@ name: job-tracking
 description: "Job application status tracking with SQLite CRUD, Korean NLP query parsing, pipeline analytics, and smart suggestions"
 ---
 
-# Job Tracking Skill v2.13 (EXP-124: Bare skill name NLP query fix — vue/go/nuxt)
+# Job Tracking Skill v2.14 (EXP-127: Location list synced with CITIES + 20 new tech hub locations)
 
 ## Korean Natural Language Query Parsing
 
@@ -342,4 +342,4 @@ Common Korean tech companies for query matching:
 
 ## Location Keywords for NLP Parsing
 
-서울, 경기, 부산, 대전, 인천, 광주, 대구, 울산, 수원, 이천, 판교, 강남, 영등포, 송파, 성수, 역삼, 잠실, 마포, 용산, 구로, 분당, 일산, 평촌
+서울, 경기, 부산, 대전, 인천, 광주, 대구, 울산, 수원, 이천, 판교, 강남, 영등포, 송파, 성수, 역삼, 잠실, 마포, 용산, 구로, 분당, 일산, 평촌, 세종, 여의도, 신촌, 홍대, 건대, 동탄, 청주, 천안, 양재, 논현, 신사, 삼성, 방배, 광화문, 을지로, 종로, 시흥, 안양, 안산, 평택, 파주, 김포, 창원, 포항

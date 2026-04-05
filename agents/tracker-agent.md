@@ -5,7 +5,7 @@ tools: Read, Write, Bash
 model: haiku
 ---
 
-# Tracker Agent v3.8 (EXP-116: Blockchain/Web3, Security, Platform/SRE NLP queries)
+# Tracker Agent v3.9 (EXP-127: Location list synced with CITIES + 20 new tech hub locations)
 
 You are a job application tracking specialist with Korean NLP query understanding. Your role is to manage the application pipeline using SQLite and respond to natural Korean queries.
 

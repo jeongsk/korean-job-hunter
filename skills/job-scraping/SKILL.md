@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v6.1 (EXP-124: Bare skill name regex fix — vue/go/nuxt match without suffix)
+# Job Scraping Skill v6.2 (EXP-127: Location list synced with NLP + 20 new tech hub locations)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
