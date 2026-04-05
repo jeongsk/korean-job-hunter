@@ -246,8 +246,33 @@ function parseWantedJob(raw) {
 // Converts raw deadline text to ISO date string for urgency scoring (EXP-035)
 // Supports: D-N, N일 전, MM/DD(요일), YYYY.MM.DD, YYYY/MM/DD, YYYY-MM-DD, 상시모집
 function normalizeDeadline(raw) {
-  if (!raw || typeof raw !== 'string') return null;
+  if (!raw) return null;
+
+  // Handle numeric input — Unix timestamp (seconds or milliseconds)
+  // Wanted API due_time can be a Unix timestamp (number or numeric string)
+  if (typeof raw === 'number') {
+    // Heuristic: < 1e12 = seconds, >= 1e12 = milliseconds
+    const ms = raw > 1e12 ? raw : raw * 1000;
+    if (ms < 946684800000) return null; // sanity: before 2000-01-01 is invalid
+    return localDateStr(new Date(ms));
+  }
+
+  if (typeof raw !== 'string') return null;
   const text = raw.trim();
+
+  // Numeric string (Unix timestamp from API JSON)
+  if (/^\d{9,13}$/.test(text)) {
+    const num = parseInt(text);
+    const ms = num > 1e12 ? num : num * 1000;
+    if (ms < 946684800000) return null;
+    return localDateStr(new Date(ms));
+  }
+
+  // ISO 8601 datetime (e.g., "2026-04-30T23:59:59Z" or "2026-04-30T23:59:59+09:00")
+  const isoMatch = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})T/);
+  if (isoMatch) {
+    return `${isoMatch[1]}-${isoMatch[2].padStart(2,'0')}-${isoMatch[3].padStart(2,'0')}`;
+  }
 
   // 상시모집 / 수시모집 = always open, no deadline
   if (/상시|수시|always/i.test(text)) return null;
