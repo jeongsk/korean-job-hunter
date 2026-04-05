@@ -2,11 +2,27 @@
   "description": "Test cases for job matching discrimination. Verifies that the matching algorithm correctly ranks jobs by relevance to a specific candidate profile.",
   "candidate": {
     "name": "테스트 후보자",
-    "skills": ["JavaScript", "TypeScript", "React", "Node.js", "Next.js", "PostgreSQL", "AWS", "Docker", "Git"],
+    "skills": [
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "Node.js",
+      "Next.js",
+      "PostgreSQL",
+      "AWS",
+      "Docker",
+      "Git"
+    ],
     "experience_years": 5,
     "career_stage": "mid",
-    "preferred_work_type": ["hybrid", "remote"],
-    "preferred_location": ["서울", "판교"],
+    "preferred_work_type": [
+      "hybrid",
+      "remote"
+    ],
+    "preferred_location": [
+      "서울",
+      "판교"
+    ],
     "cultural_preferences": {
       "innovative": 0.8,
       "collaborative": 0.7,
@@ -27,7 +43,10 @@
       },
       "expected": {
         "min_score": 75,
-        "expected_range": [75, 95],
+        "expected_range": [
+          75,
+          95
+        ],
         "rank_group": "high"
       }
     },
@@ -44,7 +63,10 @@
       },
       "expected": {
         "min_score": 70,
-        "expected_range": [75, 90],
+        "expected_range": [
+          80,
+          95
+        ],
         "rank_group": "high"
       }
     },
@@ -61,7 +83,10 @@
       },
       "expected": {
         "min_score": 55,
-        "expected_range": [60, 75],
+        "expected_range": [
+          70,
+          85
+        ],
         "rank_group": "medium"
       }
     },
@@ -78,7 +103,10 @@
       },
       "expected": {
         "min_score": 40,
-        "expected_range": [55, 75],
+        "expected_range": [
+          55,
+          75
+        ],
         "rank_group": "medium"
       }
     },
@@ -95,7 +123,10 @@
       },
       "expected": {
         "min_score": 5,
-        "expected_range": [5, 20],
+        "expected_range": [
+          5,
+          20
+        ],
         "rank_group": "low"
       }
     },
@@ -112,7 +143,10 @@
       },
       "expected": {
         "min_score": 10,
-        "expected_range": [10, 25],
+        "expected_range": [
+          10,
+          25
+        ],
         "rank_group": "low"
       }
     },
@@ -129,8 +163,111 @@
       },
       "expected": {
         "min_score": 5,
-        "expected_range": [5, 20],
+        "expected_range": [
+          5,
+          20
+        ],
         "rank_group": "low"
+      }
+    },
+    {
+      "id": "MED-003",
+      "description": "Partial match - Java/Spring backend, no JS overlap (domain mismatch but tier2 backend credit)",
+      "job": {
+        "title": "백엔드 개발자 (Java/Spring Boot)",
+        "company": "토스",
+        "content": "Spring Boot 기반 마이크로서비스 개발. JPA/Hibernate 경험 필수. Kubernetes 환경. AWS 인프라. 3~5년 경력. 혁신적인 핀테크 서비스. 서울 강남구. agile 팀.",
+        "location": "서울 강남구",
+        "work_type": "hybrid",
+        "source": "wanted"
+      },
+      "expected": {
+        "min_score": 40,
+        "expected_range": [
+          40,
+          55
+        ],
+        "rank_group": "medium"
+      }
+    },
+    {
+      "id": "LOW-004",
+      "description": "Poor match - Flutter/Dart mobile developer, completely different domain",
+      "job": {
+        "title": "모바일 개발자 (Flutter)",
+        "company": "카카오",
+        "content": "Flutter/Dart 기반 크로스플랫폼 앱 개발. Firebase 경험. 3년 이상 경력. 협업 중심의 팀. 제주.",
+        "location": "제주",
+        "work_type": "onsite",
+        "source": "jobkorea"
+      },
+      "expected": {
+        "min_score": 5,
+        "expected_range": [
+          5,
+          25
+        ],
+        "rank_group": "low"
+      }
+    },
+    {
+      "id": "HIGH-003",
+      "description": "Strong match - React/Vite full-stack with Korean tech terms",
+      "job": {
+        "title": "프론트엔드 개발자 (리액트/타입스크립트)",
+        "company": "당근마켓",
+        "content": "React와 TypeScript로 웹 서비스 개발. Vite 빌드 도구. Node.js 백엔드. Docker 배포. AWS 환경. 3~7년 경력. 협업 중심. 자율적인 업무 환경. 서울.",
+        "location": "서울",
+        "work_type": "hybrid",
+        "source": "wanted"
+      },
+      "expected": {
+        "min_score": 75,
+        "expected_range": [
+          80,
+          95
+        ],
+        "rank_group": "high"
+      }
+    },
+    {
+      "id": "LOW-005",
+      "description": "Poor match - AI/ML researcher, Python/TensorFlow domain",
+      "job": {
+        "title": "AI/ML 연구원",
+        "company": "NHN",
+        "content": "TensorFlow 및 PyTorch 활용 머신러닝 모델 연구. NLP 및 컴퓨터비전 경험. LangChain 활용 LLM 서비스 개발. 석사 이상. 5년 이상 경력. 벡터 데이터베이스 경험.",
+        "location": "경기 성남",
+        "work_type": "onsite",
+        "source": "jobkorea"
+      },
+      "expected": {
+        "min_score": 5,
+        "expected_range": [
+          5,
+          20
+        ],
+        "rank_group": "low"
+      }
+    },
+    {
+      "id": "MED-004",
+      "description": "Partial match - DevOps/SRE, heavy infrastructure overlap",
+      "job": {
+        "title": "DevOps 엔지니어",
+        "company": "라인",
+        "content": "Kubernetes 클러스터 관리. Terraform IaC. Docker 컨테이너. AWS 인프라. GitHub Actions CI/CD. Prometheus/Grafana 모니터링. 3~5년 경력. 체계적인 프로세스.",
+        "location": "서울 영등포구",
+        "work_type": "remote",
+        "source": "wanted"
+      },
+      "expected": {
+        "min_score": 50,
+        "expected_range": [
+          45,
+          65
+        ],
+        "rank_group": "medium"
       }
     }
   ],

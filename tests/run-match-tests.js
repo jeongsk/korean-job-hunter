@@ -14,6 +14,9 @@ const path = require('path');
 const TEST_FILE = path.join(__dirname, 'match-discrimination.test.json');
 const REPORT_FILE = path.join(__dirname, 'match-discrimination-report.json');
 
+// EXP-129: Use shared skill-inference instead of duplicate local map
+const { inferSkills } = require('../scripts/skill-inference');
+
 function loadTestCases() {
   if (!fs.existsSync(TEST_FILE)) {
     console.error('❌ Test file not found:', TEST_FILE);
@@ -36,43 +39,102 @@ function calculateMatch(candidate, job) {
   
   const candidateSkills = candidate.skills.map(s => s.toLowerCase());
   
-  // Skill keyword mapping for job text analysis
-  const skillKeywords = {
-    'javascript': ['javascript', '자바스크립트'],
-    'typescript': ['typescript', '타입스크립트'],
-    'react': ['react', '리액트'],
-    'node.js': ['node.js', 'nodejs', '노드'],
-    'next.js': ['next.js', 'nextjs'],
-    'postgresql': ['postgresql', 'postgres'],
-    'aws': ['aws', 'amazon web services'],
-    'docker': ['docker'],
-    'git': ['git', 'github'],
-    'vue': ['vue', 'vue.js', '뷰'],
-    'nuxt': ['nuxt', 'nuxt.js'],
-    'python': ['python', '파이썬'],
-    'css': ['css'],
-    'html': ['html'],
-  };
+  // EXP-129: Use inferSkills() from skill-inference.js (135+ skills with Korean equivalents)
+  // instead of a hardcoded 13-skill map
+  const jobExtractedSkills = inferSkills(jobText);
   
-  // Tier 2 equivalents (75% credit): related but not exact
+  // EXP-129: Comprehensive similarity maps aligned with SKILL.md v3.13
+  // Tier 2 equivalents (75% credit): related technologies, same ecosystem
   const tier2Map = {
-    'react': ['vue', 'nuxt', 'svelte', 'angular'],       // frontend frameworks
-    'node.js': ['express', 'nest', 'nestjs', 'deno'],     // JS runtimes/frameworks
-    'next.js': ['nuxt', 'remix', 'gatsby'],               // meta-frameworks
-    'postgresql': ['mysql', 'sqlite', 'mariadb'],         // SQL databases
-    'aws': ['gcp', 'azure', '클라우드'],                   // cloud providers
-    'docker': ['kubernetes', 'k8s', '컨테이너'],           // container tech
-    'typescript': ['javascript'],                          // JS superset
+    // Frontend frameworks
+    'react': ['vue', 'nuxt', 'svelte', 'angular', 'next.js', 'react native'],
+    'vue': ['react', 'nuxt', 'svelte', 'angular'],
+    'angular': ['react', 'vue', 'svelte', 'typescript'],
+    'next.js': ['nuxt', 'remix', 'gatsby', 'react', 'vercel'],
+    'nuxt': ['next.js', 'remix', 'vue'],
+    'typescript': ['javascript'],
+    'javascript': ['typescript'],
+    // JS runtimes/frameworks
+    'node.js': ['express', 'nestjs', 'deno', 'bun', 'hono', 'fastify', 'koa'],
+    'express': ['node.js', 'nestjs'],
+    'nestjs': ['node.js', 'express'],
+    // Python ecosystem
+    'python': ['django', 'flask', 'fastapi'],
+    'django': ['python', 'flask', 'fastapi'],
+    'flask': ['python', 'django', 'fastapi'],
+    'fastapi': ['python', 'django', 'flask'],
+    // Java ecosystem
+    'java': ['spring', 'spring boot', 'kotlin', 'jpa'],
+    'spring': ['spring boot', 'java', 'kotlin', 'jpa'],
+    'spring boot': ['spring', 'java'],
+    'kotlin': ['java', 'spring'],
+    // Cloud
+    'aws': ['gcp', 'azure'],
+    'gcp': ['aws', 'azure'],
+    'azure': ['aws', 'gcp'],
+    // Container/DevOps
+    'docker': ['kubernetes', 'terraform', 'ansible'],
+    'kubernetes': ['docker', 'terraform'],
+    'terraform': ['ansible', 'docker', 'kubernetes'],
+    'jenkins': ['github actions'],
+    'github actions': ['jenkins'],
+    // Databases
+    'postgresql': ['mysql', 'oracle', 'mssql'],
+    'mysql': ['postgresql', 'oracle', 'mssql'],
+    'mongodb': ['redis', 'elasticsearch'],
+    'redis': ['mongodb', 'elasticsearch'],
+    'elasticsearch': ['redis', 'mongodb'],
+    // Messaging
+    'kafka': ['rabbitmq'],
+    'rabbitmq': ['kafka'],
+    // Data engineering
+    'spark': ['hadoop'],
+    'hadoop': ['spark'],
+    // AI/ML
+    'tensorflow': ['pytorch'],
+    'pytorch': ['tensorflow'],
+    'machine learning': ['tensorflow', 'pytorch', 'llm'],
+    'llm': ['langchain', 'rag', 'machine learning'],
+    // Mobile
+    'flutter': ['dart', 'react native'],
+    'react native': ['flutter', 'react'],
+    'swift': ['swiftui'],
+    'swiftui': ['swift'],
+    // State management
+    'redux': ['zustand', 'recoil', 'mobx'],
+    'zustand': ['redux', 'recoil', 'mobx'],
+    // API
+    'graphql': ['rest api'],
+    'rest api': ['graphql'],
+    // Monitoring
+    'datadog': ['grafana', 'prometheus'],
+    'grafana': ['datadog', 'prometheus'],
+    'prometheus': ['grafana', 'datadog'],
+    // ORM
+    'prisma': ['drizzle', 'typeorm', 'sequelize'],
+    'drizzle': ['prisma', 'typeorm'],
   };
   
-  // Tier 3 partial overlap (25%): same domain, different tech
+  // Tier 3 partial overlap (25%): same broad domain
   const tier3Map = {
     'react': ['frontend', '프론트엔드', 'ui'],
-    'node.js': ['backend', '백엔드', '서버', 'api'],
-    'aws': ['devops', '인프라', 'infra'],
-    'docker': ['cicd', 'deploy', '배포'],
+    'vue': ['frontend', '프론트엔드', 'ui'],
+    'angular': ['frontend', '프론트엔드', 'ui'],
+    'node.js': ['backend', '백엔드', '서버'],
+    'python': ['backend', '백엔드', '데이터'],
+    'java': ['backend', '백엔드', '서버'],
+    'spring': ['backend', '백엔드'],
+    'aws': ['devops', '인프라', 'infra', '클라우드'],
+    'docker': ['devops', '인프라', '배포', 'cicd'],
+    'kubernetes': ['devops', '인프라'],
     'postgresql': ['database', '데이터베이스', 'db', 'sql'],
+    'mysql': ['database', '데이터베이스', 'db', 'sql'],
+    'figma': ['design', '디자인', 'ui'],
   };
+  
+  // EXP-129: Set-based matching using inferSkills() results
+  const jobSkillSet = new Set(jobExtractedSkills);
+  const candidateSkillSet = new Set(candidateSkills);
   
   let exactMatches = 0;
   let strongMatches = 0;
@@ -80,22 +142,20 @@ function calculateMatch(candidate, job) {
   let totalCandidateSkills = candidateSkills.length;
   
   for (const skill of candidateSkills) {
-    const keywords = skillKeywords[skill] || [skill];
-    const exactFound = keywords.some(kw => jobText.includes(kw));
-    
-    if (exactFound) {
+    // Exact match: candidate skill is in job's extracted skills
+    if (jobSkillSet.has(skill)) {
       exactMatches++;
       continue;
     }
     
-    // Check tier 2
+    // Check tier 2: candidate skill's equivalents are in job's extracted skills
     const t2 = tier2Map[skill] || [];
-    if (t2.some(kw => jobText.includes(kw))) {
+    if (t2.some(eq => jobSkillSet.has(eq))) {
       strongMatches++;
       continue;
     }
     
-    // Check tier 3
+    // Check tier 3: broader domain overlap with job text
     const t3 = tier3Map[skill] || [];
     if (t3.some(kw => jobText.includes(kw))) {
       partialMatches++;
@@ -103,134 +163,97 @@ function calculateMatch(candidate, job) {
     }
   }
   
-  // --- Job-centric skill coverage (EXP-022) ---
-  // Extract job-required skills from the job text, then measure coverage.
-  // This avoids penalizing candidates for having extra skills the job doesn't mention.
-  const allKnownSkills = Object.keys(skillKeywords);
-  const jobRequiredSkills = [];
-  const jobRequiredSet = new Set();
-  
-  for (const skill of allKnownSkills) {
-    const keywords = skillKeywords[skill];
-    if (keywords.some(kw => jobText.includes(kw))) {
-      jobRequiredSkills.push(skill);
-      jobRequiredSet.add(skill);
-    }
-    // Also check tier2 equivalents in job text
-    const t2 = tier2Map[skill] || [];
-    for (const kw of t2) {
-      if (jobText.includes(kw) && !jobRequiredSet.has(skill)) {
-        jobRequiredSkills.push(skill);
-        jobRequiredSet.add(skill);
-        break;
-      }
-    }
-  }
-  
-  // For each job-required skill, find best coverage by candidate
+  // --- Job-centric skill coverage (EXP-022 + EXP-129) ---
+  // Measure how well the candidate covers each skill the job requires.
+  const jobRequiredSkills = jobExtractedSkills;
   let coveragePoints = 0;
   const maxCoveragePoints = Math.max(jobRequiredSkills.length, 1) * 100;
   
   for (const reqSkill of jobRequiredSkills) {
-    // Does candidate have exact match?
-    const reqKeywords = skillKeywords[reqSkill] || [reqSkill];
-    const candidateHasExact = candidateSkills.some(cs => {
-      const ck = skillKeywords[cs] || [cs];
-      return ck.some(k => reqKeywords.some(rk => rk === k));
-    });
-    
-    if (candidateHasExact) {
+    // Exact: candidate has this skill
+    if (candidateSkillSet.has(reqSkill)) {
       coveragePoints += 100;
       continue;
     }
     
-    // Does candidate have tier2 equivalent?
+    // Tier 2: candidate has an equivalent skill
     const candidateHasTier2 = candidateSkills.some(cs => {
       const t2 = tier2Map[cs] || [];
-      return t2.some(kw => reqKeywords.some(rk => rk === kw)) ||
-             reqKeywords.some(rk => t2.includes(rk.replace(/\.js$/, '').replace(/\./g, '')));
+      return t2.includes(reqSkill);
     });
-    // Simpler: check if candidate skill's tier2 equivalents include any of this reqSkill's keywords
-    const candidateHasTier2Simple = candidateSkills.some(cs => {
-      const t2 = tier2Map[cs] || [];
-      return t2.some(t2kw => reqKeywords.includes(t2kw));
-    });
-    
-    if (candidateHasTier2Simple) {
+    if (candidateHasTier2) {
       coveragePoints += 75;
       continue;
     }
     
-    // Does candidate have tier3?
+    // Tier 3: broader domain match
     const candidateHasTier3 = candidateSkills.some(cs => {
       const t3 = tier3Map[cs] || [];
-      return t3.some(t3kw => reqKeywords.includes(t3kw));
+      return t3.some(kw => reqSkill.includes(kw) || kw.includes(reqSkill));
     });
-    
     if (candidateHasTier3) {
       coveragePoints += 25;
       continue;
     }
     
-    // No coverage for this requirement
     coveragePoints += 0;
   }
   
   // Hybrid: blend job-centric coverage with candidate-centric relevance
-  // This gives credit both for covering job needs AND for relevant extra skills
   const jobCoverageScore = Math.min(100, Math.round((coveragePoints / maxCoveragePoints) * 100));
-  
-  // Candidate-centric score (original): how much of candidate's skills are relevant
   const candidateRelevancePoints = exactMatches * 100 + strongMatches * 75 + partialMatches * 25;
   const candidateRelevanceScore = Math.min(100, Math.round((candidateRelevancePoints / (totalCandidateSkills * 100)) * 100));
   
   // Blend: 60% job coverage + 40% candidate relevance
-  // Higher relevance weight ensures candidates with skills matching job requirements
-  // score higher than those who just have overlapping infrastructure skills
   let skillScore = Math.min(100, Math.round(jobCoverageScore * 0.6 + candidateRelevanceScore * 0.4));
   
-  // --- Primary domain alignment check (EXP-024) ---
-  // When the job's primary technology domain has zero overlap with the candidate's
-  // core domain (exact + tier2 matches), apply a domain mismatch penalty.
-  // This prevents infrastructure-only overlap (AWS, Docker, PostgreSQL) from
-  // inflating scores for jobs in completely different primary tech stacks.
-  const candidateCoreDomain = ['javascript', 'typescript', 'react', 'node.js', 'next.js', 'vue', 'angular', 'frontend', '백엔드', '프론트엔드'];
-  const jobPrimaryTechs = [];
-  // Detect primary language/framework from job title + content
-  const primaryTechPatterns = [
-    { tech: 'python', patterns: ['python', '파이썬', 'django', 'flask', 'fastapi'] },
-    { tech: 'java', patterns: ['java ', 'java/', 'spring', '스프링', 'kotlin', '코틀린'] },
-    { tech: 'javascript', patterns: ['javascript', '자바스크립트', 'typescript', '타입스크립트', 'react', '리액트', 'node.js', 'nodejs', 'next.js', 'vue', '뷰'] },
-    { tech: 'csharp', patterns: ['c#', 'csharp', '.net', '닷넷'] },
-    { tech: 'go', patterns: ['golang', 'go 언어', '고언어'] },
-    { tech: 'rust', patterns: ['rust', '러스트'] },
-    { tech: 'swift', patterns: ['swift', '스위프트', 'ios', '아이폰'] },
-    { tech: 'cpp', patterns: ['c++', 'cpp', '시플러스'] },
-  ];
-  for (const pt of primaryTechPatterns) {
-    if (pt.patterns.some(p => jobText.includes(p))) {
-      jobPrimaryTechs.push(pt.tech);
+  // EXP-129: Use inferSkills() results for domain detection instead of manual pattern matching
+  const DOMAIN_MAP = {
+    'js/ts': ['react', 'next.js', 'vue', 'nuxt', 'svelte', 'angular', 'node.js', 'express', 'nestjs', 'react native', 'deno', 'bun', 'remix', 'astro', 'fastify', 'koa', 'hono', 'vite', 'tailwind', 'vercel', 'trpc', 'storybook', 'jest', 'cypress', 'prisma', 'drizzle', 'typeorm', 'sequelize', 'mongoose', 'redux', 'zustand', 'recoil', 'mobx', 'vuex', 'pinia', 'electron', 'capacitor', 'ionic', 'sentry', 'firebase', 'supabase', 'graphql', 'rest api', 'grpc', 'javascript', 'typescript'],
+    'python': ['python', 'django', 'flask', 'fastapi', 'tensorflow', 'pytorch', 'machine learning', 'llm', 'langchain', 'mlops', 'computer vision', 'nlp', 'huggingface', 'fine-tuning', 'stable diffusion', 'rag', 'prompt engineering', 'vector database'],
+    'java': ['java', 'spring', 'spring boot', 'jpa', 'kotlin'],
+    'cloud': ['aws', 'gcp', 'azure', 'aws lambda', 'aws s3', 'aws sqs'],
+    'devops': ['docker', 'kubernetes', 'terraform', 'ansible', 'jenkins', 'github actions', 'linux', 'nginx', 'ci/cd', 'datadog', 'grafana', 'prometheus', 'devops'],
+    'data': ['postgresql', 'mysql', 'mongodb', 'redis', 'elasticsearch', 'oracle', 'mssql', 'kafka', 'rabbitmq', 'spark', 'hadoop', 'airflow', 'dbt', 'bigquery', 'snowflake'],
+    'rust': ['rust', 'tauri'],
+    'go': ['go'],
+    'swift': ['swift', 'swiftui'],
+    'csharp': ['c#', '.net'],
+    'cpp': ['c++'],
+    'dart': ['dart', 'flutter'],
+    'ruby': ['ruby', 'rails'],
+    'php': ['php', 'laravel'],
+    'game': ['unity', 'unreal'],
+    'design': ['figma'],
+    'blockchain': ['solidity', 'blockchain', 'web3', 'ethereum'],
+    'security': ['cybersecurity', 'penetration testing', 'devsecops'],
+  };
+  
+  // Detect job's primary domains from extracted skills
+  const jobDomains = new Set();
+  for (const skill of jobExtractedSkills) {
+    for (const [domain, domainSkills] of Object.entries(DOMAIN_MAP)) {
+      if (domainSkills.includes(skill)) {
+        jobDomains.add(domain);
+        break;
+      }
     }
   }
-  // Check if candidate has exact/tier2 match with any primary tech
-  const candidateDomainSkills = candidateSkills.map(s => s.toLowerCase());
-  const candidateHasPrimaryDomain = jobPrimaryTechs.some(jt => {
-    // Direct match
-    if (candidateDomainSkills.includes(jt)) return true;
-    // Check through skillKeywords
-    for (const cs of candidateDomainSkills) {
-      const ck = skillKeywords[cs] || [cs];
-      if (ck.includes(jt)) return true;
-    }
-    // Check tier2
-    for (const cs of candidateDomainSkills) {
+  
+  // Check if candidate has any skill in any of job's domains
+  const candidateHasPrimaryDomain = candidateSkills.some(cs => {
+    // Check if candidate skill belongs to any job domain
+    for (const domain of jobDomains) {
+      const domainSkills = DOMAIN_MAP[domain] || [];
+      if (domainSkills.includes(cs)) return true;
+      // Also check tier2
       const t2 = tier2Map[cs] || [];
-      if (t2.includes(jt)) return true;
+      if (t2.some(eq => domainSkills.includes(eq))) return true;
     }
     return false;
   });
-  // If job has a primary tech domain and candidate has NO overlap, penalize skill score
-  if (jobPrimaryTechs.length > 0 && !candidateHasPrimaryDomain && skillScore > 0) {
+  // If job has primary tech domains and candidate has NO overlap, penalize skill score
+  if (jobDomains.size > 0 && !candidateHasPrimaryDomain && skillScore > 0) {
     // Reduce by 25% - infrastructure overlap still counts but shouldn't dominate
     skillScore = Math.round(skillScore * 0.75);
   }
