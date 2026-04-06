@@ -209,12 +209,12 @@ function calculateMatch(candidate, job) {
   
   // EXP-129: Use inferSkills() results for domain detection instead of manual pattern matching
   const DOMAIN_MAP = {
-    'js/ts': ['react', 'next.js', 'vue', 'nuxt', 'svelte', 'angular', 'node.js', 'express', 'nestjs', 'react native', 'deno', 'bun', 'remix', 'astro', 'fastify', 'koa', 'hono', 'vite', 'tailwind', 'vercel', 'trpc', 'storybook', 'jest', 'cypress', 'prisma', 'drizzle', 'typeorm', 'sequelize', 'mongoose', 'redux', 'zustand', 'recoil', 'mobx', 'vuex', 'pinia', 'electron', 'capacitor', 'ionic', 'sentry', 'firebase', 'supabase', 'graphql', 'rest api', 'grpc', 'javascript', 'typescript'],
-    'python': ['python', 'django', 'flask', 'fastapi', 'tensorflow', 'pytorch', 'machine learning', 'llm', 'langchain', 'mlops', 'computer vision', 'nlp', 'huggingface', 'fine-tuning', 'stable diffusion', 'rag', 'prompt engineering', 'vector database'],
-    'java': ['java', 'spring', 'spring boot', 'jpa', 'kotlin'],
-    'cloud': ['aws', 'gcp', 'azure', 'aws lambda', 'aws s3', 'aws sqs'],
+    'js/ts': ['react', 'next.js', 'vue', 'nuxt', 'svelte', 'angular', 'node.js', 'express', 'nestjs', 'react native', 'deno', 'bun', 'remix', 'astro', 'fastify', 'koa', 'hono', 'vite', 'tailwind', 'vercel', 'trpc', 'storybook', 'jest', 'cypress', 'prisma', 'drizzle', 'typeorm', 'sequelize', 'mongoose', 'redux', 'zustand', 'recoil', 'mobx', 'vuex', 'pinia', 'electron', 'capacitor', 'ionic', 'sentry', 'firebase', 'supabase', 'graphql', 'rest api', 'grpc', 'javascript', 'typescript', 'vitest', 'webflux'],
+    'python': ['python', 'django', 'flask', 'fastapi', 'tensorflow', 'pytorch', 'machine learning', 'llm', 'langchain', 'mlops', 'computer vision', 'nlp', 'huggingface', 'fine-tuning', 'stable diffusion', 'rag', 'prompt engineering', 'vector database', 'celery'],
+    'java': ['java', 'spring', 'spring boot', 'jpa', 'kotlin', 'mybatis', 'msa'],
+    'cloud': ['aws', 'gcp', 'azure', 'aws lambda', 'aws s3', 'aws sqs', 'dynamodb', 'cloudwatch'],
     'devops': ['docker', 'kubernetes', 'terraform', 'ansible', 'jenkins', 'github actions', 'linux', 'nginx', 'ci/cd', 'datadog', 'grafana', 'prometheus', 'devops'],
-    'data': ['postgresql', 'mysql', 'mongodb', 'redis', 'elasticsearch', 'oracle', 'mssql', 'kafka', 'rabbitmq', 'spark', 'hadoop', 'airflow', 'dbt', 'bigquery', 'snowflake'],
+    'data': ['postgresql', 'mysql', 'mongodb', 'redis', 'elasticsearch', 'oracle', 'mssql', 'kafka', 'rabbitmq', 'spark', 'hadoop', 'airflow', 'dbt', 'bigquery', 'snowflake', 'opensearch'],
     'rust': ['rust', 'tauri'],
     'go': ['go'],
     'swift': ['swift', 'swiftui'],

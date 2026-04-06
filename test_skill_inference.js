@@ -373,7 +373,24 @@ assertEq('null → null', deriveCareerStage(null), null);
 assertEq('empty string → null', deriveCareerStage(''), null);
 
 // EXP-116: Skill count check
-const expectedSkillCount = 135; // 122 + 13 new
+// EXP-148: New skill tests
+console.log('\n--- EXP-148: New skills (mybatis, msa, opensearch, celery, vitest, webflux, dynamodb, cloudwatch) ---');
+assertIncludes('MyBatis English', inferSkills('MyBatis'), ['mybatis']);
+assertIncludes('MyBatis Korean', inferSkills('마이바티스'), ['mybatis']);
+assertIncludes('MyBatis in context', inferSkills('백엔드 개발자 Spring JPA MyBatis'), ['spring', 'jpa', 'mybatis']);
+assertIncludes('MSA uppercase', inferSkills('MSA 아키텍처'), ['msa']);
+assertIncludes('microservice English', inferSkills('microservice architecture'), ['msa']);
+assertIncludes('마이크로서비스 Korean', inferSkills('마이크로서비스 기반'), ['msa']);
+assertIncludes('OpenSearch English', inferSkills('OpenSearch'), ['opensearch']);
+assertIncludes('Celery English', inferSkills('Python Celery Redis'), ['celery', 'redis']);
+assertIncludes('Vitest English', inferSkills('Vitest unit test'), ['vitest']);
+assertIncludes('WebFlux English', inferSkills('Spring WebFlux Reactive'), ['spring', 'webflux']);
+assertIncludes('DynamoDB English', inferSkills('AWS DynamoDB'), ['aws', 'dynamodb']);
+assertIncludes('CloudWatch English', inferSkills('AWS CloudWatch'), ['aws', 'cloudwatch']);
+assertEq('Dynamo false positive', inferSkills('DynamoSaur').includes('dynamodb'), false);
+assertEq('dynamo alone false positive', inferSkills('dynamo').includes('dynamodb'), false);
+
+const expectedSkillCount = 143; // 135 + 8 new (mybatis, msa, opensearch, celery, vitest, webflux, dynamodb, cloudwatch)
 const actualSkillCount = Object.keys(SKILL_MAP).length;
 if (actualSkillCount === expectedSkillCount) {
   console.log(`✅ SKILL_MAP has ${actualSkillCount} entries`);

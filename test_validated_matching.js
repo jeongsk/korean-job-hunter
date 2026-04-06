@@ -193,7 +193,7 @@ const PRIMARY_DOMAINS = {
   'react native': 'js/ts',
   // Modern web tools (EXP-104)
   'vite': 'js/ts', 'tailwind': 'js/ts', 'vercel': 'js/ts', 'trpc': 'js/ts',
-  'storybook': 'js/ts', 'jest': 'js/ts', 'cypress': 'js/ts',
+  'storybook': 'js/ts', 'jest': 'js/ts', 'cypress': 'js/ts', 'vitest': 'js/ts',
   // ORM / Database tools (EXP-104)
   'prisma': 'js/ts', 'drizzle': 'js/ts', 'typeorm': 'js/ts', 'sequelize': 'js/ts', 'mongoose': 'js/ts',
   // State management (EXP-104)
@@ -207,8 +207,9 @@ const PRIMARY_DOMAINS = {
   'firebase': 'js/ts', 'supabase': 'js/ts',
   // API (EXP-104)
   'graphql': 'js/ts', 'rest api': 'js/ts', 'grpc': 'js/ts',
+  'webflux': 'java',
   // JPA / Java persistence (EXP-104)
-  'jpa': 'java',
+  'jpa': 'java', 'mybatis': 'java', 'msa': 'java',
   // Infrastructure (EXP-104)
   'aws': 'cloud', 'gcp': 'cloud', 'azure': 'cloud',
   'kubernetes': 'devops', 'docker': 'devops', 'terraform': 'devops', 'ansible': 'devops',
@@ -216,13 +217,14 @@ const PRIMARY_DOMAINS = {
   'ci/cd': 'devops', 'devops': 'devops',
   // AWS Services (EXP-104)
   'aws lambda': 'cloud', 'aws s3': 'cloud', 'aws sqs': 'cloud',
+  'dynamodb': 'cloud', 'cloudwatch': 'cloud',
   // Data stores (EXP-104)
   'postgresql': 'data', 'mysql': 'data', 'mongodb': 'data', 'redis': 'data',
   'elasticsearch': 'data', 'oracle': 'data', 'mssql': 'data',
   'kafka': 'data', 'rabbitmq': 'data',
   // Data Engineering (EXP-104)
   'spark': 'data', 'hadoop': 'data', 'airflow': 'data', 'dbt': 'data',
-  'bigquery': 'data', 'snowflake': 'data',
+  'bigquery': 'data', 'snowflake': 'data', 'opensearch': 'data',
   // Game (EXP-104)
   'unity': 'game', 'unreal': 'game',
   // Design (EXP-104)
@@ -232,7 +234,7 @@ const PRIMARY_DOMAINS = {
   'llm': 'python', 'langchain': 'python', 'mlops': 'python',
   'computer vision': 'python', 'nlp': 'python', 'huggingface': 'python',
   'fine-tuning': 'python', 'stable diffusion': 'python', 'rag': 'python',
-  'prompt engineering': 'python', 'vector database': 'python',
+  'prompt engineering': 'python', 'vector database': 'python', 'celery': 'python',
   // Blockchain / Web3 (EXP-116)
   'solidity': 'blockchain', 'blockchain': 'blockchain', 'web3': 'blockchain',
   'ethereum': 'blockchain', 'smart contract': 'blockchain',

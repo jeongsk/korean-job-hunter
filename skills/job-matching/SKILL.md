@@ -3,9 +3,9 @@ name: job-matching
 description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring, and framework-aware primary domain alignment (EXP-049)"
 ---
 
-# Job Matching Skill v3.13 (EXP-124: Bare skill name regex fix — vue matches without .js suffix)
+# Job Matching Skill v3.14 (EXP-124: Bare skill name regex fix — vue matches without .js suffix)
 
-> 135 skills, 50+ similarity pairs, 17 domain categories (incl. blockchain, security).
+> 143 skills, 50+ similarity pairs, 17 domain categories (incl. blockchain, security).
 
 ## Score Weights (Validated — EXP-017)
 
@@ -41,7 +41,7 @@ Primary domains detected (EXP-049: framework-aware, EXP-104: full 122-skill cove
 - **js/ts**: React, Next.js, Vue, Nuxt, Svelte, Angular, Node.js, Express, NestJS, React Native, Deno, Bun, Remix, Astro, Fastify, Koa, Hono, Vite, Tailwind, Vercel, tRPC, Storybook, Jest, Cypress, Prisma, Drizzle, TypeORM, Sequelize, Mongoose, Redux, Zustand, Recoil, MobX, Vuex, Pinia, Electron, Capacitor, Ionic, Sentry, Firebase, Supabase, GraphQL, REST API, gRPC
 - **python**: Python, Django, Flask, FastAPI, TensorFlow, PyTorch, ML, LLM, LangChain, MLOps, Computer Vision, NLP, HuggingFace, Fine-tuning, Stable Diffusion, RAG, Prompt Engineering, Vector Database
 - **java**: Java, Spring, Spring Boot, JPA, Jetpack Compose, Kotlin
-- **cloud**: AWS, GCP, Azure, AWS Lambda, AWS S3, AWS SQS
+- **cloud**: AWS, GCP, Azure, AWS Lambda, AWS S3, AWS SQS, DynamoDB, CloudWatch
 - **devops**: Docker, Kubernetes, Terraform, Ansible, Jenkins, GitHub Actions, Linux, Nginx, CI/CD, Datadog, Grafana, Prometheus
 - **data**: PostgreSQL, MySQL, MongoDB, Redis, Elasticsearch, Oracle, MSSQL, Kafka, RabbitMQ, Spark, Hadoop, Airflow, dbt, BigQuery, Snowflake, R
 - **rust**: Rust, Tauri

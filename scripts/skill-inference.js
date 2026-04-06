@@ -52,6 +52,7 @@ const SKILL_MAP = {
   '.net': /\.net|asp\.net/i,
 
   // Modern Web Tools (EXP-101)
+  'vitest': /(?<!\w)vitest(?!\w)|비테스트/i,
   'vite': /(?<!\w)vite(?!\w)|바이트/i,
   'tailwind': /tailwind\s*css|tailwind|테일윈드/i,
   'prisma': /(?<!\w)prisma(?!\w)|프리즈마/i,
@@ -83,6 +84,8 @@ const SKILL_MAP = {
   'aws lambda': /aws\s*lambda|람다/i,
   'aws s3': /aws\s*s3|s3\s*bucket|(?<!\w)s3(?=\s|스토리지|버킷|$)/i,
   'aws sqs': /aws\s*sqs|sqs\s*(?:메시지|큐|message)/i,
+  'dynamodb': /dynamodb|다이나모디비/i,
+  'cloudwatch': /cloudwatch|클라우드워치/i,
 
   // GCP Services
   'bigquery': /bigquery|빅쿼리/i,
@@ -103,6 +106,13 @@ const SKILL_MAP = {
 
   // ORM / Java Persistence
   'jpa': /jpa|hibernate|하이버네이트/i,
+  'mybatis': /mybatis|마이바티스/i,
+
+  // Architecture
+  'msa': /\bmsa\b|micro[\s-]?service|마이크로\s*서비스/i,
+
+  // Search
+  'opensearch': /opensearch|오픈서치/i,
 
   // Data Engineering
   'spark': /\bspark\b|스파크/i,
@@ -126,6 +136,12 @@ const SKILL_MAP = {
   'graphql': /graphql|그래프큐엘|그래프QL/i,
   'rest api': /\brest\b\s*api|restful|레스트\s*api/i,
   'grpc': /grpc|지알피시/i,
+
+  // Python Task Queue
+  'celery': /(?<!\w)celery(?!\w)|셀러리/i,
+
+  // Spring Reactive
+  'webflux': /webflux|웹플럭스/i,
 
   // AI/ML
   'tensorflow': /tensorflow|텐서플로우|텐서플로/i,
