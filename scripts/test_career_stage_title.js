@@ -33,6 +33,18 @@ assertEq(deriveCareerStageFromTitle('Tech Lead'), 'lead', 'Tech Lead');
 assertEq(deriveCareerStageFromTitle('Team Lead'), 'lead', 'Team Lead');
 assertEq(deriveCareerStageFromTitle('Frontend Engineer Lead'), 'lead', 'Frontend Engineer Lead');
 
+// --- Korean 리드/리더 ---
+assertEq(deriveCareerStageFromTitle('프론트엔드 개발 리드'), 'lead', '프론트엔드 개발 리드');
+assertEq(deriveCareerStageFromTitle('프론트엔드 개발 리더'), 'lead', '프론트엔드 개발 리더');
+assertEq(deriveCareerStageFromTitle('개발 팀 리더'), 'lead', '개발 팀 리더');
+assertEq(deriveCareerStageFromTitle('리드 개발자'), 'lead', '리드 개발자');
+assertEq(deriveCareerStageFromTitle('데이터 리드'), 'lead', '데이터 리드');
+assertEq(deriveCareerStageFromTitle('리드 엔지니어'), 'lead', '리드 엔지니어');
+assertEq(deriveCareerStageFromTitle('프로덕트 리더'), 'lead', '프로덕트 리더');
+assertEq(deriveCareerStageFromTitle('프론트엔드 개발 리드 (React Native)'), 'lead', '리드 with parenthetical suffix');
+// False positive: 칠리드레스 contains 리드 but is not a seniority indicator
+assertEq(deriveCareerStageFromTitle('칠리드레스 개발자'), null, '칠리드레스 개발자 (false positive)');
+
 // --- No seniority indicator ---
 assertEq(deriveCareerStageFromTitle('프론트엔드 개발자'), null, '프론트엔드 개발자 (no indicator)');
 assertEq(deriveCareerStageFromTitle('Backend Developer'), null, 'Backend Developer (no indicator)');

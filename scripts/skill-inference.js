@@ -377,6 +377,8 @@ function deriveCareerStageFromTitle(title) {
   // Lead / Principal / Staff — these are the most senior individual contributor roles
   if (/(?:^|[\s(\[/,])(?:principal|staff|tech\s*lead|team\s*lead)(?:$|[\s)\]/,])/i.test(title)) return 'lead';
   if (/(?:^|[\s(\[/,])(?:lead)(?:$|[\s)\]/,])/i.test(title)) return 'lead';
+  // Korean 리드/리더 (lead) — require word boundary (space/start/end or Korean particle)
+  if (/(?:^|[\s(\[/,]|개발\s)(?:리드|리더)(?:$|[\s)\]/,]|자|개발|매니저|엔지니어)/.test(title)) return 'lead';
   // Senior
   if (/(?:^|[\s(\[/,])(?:senior|sr\.?)(?:$|[\s)\]/,])/i.test(title)) return 'senior';
   if (/시니어/.test(title)) return 'senior';
