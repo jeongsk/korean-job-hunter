@@ -167,6 +167,9 @@ function parsePosition(pos) {
     career_stage: careerStage,
     culture_keywords: [],
     skills,
+    office_address: '',    // enriched via detail page (EXP-152)
+    latitude: null,
+    longitude: null,
   };
 }
 
@@ -198,6 +201,9 @@ async function fetchDetail(wdId, title) {
       description,
       full_location: fullLocation,
       geo_location: geoLocation,
+      office_address: data?.address?.full_location || '',
+      latitude: data?.address?.geo_location?.location?.lat || null,
+      longitude: data?.address?.geo_location?.location?.lng || null,
       skills: foundSkills,
       culture_keywords: cultureKeywords,
       work_type: workType,
@@ -286,6 +292,14 @@ async function main() {
       if (detail.full_location) job.full_location = detail.full_location;
       if (detail.geo_location) job.geo_location = detail.geo_location;
       if (detail.description) job.description = detail.description;
+      // EXP-152: Populate office_address and coordinates from detail API
+      if (detail.office_address && !job.office_address) {
+        job.office_address = detail.office_address;
+      }
+      if (detail.latitude != null) {
+        job.latitude = detail.latitude;
+        job.longitude = detail.longitude;
+      }
       // Extract salary from detail JD description (EXP-126)
       if (detail.description && !job.salary) {
         const salaryLine = extractSalaryLine(detail.description);

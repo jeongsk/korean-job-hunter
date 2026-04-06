@@ -79,7 +79,9 @@ Each scraped job must have these fields:
 | deadline | | JK | Application deadline |
 | culture_keywords | | All (card + detail page) | JSON array: ["innovative","collaborative","work_life_balance",...] — now auto-extracted from card text via post-processor (EXP-063) |
 | commute_min | | All | From Kakao Map API (optional) |
-| office_address | | All | Detailed office address for commute calculation (optional) |
+| office_address | | All | Detailed office address for commute calculation (populated from detail API, EXP-152) |
+| latitude | | wanted-api | Office latitude coordinate for commute calculation (EXP-152) |
+| longitude | | wanted-api | Office longitude coordinate for commute calculation (EXP-152) |
 
 ## Workflow
 
