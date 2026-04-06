@@ -60,10 +60,12 @@ const SKILL_MAP = {
   'trpc': /(?<!\w)trpc(?!\w)|티알피시/i,
   'hono': /(?<!\w)hono(?!\w)|호노/i,
   'firebase': /(?<!\w)firebase(?!\w)|파이어베이스/i,
-  'supabase': /(?<!\w)supabase(?!\w)|수파베이스/i,
+  'supabase': /(?<!\w)supabase(?!\w)|수파베이스|슈퍼베이스/i,
   'storybook': /storybook|스토리북/i,
   'jest': /(?<!\w)jest(?!\w)|제스트/i,
   'cypress': /(?<!\w)cypress(?!\w)|사이프레스/i,
+  'playwright': /(?<!\w)playwright(?!\w)|플레이라이트/i,
+  'selenium': /(?<!\w)selenium(?!\w)|셀레니움/i,
 
   // Infrastructure
   'aws': /aws|아마존웹서비스/i,
@@ -72,7 +74,7 @@ const SKILL_MAP = {
   'kubernetes': /kubernetes|k8s|쿠버네티스/i,
   'docker': /docker|도커/i,
   'terraform': /terraform|테라폼/i,
-  'ansible': /ansible|앤서블/i,
+  'ansible': /ansible|앤서블|앤시블/i,
   'jenkins': /jenkins|젠킨스/i,
   'github actions': /github\s*actions|깃헙\s*액션/i,
   'linux': /linux|리눅스/i,
@@ -95,8 +97,8 @@ const SKILL_MAP = {
 
   // Data / Messaging
   'kafka': /kafka|카프카/i,
-  'rabbitmq': /rabbitmq|래빗엠큐/i,
-  'elasticsearch': /elasticsearch|일래스틱/i,
+  'rabbitmq': /rabbitmq|래빗엠큐|래빗\s*mq/i,
+  'elasticsearch': /elasticsearch|일래스틱|엘라스틱서치|엘라스틱/i,
   'redis': /redis|레디스/i,
   'mongodb': /mongodb|몽고디비/i,
   'mysql': /mysql|마이에스큐엘/i,
@@ -235,8 +237,8 @@ const ROLE_SKILL_MAP = {
   '클라우드': ['aws', 'docker', 'kubernetes'],
   '시큐리티': ['cybersecurity'],
   '정보보안': ['cybersecurity'],
-  'qa': ['jest', 'cypress'],
-  '테스트': ['jest', 'cypress'],
+  'qa': ['jest', 'cypress', 'playwright'],
+  '테스트': ['jest', 'cypress', 'playwright'],
   'sre': ['kubernetes', 'prometheus', 'docker'],
   '임베디드': ['c++', 'linux', 'python'],
   '인프라': ['aws', 'docker', 'kubernetes', 'linux'],
@@ -337,7 +339,18 @@ function inferSkills(text, options = {}) {
   if (includeRoleMap) {
     const lowerText = text.toLowerCase();
     for (const [role, roleSkills] of Object.entries(ROLE_SKILL_MAP)) {
-      const roleRegex = new RegExp(role, 'i');
+      // EXP-149: Wrap role pattern with boundaries to prevent substring false positives.
+      // English roles get \b boundaries (e.g., 'ai' → /\bai\b/i, prevents 'tailwindcss' match).
+      // Korean roles use raw pattern (Korean has no \b support and doesn't need it).
+      // Roles already containing regex syntax (lookaheads, etc.) are used as-is.
+      let pattern;
+      if (/[a-z]/.test(role) && !/[\(\)\[\]\{\}\+\*\?\|\\]/.test(role)) {
+        // English-only or mixed: add word boundaries
+        pattern = `\\b${role}\\b`;
+      } else {
+        pattern = role;
+      }
+      const roleRegex = new RegExp(pattern, 'i');
       if (roleRegex.test(lowerText)) {
         for (const s of roleSkills) {
           if (!skills.includes(s)) skills.push(s);

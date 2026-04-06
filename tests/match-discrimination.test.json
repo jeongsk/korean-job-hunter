@@ -262,10 +262,10 @@
         "source": "wanted"
       },
       "expected": {
-        "min_score": 50,
+        "min_score": 40,
         "expected_range": [
-          45,
-          65
+          35,
+          55
         ],
         "rank_group": "medium"
       }

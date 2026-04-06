@@ -193,7 +193,7 @@ const PRIMARY_DOMAINS = {
   'react native': 'js/ts',
   // Modern web tools (EXP-104)
   'vite': 'js/ts', 'tailwind': 'js/ts', 'vercel': 'js/ts', 'trpc': 'js/ts',
-  'storybook': 'js/ts', 'jest': 'js/ts', 'cypress': 'js/ts', 'vitest': 'js/ts',
+  'storybook': 'js/ts', 'jest': 'js/ts', 'cypress': 'js/ts', 'vitest': 'js/ts', 'playwright': 'js/ts', 'selenium': 'js/ts',
   // ORM / Database tools (EXP-104)
   'prisma': 'js/ts', 'drizzle': 'js/ts', 'typeorm': 'js/ts', 'sequelize': 'js/ts', 'mongoose': 'js/ts',
   // State management (EXP-104)
