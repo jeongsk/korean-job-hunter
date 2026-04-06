@@ -269,7 +269,17 @@ const ROLE_SKILL_MAP = {
   '정보보호': ['cybersecurity'],
 };
 
-function inferSkills(text) {
+/**
+ * Extract skills from text.
+ * @param {string} text - Job title or combined title+description
+ * @param {object} [options] - Options
+ * @param {boolean} [options.includeRoleMap=true] - Whether to apply ROLE_SKILL_MAP.
+ *   Set to false when processing full JD descriptions to avoid false positives
+ *   from company descriptions mentioning "AI", "클라우드", etc. (EXP-142)
+ * @returns {string[]} Array of matched skill names
+ */
+function inferSkills(text, options = {}) {
+  const { includeRoleMap = true } = options;
   if (!text || typeof text !== 'string') return [];
   const skills = [];
 
@@ -284,16 +294,18 @@ function inferSkills(text) {
   }
 
   // Role-based supplement: add skills from role names (EXP-121, EXP-130)
-  // Always supplement — not just when zero skills found.
-  // Previously only fired when skills.length===0, but most Korean role titles
-  // (데브옵스, 보안, 머신러닝 etc.) already match a SKILL_MAP entry, so the
-  // role-supplementary skills (docker, kubernetes, ci/cd etc.) were never added.
-  const lowerText = text.toLowerCase();
-  for (const [role, roleSkills] of Object.entries(ROLE_SKILL_MAP)) {
-    const roleRegex = new RegExp(role, 'i');
-    if (roleRegex.test(lowerText)) {
-      for (const s of roleSkills) {
-        if (!skills.includes(s)) skills.push(s);
+  // EXP-142: Only apply to title text, not full JD descriptions.
+  // JD descriptions contain company intro text mentioning "AI 분석", "클라우드 서비스"
+  // etc. that are NOT job requirements but cause massive false positives.
+  // When includeRoleMap=false, only explicit SKILL_MAP matches are returned.
+  if (includeRoleMap) {
+    const lowerText = text.toLowerCase();
+    for (const [role, roleSkills] of Object.entries(ROLE_SKILL_MAP)) {
+      const roleRegex = new RegExp(role, 'i');
+      if (roleRegex.test(lowerText)) {
+        for (const s of roleSkills) {
+          if (!skills.includes(s)) skills.push(s);
+        }
       }
     }
   }

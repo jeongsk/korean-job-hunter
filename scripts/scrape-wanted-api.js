@@ -179,7 +179,14 @@ async function fetchDetail(wdId, title) {
     const geoLocation = data?.address?.geo_location?.location || null;
 
     // Use shared skill inference (135+ skills) instead of inline patterns
-    const foundSkills = inferSkills(title + ' ' + description);
+    // EXP-142: Role map disabled for full JD text — company descriptions mentioning
+    // "AI 분석", "클라우드 서비스" etc. cause massive false positives (python, tensorflow,
+    // pytorch, aws, docker, kubernetes added to non-AI/non-cloud jobs).
+    // Only explicit SKILL_MAP keywords are matched from description text.
+    // Role-based inference was already applied at search time from the title.
+    const descSkills = inferSkills(description, { includeRoleMap: false });
+    const titleSkills = inferSkills(title); // includes role map
+    const foundSkills = [...new Set([...titleSkills, ...descSkills])];
 
     // Extract culture keywords from JD text
     const cultureKeywords = extractCultureKeywords(description);

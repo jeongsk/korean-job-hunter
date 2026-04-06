@@ -135,8 +135,10 @@ function parseLinkedInCard(raw) {
   // Experience level
   const { level, minYears } = extractExperienceLevel(title, description);
 
-  // Skills — use shared skill-inference module (122 skills) instead of inline TECH_PATTERNS (EXP-114)
-  const skills = inferSkills(`${title} ${description}`);
+  // EXP-142: Role map disabled for description — only title gets role-based inference
+  const titleSkills = inferSkills(title);
+  const descSkills = inferSkills(description, { includeRoleMap: false });
+  const skills = [...new Set([...titleSkills, ...descSkills])];
 
   // Salary
   const salaryInfo = extractSalary(description || title);
