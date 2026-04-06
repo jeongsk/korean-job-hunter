@@ -267,6 +267,21 @@ const ROLE_SKILL_MAP = {
   '블록체인': ['blockchain', 'solidity'],
   '보안관제': ['cybersecurity', 'linux'],
   '정보보호': ['cybersecurity'],
+  '데이터 애널리스트': ['python', 'sql'],
+  // EXP-143: Missing English role titles for Korean job market
+  'system engineer': ['linux', 'docker', 'kubernetes'],
+  'system admin': ['linux', 'docker', 'kubernetes'],
+  'network engineer': ['linux', 'docker', 'kubernetes'],
+  'database administrator': ['postgresql', 'mysql', 'redis', 'linux'],
+  'solution architect': ['aws', 'docker', 'kubernetes'],
+  'mlops engineer': ['mlops', 'docker', 'kubernetes', 'python'],
+  'mlops': ['mlops', 'docker', 'kubernetes', 'python'],
+  'sre engineer': ['kubernetes', 'prometheus', 'docker'],
+  'product manager': [],  // non-technical role, no skill inference
+  'project manager': [],  // non-technical role
+  'scrum master': [],     // non-technical role
+  'agile coach': [],      // non-technical role
+  'technical writer': [], // non-technical role
 };
 
 /**
