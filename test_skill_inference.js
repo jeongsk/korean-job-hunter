@@ -390,7 +390,7 @@ assertIncludes('CloudWatch English', inferSkills('AWS CloudWatch'), ['aws', 'clo
 assertEq('Dynamo false positive', inferSkills('DynamoSaur').includes('dynamodb'), false);
 assertEq('dynamo alone false positive', inferSkills('dynamo').includes('dynamodb'), false);
 
-const expectedSkillCount = 143; // 135 + 8 new (mybatis, msa, opensearch, celery, vitest, webflux, dynamodb, cloudwatch)
+const expectedSkillCount = 145; // 135 + 8 (mybatis, msa, opensearch, celery, vitest, webflux, dynamodb, cloudwatch) + 2 (from EXP-145/146 role expansion)
 const actualSkillCount = Object.keys(SKILL_MAP).length;
 if (actualSkillCount === expectedSkillCount) {
   console.log(`✅ SKILL_MAP has ${actualSkillCount} entries`);
