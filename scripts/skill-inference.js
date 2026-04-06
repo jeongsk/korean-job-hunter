@@ -250,6 +250,21 @@ const ROLE_SKILL_MAP = {
   'game': ['unity', 'c++', 'c#'],
   'design': ['figma'],
   'infra': ['aws', 'docker', 'kubernetes', 'linux'],
+  // EXP-140: Additional role-based skill mappings for category-tag and title fallback
+  '서버': ['node.js', 'python', 'java', 'linux'],
+  'db': ['postgresql', 'mysql', 'redis'],
+  'dba': ['postgresql', 'mysql', 'redis', 'linux'],
+  'bi': ['python', 'sql', 'spark'],
+  'erp': ['java', 'sql'],
+  'php': ['php', 'mysql', 'linux'],
+  '파이썬': ['python', 'django', 'flask'],
+  '자바(?!스크립트)': ['java', 'spring', 'spring boot'],
+  '빅데이터': ['spark', 'hadoop', 'airflow', 'python'],
+  '시스템': ['linux', 'docker', 'kubernetes'],
+  '네트워크': ['linux', 'docker', 'kubernetes'],
+  '블록체인': ['blockchain', 'solidity'],
+  '보안관제': ['cybersecurity', 'linux'],
+  '정보보호': ['cybersecurity'],
 };
 
 function inferSkills(text) {

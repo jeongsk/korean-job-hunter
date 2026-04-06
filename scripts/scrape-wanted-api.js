@@ -18,25 +18,50 @@ const { extractCultureKeywords, normalizeSalary, normalizeDeadline, extractSalar
 // We maintain a known mapping so ambiguous titles like "Product Engineer"
 // with category_tag.id=669 (프론트엔드 개발자) get appropriate skills.
 const CATEGORY_MAP = {
-  // 개발 (parent_id: 518)
+  // EXP-140: Expanded from 17 to 35+ entries using live Wanted API data (April 2026).
+  // category_tag.id → role title for skill inference fallback.
+  // When title-based inference yields 0 skills, we use the category to infer skills.
+  // Development (parent_id: 518)
   669: '프론트엔드 개발자',
   672: '백엔드 개발자',
   899: '풀스택 개발자',
-  873: '시니어 개발자',     // senior-level dev, broad
-  939: '개발자',            // generic dev
-  660: '안드로이드 개발자',
-  655: 'iOS 개발자',
-  677: '데이터 엔지니어',
-  678: '데이터 사이언티스트',
-  674: 'DevOps / 시스템 관리자',
+  873: '시니어 개발자',
+  939: '개발자',
   663: '소프트웨어 엔지니어',
+  893: 'PHP 개발자',
+  660: '자바 개발자',
+  872: '서버 개발자',
+  658: '임베디드 개발자',
+  900: 'C,C++ 개발자',
+  674: 'DevOps / 시스템 관리자',
+  665: '시스템,네트워크 관리자',
+  10231: 'DBA',
+  10230: 'ERP전문가',
+  1022: 'BI 엔지니어',
+  1027: '블록체인 플랫폼 엔지니어',
   895: '머신러닝 엔지니어',
-  665: 'QA 엔지니어',
+  1634: '머신러닝 엔지니어',
+  655: '데이터 엔지니어',
+  1025: '빅데이터 엔지니어',
+  677: '안드로이드 개발자',
+  678: 'iOS 개발자',
+  676: 'QA,테스트 엔지니어',
   681: '보안 엔지니어',
+  671: '보안 엔지니어',
+  1024: '데이터 사이언티스트',
+  656: '데이터 분석가',
+  // Security (parent_id: 10566)
+  10569: '보안관제',
+  10567: '정보보호 컨설팅',
+  // Product/Design
   794: '프로덕트 매니저',
   795: '프로덕트 디자이너',
-  // 비개발 (parent_id: 507)
+  // Non-dev (parent_id: 507)
   565: '기획',
+  // Game development (parent_id: 959)
+  960: '게임 서버 개발자',
+  961: '게임 클라이언트 개발자',
+  962: '모바일 게임 개발자',
 };
 
 function fetchJSON(url) {
@@ -271,7 +296,16 @@ async function main() {
         const expRange = extractExperienceRange(detail.description);
         if (expRange) {
           job.experience = expRange;
-          // Re-derive career_stage with specific range for better accuracy
+        }
+        // Re-derive career_stage: prefer title-based (e.g. "시니어" in title)
+        // over experience-based (API may return wrong "신입" for senior roles)
+        const titleStage = deriveCareerStageFromTitle(job.title);
+        if (titleStage) {
+          // Title-based stage is authoritative — don't override
+          if (!job.career_stage || job.career_stage !== titleStage) {
+            job.career_stage = titleStage;
+          }
+        } else if (expRange) {
           job.career_stage = deriveCareerStage(expRange);
         } else {
           // Fallback: derive from combined text
