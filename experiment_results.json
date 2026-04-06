@@ -1,0 +1,97 @@
+{
+  "experiment_id": "EXP-016",
+  "timestamp": "2026-04-06T00:08:11.886Z",
+  "test_cases": 5,
+  "results": [
+    {
+      "id": "TC-MATCH-001",
+      "name": "Senior Backend Developer - Perfect Match",
+      "current": 39,
+      "enhanced": 87,
+      "improvement": 48,
+      "improvementPercent": "123.1",
+      "baseline_components": {
+        "skill": 56,
+        "experience": 70
+      },
+      "enhanced_components": {
+        "skill": 100,
+        "experience": 83,
+        "preferred": 100
+      }
+    },
+    {
+      "id": "TC-MATCH-002",
+      "name": "Frontend Developer - Domain Mismatch",
+      "current": 19,
+      "enhanced": 72,
+      "improvement": 53,
+      "improvementPercent": "278.9",
+      "baseline_components": {
+        "skill": 18,
+        "experience": 70
+      },
+      "enhanced_components": {
+        "skill": 70,
+        "experience": 100,
+        "preferred": 100
+      }
+    },
+    {
+      "id": "TC-MATCH-003",
+      "name": "Data Scientist - Experience Gap",
+      "current": 24,
+      "enhanced": 50,
+      "improvement": 26,
+      "improvementPercent": "108.3",
+      "baseline_components": {
+        "skill": 35,
+        "experience": 40
+      },
+      "enhanced_components": {
+        "skill": 50,
+        "experience": 50,
+        "preferred": 100
+      }
+    },
+    {
+      "id": "TC-MATCH-004",
+      "name": "DevOps Engineer - Emerging Tech",
+      "current": 19,
+      "enhanced": 75,
+      "improvement": 56,
+      "improvementPercent": "294.7",
+      "baseline_components": {
+        "skill": 18,
+        "experience": 70
+      },
+      "enhanced_components": {
+        "skill": 75,
+        "experience": 100,
+        "preferred": 100
+      }
+    },
+    {
+      "id": "TC-MATCH-005",
+      "name": "Junior Developer - Career Stage Alignment",
+      "current": 34,
+      "enhanced": 90,
+      "improvement": 56,
+      "improvementPercent": "164.7",
+      "baseline_components": {
+        "skill": 47,
+        "experience": 70
+      },
+      "enhanced_components": {
+        "skill": 100,
+        "experience": 100,
+        "preferred": 100
+      }
+    }
+  ],
+  "overall_improvement": "177.0",
+  "current_discrimination": 16.43721152139079,
+  "enhanced_discrimination": 32.248576232104114,
+  "discrimination_improvement": 15.811364710713324,
+  "verdict": "keep"
+}

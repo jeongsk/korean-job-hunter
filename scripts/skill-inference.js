@@ -319,4 +319,27 @@ function deriveCareerStage(experience) {
   return 'lead';
 }
 
-module.exports = { inferSkills, deriveCareerStage, SKILL_MAP };
+/**
+ * Derive career stage from job title when experience text is ambiguous.
+ * The Wanted API returns "경력" for almost all non-newbie jobs regardless
+ * of seniority. Titles like "시니어 프론트엔드 개발자" or "Lead Engineer"
+ * should override the generic mid default.
+ * Order matters: check lead/principal/staff first (they contain "senior"-like
+ * words in some contexts), then senior, then junior.
+ */
+function deriveCareerStageFromTitle(title) {
+  if (!title) return null;
+  const t = title.toLowerCase();
+  // Lead / Principal / Staff — these are the most senior individual contributor roles
+  if (/(?:^|[\s(\[/,])(?:principal|staff|tech\s*lead|team\s*lead)(?:$|[\s)\]/,])/i.test(title)) return 'lead';
+  if (/(?:^|[\s(\[/,])(?:lead)(?:$|[\s)\]/,])/i.test(title)) return 'lead';
+  // Senior
+  if (/(?:^|[\s(\[/,])(?:senior|sr\.?)(?:$|[\s)\]/,])/i.test(title)) return 'senior';
+  if (/시니어/.test(title)) return 'senior';
+  // Junior / Entry
+  if (/(?:^|[\s(\[/,])(?:junior|entry[\s-]?level|jr\.?|associate)(?:$|[\s)\]/,])/i.test(title)) return 'junior';
+  if (/주니어|신입/.test(title)) return 'junior';
+  return null;
+}
+
+module.exports = { inferSkills, deriveCareerStage, deriveCareerStageFromTitle, SKILL_MAP };

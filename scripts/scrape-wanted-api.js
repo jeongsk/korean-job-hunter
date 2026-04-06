@@ -10,7 +10,7 @@
 
 const https = require('https');
 const { URL } = require('url');
-const { inferSkills, deriveCareerStage } = require('./skill-inference');
+const { inferSkills, deriveCareerStage, deriveCareerStageFromTitle } = require('./skill-inference');
 const { extractCultureKeywords, normalizeSalary, normalizeDeadline, extractSalaryLine } = require('./post-process-wanted');
 
 // EXP-132: Wanted category_tag ID → role title mapping
@@ -101,8 +101,8 @@ function parsePosition(pos) {
   // Normalize deadline to ISO date
   const normalizedDeadline = normalizeDeadline(dueTime);
 
-  // Derive career stage from experience text
-  const careerStage = deriveCareerStage(experience);
+  // Derive career stage from experience text, then override with title if more specific
+  const careerStage = deriveCareerStageFromTitle(title) || deriveCareerStage(experience);
 
   // Extract skills from title at search time (EXP-131)
   // Previously skills were always [] — only populated via --details flag.
