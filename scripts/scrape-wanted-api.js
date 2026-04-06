@@ -232,8 +232,10 @@ function extractExperienceRange(description) {
   // Priority 4: "N년 차" or "N년차"
   m = description.match(/(\d+)\s*년\s*차/);
   if (m) return `${m[1]}년차`;
-  // Priority 5: "신입" in qualification section
-  if (/자격요건[^]*신입/.test(description)) return '신입';
+  // Priority 5: "신입/경력" or "신입 · 경력" → experience 무관 (accepts all levels)
+  if (/자격요건[^]*신입\s*[\/·.,]\s*경력/.test(description)) return '무관';
+  // Priority 6: "신입" as standalone requirement — NOT "신입사원" (new employee benefits text)
+  if (/자격요건[^]*신입(?!사원)/.test(description)) return '신입';
   return null;
 }
 
