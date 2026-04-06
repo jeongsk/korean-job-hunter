@@ -420,6 +420,16 @@ function deriveCareerStageFromTitle(title) {
   // Senior
   if (/(?:^|[\s(\[/,])(?:senior|sr\.?)(?:$|[\s)\]/,])/i.test(title)) return 'senior';
   if (/시니어/.test(title)) return 'senior';
+  // "신입-N년" or "0~N년" range: position accepts up to N years — use upper bound for stage
+  // e.g., "신입-5년" → mid, "신입~10년" → senior, "0-3년" → junior
+  const newbieRange = title.match(/(?:신입|0)\s*[-~]\s*(\d+)\s*년/);
+  if (newbieRange) {
+    const upper = parseInt(newbieRange[1]);
+    if (upper <= 3) return 'junior';
+    if (upper <= 7) return 'mid';
+    if (upper <= 12) return 'senior';
+    return 'lead';
+  }
   // Junior / Entry
   if (/(?:^|[\s(\[/,])(?:junior|entry[\s-]?level|jr\.?|associate)(?:$|[\s)\]/,])/i.test(title)) return 'junior';
   if (/주니어|신입/.test(title)) return 'junior';
