@@ -94,7 +94,9 @@ function parseWantedJob(raw) {
   let rawCompany = null;
   const rcm = allText.match(/([가-힣]+(?:\s*\([^)]+\))?)경력/);
   if (rcm) {
-    rawCompany = rcm[1].replace(TITLE_SUFFIXES, '');
+    // Strip experience context that contaminates company name (e.g., "이상케이투스코리아" → "케이투스코리아")
+    const EXP_CONTEXT = /^(이상|이하|미만|무관|이내|부터|까지|고급|중급|초급|수습)/;
+    rawCompany = rcm[1].replace(TITLE_SUFFIXES, '').replace(EXP_CONTEXT, '');
     if (rawCompany.length < 2) rawCompany = null;
   }
 

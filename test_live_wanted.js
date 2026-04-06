@@ -15,6 +15,10 @@ const liveData = [
   { id: "291970", raw: "Senior Front-end Software Engineer제이앤피메디(JNPMEDI)경력 8-30년합격보상금 100만원", link: "https://www.wanted.co.kr/wd/291970" },
   // EXP-040: space between Korean company and English parenthetical name
   { id: "EXP040", raw: "Sr. Frontend Developer버티고우게임즈 (Vertigo Games)경력 8-15년합격보상금 100만원", link: "https://www.wanted.co.kr/wd/EXP040" },
+  // EXP-150: experience context contaminating rawCompany (이상 stuck to company name)
+  { id: "EXP150A", raw: "서버 스토리지 프리세일즈(Pre-sales engineer) 기술영업 5년 이상케이투스코리아경력 5-11년 · 계약직합격보상금 20만원", link: "https://www.wanted.co.kr/wd/EXP150A" },
+  { id: "EXP150B", raw: "GeoAI Platform Backend Engineer (중급/고급)스패이드경력 4년 이상합격보상금 100만원", link: "https://www.wanted.co.kr/wd/EXP150B" },
+  { id: "EXP150C", raw: "Backend Engineer (Warehouse Management System)유모스원경력 5-15년합격보상금 100만원", link: "https://www.wanted.co.kr/wd/EXP150C" },
 ];
 
 // Expected results based on manual inspection
@@ -28,6 +32,9 @@ const expected = [
   { id: "351042", company: "화해글로벌", experience: "경력 4-10년", title_includes: "Frontend" },
   { id: "291970", company: "제이앤피메디", experience: "경력 8-30년", title_includes: "Senior" },
   { id: "EXP040", company: "버티고우게임즈", experience: "경력 8-15년", title_includes: "Sr." },
+  { id: "EXP150A", company: "케이투스코리아", experience: "경력 5-11년", title_includes: "프리세일즈" },
+  { id: "EXP150B", company: "스패이드", experience: "경력 4년 이상", title_includes: "Backend" },
+  { id: "EXP150C", company: "유모스원", experience: "경력 5-15년", title_includes: "Backend" },
 ];
 
 let passed = 0, failed = 0;

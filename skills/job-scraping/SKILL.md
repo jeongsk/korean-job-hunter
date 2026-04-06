@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v6.2 (EXP-127: Location list synced with NLP + 20 new tech hub locations)
+# Job Scraping Skill v6.3 (EXP-150: Experience context stripped from rawCompany to fix contaminated company names)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 
