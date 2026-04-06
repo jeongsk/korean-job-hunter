@@ -383,5 +383,26 @@ if (actualSkillCount === expectedSkillCount) {
   failed++;
 }
 
+// EXP-145: MLOps variant regex + Korean role title gaps
+const mlopsTests = [
+  ['ML Ops 엔지니어', ['machine learning', 'mlops', 'docker', 'kubernetes', 'python']],
+  ['ML/Ops 엔지니어', ['mlops', 'docker', 'kubernetes', 'python']],
+  ['MLOps 엔지니어', ['mlops', 'docker', 'kubernetes', 'python']],
+  ['데이터 플랫폼 엔지니어', s => s.includes('spark') && s.includes('airflow')],
+  ['데이터베이스 관리자', s => s.includes('postgresql') && s.includes('linux')],
+  ['보안 엔지니어', s => s.includes('cybersecurity') && s.includes('docker')],
+];
+for (const [title, expected] of mlopsTests) {
+  const result = inferSkills(title);
+  if (typeof expected === 'function') {
+    if (expected(result)) { console.log(`✅ ${title} → ${JSON.stringify(result)}`); passed++; }
+    else { console.log(`❌ ${title} → ${JSON.stringify(result)}`); failed++; }
+  } else {
+    const hasAll = expected.every(e => result.includes(e));
+    if (hasAll) { console.log(`✅ ${title} → has all expected skills`); passed++; }
+    else { console.log(`❌ ${title} → ${JSON.stringify(result)}, expected subset of ${JSON.stringify(expected)}`); failed++; }
+  }
+}
+
 console.log(`\n📊 Skill Inference: ${passed}/${passed + failed} passed`);
 if (failed > 0) process.exit(1);

@@ -134,7 +134,7 @@ const SKILL_MAP = {
   'llm': /(?<![a-z])llm(?!\w)|large\s*language\s*model/i,
   'rag': /(?<![a-z])rag(?!\w)|검색증강생성/i,
   'langchain': /langchain|랭체인/i,
-  'mlops': /mlops|엠엘옵스/i,
+  'mlops': /ml[\s/]?ops|엠엘옵스/i,
   'vector database': /vector\s*database|벡터데이터베이스|벡터\s*디비|vector\s*db|벡터\s*db|pinecone|weaviate|chroma\s*db|milvus/i,
   'fine-tuning': /fine[\s-]?tun|파인튜닝|미세조정/i,
   'huggingface': /hugging\s*face|허깅페이스/i,
@@ -268,6 +268,9 @@ const ROLE_SKILL_MAP = {
   '보안관제': ['cybersecurity', 'linux'],
   '정보보호': ['cybersecurity'],
   '데이터 애널리스트': ['python', 'sql'],
+  '데이터 플랫폼': ['spark', 'airflow', 'python', 'kubernetes', 'docker'],
+  '데이터베이스 관리자': ['postgresql', 'mysql', 'redis', 'linux'],
+  '보안 엔지니어': ['cybersecurity', 'linux', 'docker'],
   // EXP-143: Missing English role titles for Korean job market
   'system engineer': ['linux', 'docker', 'kubernetes'],
   'system admin': ['linux', 'docker', 'kubernetes'],
@@ -276,6 +279,8 @@ const ROLE_SKILL_MAP = {
   'solution architect': ['aws', 'docker', 'kubernetes'],
   'mlops engineer': ['mlops', 'docker', 'kubernetes', 'python'],
   'mlops': ['mlops', 'docker', 'kubernetes', 'python'],
+  'ml ops': ['mlops', 'docker', 'kubernetes', 'python'],
+  'ml/ops': ['mlops', 'docker', 'kubernetes', 'python'],
   'sre engineer': ['kubernetes', 'prometheus', 'docker'],
   'product manager': [],  // non-technical role, no skill inference
   'project manager': [],  // non-technical role

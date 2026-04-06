@@ -51,7 +51,7 @@ const testCases = [
   { id: 27, input: '그라파나 네이버 공고', expectedSkill: 'grafana', expectedCompany: '네이버', allowCompanyFilter: true, note: 'Skill + company composite' },
 
   // Negative: ensure non-skill Korean words still work as keyword search
-  { id: 28, input: '백엔드 공고', expectTitleSearch: '백엔드', note: 'Non-skill role word should still search title' },
+  { id: 28, input: '백엔드 공고', expectedFilters: ["j.skills LIKE '%node.js%'", "j.skills LIKE '%python%'", "j.skills LIKE '%java%'"], note: 'Role-based skill inference for 백엔드' },
 ];
 
 let passed = 0;

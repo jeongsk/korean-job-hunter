@@ -50,7 +50,7 @@ function parseKoreanQuery(input) {
   }
 
   // === Negation detection ===
-  const negationMatch = text.match(/(빼고|제외|말고)/);
+  const negationMatch = text.match(/(빼고|뺀|제외|말고)/);
   const negationIdx = negationMatch ? text.indexOf(negationMatch[0]) : -1;
   let appliedNegation = false;
 
@@ -121,19 +121,27 @@ function parseKoreanQuery(input) {
 
   // === Employment type filter (EXP-095) ===
   if (/정규직/.test(text)) {
-    filters.push("j.employment_type = 'regular'");
+    const isNegated = negationMatch && text.indexOf('정규직') < negationIdx;
+    filters.push(isNegated ? "j.employment_type != 'regular'" : "j.employment_type = 'regular'");
+    if (isNegated) appliedNegation = true;
     consumedWords.add('정규직');
   }
   if (/계약직|파견/.test(text)) {
-    filters.push("j.employment_type = 'contract'");
+    const isNegated = negationMatch && text.indexOf('계약직') < negationIdx;
+    filters.push(isNegated ? "j.employment_type != 'contract'" : "j.employment_type = 'contract'");
+    if (isNegated) appliedNegation = true;
     consumedWords.add('계약직'); consumedWords.add('파견');
   }
   if (/인턴/.test(text)) {
-    filters.push("j.employment_type = 'intern'");
+    const isNegated = negationMatch && text.indexOf('인턴') < negationIdx;
+    filters.push(isNegated ? "j.employment_type != 'intern'" : "j.employment_type = 'intern'");
+    if (isNegated) appliedNegation = true;
     consumedWords.add('인턴');
   }
   if (/프리랜서|프리랜스/.test(text)) {
-    filters.push("j.employment_type = 'freelance'");
+    const isNegated = negationMatch && text.indexOf(text.match(/프리랜서|프리랜스/)[0]) < negationIdx;
+    filters.push(isNegated ? "j.employment_type != 'freelance'" : "j.employment_type = 'freelance'");
+    if (isNegated) appliedNegation = true;
     consumedWords.add('프리랜서'); consumedWords.add('프리랜스');
   }
 
@@ -377,7 +385,7 @@ function parseKoreanQuery(input) {
     { canonical: 'llm', patterns: [/\bllm\b|엘엘이엠|대규모언어모델/i] },
     { canonical: 'nlp', patterns: [/\bnlp\b|자연어처리|자연어\s*처리/i] },
     { canonical: 'computer vision', patterns: [/computer\s*vision|컴퓨터\s*비전/i] },
-    { canonical: 'mlops', patterns: [/\bmlops\b|엠엘옵스/i] },
+    { canonical: 'mlops', patterns: [/ml[\s/]?ops|엠엘옵스/i] },
     { canonical: 'rag', patterns: [/\brag\b|래그/i] },
     { canonical: 'langchain', patterns: [/langchain|랭체인/i] },
     { canonical: 'huggingface', patterns: [/huggingface|허깅페이스/i] },
@@ -451,8 +459,28 @@ function parseKoreanQuery(input) {
     }
   }
 
+  // === Role-based skill inference (풀스택, 프론트엔드, 백엔드 etc.) ===
+  const roleSkillMap = [
+    { role: '풀스택', skills: ['react', 'node.js', 'typescript'] },
+    { role: '프론트엔드', skills: ['react', 'typescript', 'javascript'] },
+    { role: '백엔드', skills: ['node.js', 'python', 'java'] },
+    { role: '안드로이드', skills: ['kotlin', 'java'] },
+    { role: '프론트', skills: ['react', 'typescript', 'javascript'] },
+  ];
+  for (const { role, skills } of roleSkillMap) {
+    if (text.includes(role)) {
+      for (const skill of skills) {
+        if (!consumedWords.has(skill) && !filters.some(f => f === `j.skills LIKE '%${skill}%'`)) {
+          filters.push(`j.skills LIKE '%${skill}%'`);
+          consumedWords.add(skill);
+        }
+      }
+      consumedWords.add(role);
+    }
+  }
+
   // === Remaining Korean keywords (title/company search) ===
-  const stopWords = new Set(['면접', '면접보는', '면접잡힌', '면접후결정', '결정', '정규직', '계약직', '파견', '인턴', '프리랜서', '프리랜스', '시니어', '주니어', '미드', '미들', '리드', '포지션', '레벨', '수준', '지원', '지원한', '지원할', '지원예정', '지원완료', '관심', '북마크', '찜', '찜해둔', '합격', '합격한', '오퍼', '탈락', '탈락한', '거절', '불합격', '재택', '재택으로', '재택근무', '전면재택', '원격', '원격근무', '리모트', '풀리모트', '완전재택', '하이브리드', '출근', '상시모집', '수시모집', '상시채용', '전부', '모두', '모든', '점수', '점수순으로', '매칭', '최신', '빼고', '제외', '말고', '있어', '보여', '보여줘', '공고', '거', '곳', '다', '중에', '할', '한', '수', '있는', '순으로', '보는', '잡힌', '해둔', '예정', '완료', '했', '을', '를', '이', '가', '에서', '의', '에', '연봉', '급여', '연수입', '마감임박', '곧마감', '마감순', '오늘', '내일', '마감', '기한', '데드라인', '경력', '년', '년차', '이상', '남은', '빠른순', '쓰는', '하는', '쓰는곳', '하는곳', '파이썬', '도커', '코틀린', '스프링', '장고', '플라스크', '넥스트', '뷰', '앵귤러', '노드', '익스프레스', '플러터', '쿠버네티스', '테라폼', '러스트', '스위프트', '루비', '레디스', '피그마', '리액트', '자바스크립트', '타입스크립트', '자바', '고언어', '부트', '리눅스', '엔진엑스', '데브옵스', '스파크', '하둡', '에어플로우', '디비티', '빅쿼리', '스노우플레이크', '리덕스', '주스탄드', '리코일', '몹엑스', '뷰엑스', '피니아', '유니티', '언리얼', '머신러닝', '래빗엠큐', '오라클', '다트', '스벨트', '스위프트유아이', '네스트', '넉스트', '라라벨', '레일즈', '닷넷', '앤서블', '랭체인', '허깅페이스', '파인튜닝', '프롬프트', '디퓨전', '벡터', '자연어', '자연어처리', '비전', '컴퓨터', '컴퓨터비전', '머신러닝', '파인튜닝', '프롬프트엔지니어링', '스테이블', '디퓨전', '벡터디비', '바이트', '테일윈드', '프리즈마', '버셀', '파이어베이스', '수파베이스', '스토리북', '제스트', '사이프레스', '호노',
+  const stopWords = new Set(['면접', '면접보는', '면접잡힌', '면접후결정', '결정', '정규직', '계약직', '파견', '인턴', '프리랜서', '프리랜스', '시니어', '주니어', '미드', '미들', '리드', '포지션', '레벨', '수준', '지원', '지원한', '지원할', '지원예정', '지원완료', '관심', '북마크', '찜', '찜해둔', '합격', '합격한', '오퍼', '탈락', '탈락한', '거절', '불합격', '재택', '재택으로', '재택근무', '전면재택', '원격', '원격근무', '리모트', '풀리모트', '완전재택', '하이브리드', '출근', '상시모집', '수시모집', '상시채용', '전부', '모두', '모든', '점수', '점수순으로', '매칭', '최신', '빼고', '뺀', '제외', '말고', '있어', '보여', '보여줘', '공고', '거', '곳', '다', '중에', '할', '한', '수', '있는', '순으로', '보는', '잡힌', '해둔', '예정', '완료', '했', '을', '를', '이', '가', '에서', '의', '에', '연봉', '급여', '연수입', '마감임박', '곧마감', '마감순', '오늘', '내일', '마감', '기한', '데드라인', '경력', '년', '년차', '이상', '남은', '빠른순', '쓰는', '하는', '쓰는곳', '하는곳', '파이썬', '도커', '코틀린', '스프링', '장고', '플라스크', '넥스트', '뷰', '앵귤러', '노드', '익스프레스', '플러터', '쿠버네티스', '테라폼', '러스트', '스위프트', '루비', '레디스', '피그마', '리액트', '자바스크립트', '타입스크립트', '자바', '고언어', '부트', '리눅스', '엔진엑스', '데브옵스', '스파크', '하둡', '에어플로우', '디비티', '빅쿼리', '스노우플레이크', '리덕스', '주스탄드', '리코일', '몹엑스', '뷰엑스', '피니아', '유니티', '언리얼', '머신러닝', '래빗엠큐', '오라클', '다트', '스벨트', '스위프트유아이', '네스트', '넉스트', '라라벨', '레일즈', '닷넷', '앤서블', '랭체인', '허깅페이스', '파인튜닝', '프롬프트', '디퓨전', '벡터', '자연어', '자연어처리', '비전', '컴퓨터', '컴퓨터비전', '머신러닝', '파인튜닝', '프롬프트엔지니어링', '스테이블', '디퓨전', '벡터디비', '바이트', '테일윈드', '프리즈마', '버셀', '파이어베이스', '수파베이스', '스토리북', '제스트', '사이프레스', '호노',
     // EXP-128: Korean skill aliases from EXP-103 (runtimes/ORM/monitoring/desktop/mobile)
     '데노', '레믹스', '아스트로', '패스티파이', '코아', '드리즐', '타입오알엠', '타우리', '캐패시터', '아이오닉', '데이터독',
     // EXP-128: Korean skill aliases from EXP-116 (blockchain/security/platform)
@@ -462,6 +490,8 @@ function parseKoreanQuery(input) {
     // EXP-128: Additional Korean aliases that could leak
     '그라파나', '프로메테우스', '웹3', '젠킨스', '램다', '포스트그레스', '포스트그레스큐엘', '시샵', '그래프큐엘', '지알피시', '레스트', '스토리북',
     '프레임워크', '프로그래밍', '개발', '엔지니어', '매니저', '디자이너', '플랫폼', '서비스', '솔루션', '시스템', '프로젝트', '테스트', '분석', '데이터', '모델', '알고리즘',
+    // EXP-145: Common Korean words that leak as keywords
+    '가능', '가능한', '개발자', '전체', '담당자', '담당', '찾는', '원하는', '필요한', '관련', '분야', '경험', '있어요', '없는', '높은', '낮은', '빠른', '느린', '좋은', '많은', '적은', '큰', '작은', '새로운', '다음', '이전', '최고', '최소', '평균', '기준', '위치', '지역', '근무', '근무지', '환경', '복지', '혜택',
   ]);
   const koreanParticles = /^(.+?)(?:에서|으로|로서|으로서|에게|한테|으로부터|부터|까지|에서부터|에|은|는|이|가|을|를|와|과|의|도|만|조차|마저|부터|까지|이나|나|니|대로|만큼|처럼|같이|하고|랑|이랑|아|야|여|이여|한|인|적인|적인지|적)$/;
   const koreanWords = (text.match(/[가-힣]{2,}/g) || []).map(w => {
