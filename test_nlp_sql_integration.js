@@ -247,10 +247,14 @@ test('합격한 공고 - offer status', () => {
   assert(rows.length === 0, `expected 0 (no offers), got ${rows.length}`);
 });
 
-test('백엔드 공고 - title keyword filter', () => {
+test('백엔드 공고 - role-based skill filter (EXP-145/146: 백엔드→OR skill filter)', () => {
   const rows = executeNLPQuery('백엔드 공고 있어?');
-  assert(rows.length >= 1, `expected >= 1, got ${rows.length}`);
-  assert(rows.every(r => r.title.includes('백엔드')), 'all should have 백엔드 in title');
+  assert(rows.length >= 2, `expected >= 2, got ${rows.length}`);
+  // EXP-145/146: 백엔드 maps to OR skill filter (node.js OR python OR java)
+  // This matches jobs with any of these skills, so also matches 데이터 엔지니어, 인턴 etc.
+  // At minimum, the 백엔드-titled jobs should be included
+  const backendJobs = rows.filter(r => r.title.includes('백엔드'));
+  assert(backendJobs.length >= 2, `expected >= 2 백엔드-titled jobs, got ${backendJobs.length}`);
 });
 
 test('complex query - 지원한 서울 연봉 마감순', () => {

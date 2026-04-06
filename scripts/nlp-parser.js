@@ -460,6 +460,8 @@ function parseKoreanQuery(input) {
   }
 
   // === Role-based skill inference (풀스택, 프론트엔드, 백엔드 etc.) ===
+  // These are alternative skills (OR), not required-together (AND).
+  // A 백엔드 job may use Java OR Python OR Node.js — not all three.
   const roleSkillMap = [
     { role: '풀스택', skills: ['react', 'node.js', 'typescript'] },
     { role: '프론트엔드', skills: ['react', 'typescript', 'javascript'] },
@@ -469,11 +471,13 @@ function parseKoreanQuery(input) {
   ];
   for (const { role, skills } of roleSkillMap) {
     if (text.includes(role)) {
-      for (const skill of skills) {
-        if (!consumedWords.has(skill) && !filters.some(f => f === `j.skills LIKE '%${skill}%'`)) {
-          filters.push(`j.skills LIKE '%${skill}%'`);
-          consumedWords.add(skill);
-        }
+      const skillFilters = skills
+        .filter(skill => !consumedWords.has(skill))
+        .map(skill => `j.skills LIKE '%${skill}%'`);
+      if (skillFilters.length > 0) {
+        // OR: any one of the role's typical skills should match
+        filters.push(`(${skillFilters.join(' OR ')})`);
+        skills.forEach(s => consumedWords.add(s));
       }
       consumedWords.add(role);
     }

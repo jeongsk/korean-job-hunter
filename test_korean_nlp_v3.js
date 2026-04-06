@@ -22,7 +22,7 @@ const testCases = [
   { id: 8, input: "재택으로 할 수 있는 관심 공고", expectedFilters: ["a.status = 'interested'", "j.work_type = 'remote'"], expectedOrder: "a.updated_at DESC" },
   { id: 9, input: "면접보는 곳 점수순으로", expectedFilters: ["a.status = 'interview'"], expectedOrder: "m.score DESC" },
   { id: 10, input: "카카오 공고 있어?", expectedFilters: ["j.company LIKE '%카카오%'"], expectedOrder: "a.updated_at DESC" },
-  { id: 11, input: "백엔드 관심 공고", expectedFilters: ["a.status = 'interested'", "j.skills LIKE '%node.js%'", "j.skills LIKE '%python%'", "j.skills LIKE '%java%'"], expectedOrder: "a.updated_at DESC" },
+  { id: 11, input: "백엔드 관심 공고", expectedFilters: ["a.status = 'interested'", "(j.skills LIKE '%node.js%' OR j.skills LIKE '%python%' OR j.skills LIKE '%java%')"], expectedOrder: "a.updated_at DESC" },
 
   // --- EXP-035 regression ---
   { id: 12, input: "카카오뱅크 공고", expectedFilters: ["j.company LIKE '%카카오뱅크%'"], expectedOrder: "a.updated_at DESC",
@@ -58,7 +58,7 @@ const testCases = [
     note: "should NOT contain j.company LIKE '%카카오%'" },
 
   // SQL quote fix: 백엔드 filter must have balanced quotes
-  { id: 30, input: "프론트엔드 관심 공고", expectedFilters: ["a.status = 'interested'", "j.skills LIKE '%react%'", "j.skills LIKE '%typescript%'", "j.skills LIKE '%javascript%'"], expectedOrder: "a.updated_at DESC", note: "SQL must have balanced quotes" },
+  { id: 30, input: "프론트엔드 관심 공고", expectedFilters: ["a.status = 'interested'", "(j.skills LIKE '%react%' OR j.skills LIKE '%typescript%' OR j.skills LIKE '%javascript%')"], expectedOrder: "a.updated_at DESC", note: "SQL must have balanced quotes" },
 
   // --- EXP-051: Bug fixes ---
 
