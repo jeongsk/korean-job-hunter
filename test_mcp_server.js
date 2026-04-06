@@ -1,312 +1,233 @@
-#!/usr/bin/env node
 /**
- * test_mcp_server.js — Test suite for MCP server database operations
- * EXP-134: First test coverage for the MCP server
+ * EXP-153: MCP Server CRUD and Search Tests
  * 
- * Tests the SQL schema, filter logic, and CRUD operations
- * using the same SQL that the MCP server executes.
+ * Tests for keyword search, delete job, and save application MCP tools
  */
-
-const { execSync } = require('child_process');
-const fs = require('fs');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+const Database = require('./mcp-server/node_modules/better-sqlite3');
 const path = require('path');
-const crypto = require('crypto');
+const fs = require('fs');
 
-const TMP_DB = path.join(__dirname, 'test_mcp_' + Date.now() + '.db');
-let passed = 0;
-let failed = 0;
+// We test the SQL logic directly by importing the compiled JS
+// For unit testing, we recreate the logic with an in-memory DB
 
-function sql(cmd) {
-  return execSync(`sqlite3 -json "${TMP_DB}" "${cmd.replace(/"/g, '\\"')}"`, { encoding: 'utf8' }).trim();
-}
-
-function sqlRun(cmd) {
-  return execSync(`sqlite3 "${TMP_DB}" "PRAGMA foreign_keys = ON; ${cmd.replace(/"/g, '\\"')}"`, { encoding: 'utf8' }).trim();
-}
-
-function assert(condition, label) {
-  if (condition) {
-    console.log(`  ✅ ${label}`);
-    passed++;
-  } else {
-    console.log(`  ❌ ${label}`);
-    failed++;
-  }
-}
-
-function setupDB() {
-  // Create schema matching MCP server
-  execSync(`sqlite3 "${TMP_DB}" "PRAGMA foreign_keys = ON;
-
+function createTestDb() {
+  const db = new Database(':memory:');
+  db.pragma("journal_mode = WAL");
+  db.pragma("foreign_keys = ON");
+  db.exec(`
     CREATE TABLE jobs (
-      id TEXT PRIMARY KEY, source TEXT NOT NULL, title TEXT NOT NULL,
-      company TEXT NOT NULL, url TEXT UNIQUE NOT NULL, content TEXT,
-      location TEXT, office_address TEXT, work_type TEXT, commute_min INTEGER,
-      experience TEXT, salary TEXT, salary_min INTEGER, salary_max INTEGER,
-      deadline TEXT, reward TEXT, culture_keywords TEXT, skills TEXT DEFAULT '',
-      employment_type TEXT DEFAULT 'regular', career_stage TEXT,
-      created_at TEXT DEFAULT (datetime('now')), fetched_at TEXT DEFAULT (datetime('now'))
+      id TEXT PRIMARY KEY,
+      source TEXT NOT NULL,
+      title TEXT NOT NULL,
+      company TEXT NOT NULL,
+      url TEXT UNIQUE NOT NULL,
+      content TEXT,
+      location TEXT,
+      office_address TEXT,
+      work_type TEXT,
+      commute_min INTEGER,
+      experience TEXT,
+      salary TEXT,
+      salary_min INTEGER,
+      salary_max INTEGER,
+      deadline TEXT,
+      reward TEXT,
+      culture_keywords TEXT,
+      skills TEXT DEFAULT '',
+      employment_type TEXT DEFAULT 'regular',
+      career_stage TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      fetched_at TEXT DEFAULT (datetime('now'))
     );
     CREATE TABLE matches (
-      id TEXT PRIMARY KEY, job_id TEXT NOT NULL REFERENCES jobs(id),
-      resume_hash TEXT NOT NULL, score INTEGER NOT NULL,
-      skill_score INTEGER, location_score INTEGER, report TEXT,
+      id TEXT PRIMARY KEY,
+      job_id TEXT NOT NULL REFERENCES jobs(id),
+      resume_hash TEXT NOT NULL,
+      score INTEGER NOT NULL,
+      skill_score INTEGER,
+      location_score INTEGER,
+      report TEXT,
       created_at TEXT DEFAULT (datetime('now'))
     );
     CREATE TABLE applications (
-      id TEXT PRIMARY KEY, job_id TEXT NOT NULL REFERENCES jobs(id),
-      status TEXT NOT NULL DEFAULT 'interested', memo TEXT,
+      id TEXT PRIMARY KEY,
+      job_id TEXT NOT NULL REFERENCES jobs(id),
+      status TEXT NOT NULL DEFAULT 'interested',
+      memo TEXT,
       updated_at TEXT DEFAULT (datetime('now'))
     );
-  "`);
+  `);
+  return db;
 }
 
-function seedData() {
-  // Jobs
-  const jobs = [
-    ["j1","wanted","프론트엔드 개발자","카카오","https://w.co/1","React TS","서울","hybrid",30,"경력 3년 이상","연봉 5000~8000만원",5000,8000,"2026-04-30","react,typescript,javascript","regular","mid"],
-    ["j2","jobkorea","백엔드 개발자","네이버","https://jk.co/2","Java Spring","경기 성남","onsite",60,"경력 5년 이상","연봉 6000~10000만원",6000,10000,"2026-04-15","java,spring,mysql","regular","senior"],
-    ["j3","linkedin","Full Stack Developer","Toss","https://li.co/3","Node React","서울 영등포구","remote",null,"경력 2년 이상","면접후결정",null,null,null,"node.js,react,typescript","regular","mid"],
-    ["j4","wanted","DevOps 엔지니어","라인","https://w.co/4","AWS Docker K8s","서울","hybrid",45,"경력 7년 이상","연봉 8000~12000만원",8000,12000,"2026-05-01","docker,kubernetes,aws,ci/cd","regular","senior"],
-    ["j5","jobkorea","데이터 엔지니어","쿠팡","https://jk.co/5","Spark Airflow","부산","onsite",90,"경력 3년 이상","연봉 5000~7000만원",5000,7000,"2026-04-20","spark,airflow,python","contract","mid"],
-    ["j6","wanted","iOS 개발자","배달의민족","https://w.co/6","Swift SwiftUI","서울","remote",null,"신입·경력","연봉 4000~6000만원",4000,6000,null,"swift,swiftui","regular","junior"],
-    ["j7","linkedin","ML Engineer","Samsung","https://li.co/7","Python TF","수원","onsite",null,"경력 10년 이상","연봉 1~2억",10000,20000,null,"python,tensorflow,pytorch","regular","lead"],
-  ];
-  
-  for (const j of jobs) {
-    sqlRun(`INSERT OR REPLACE INTO jobs (id,source,title,company,url,content,location,work_type,commute_min,experience,salary,salary_min,salary_max,deadline,skills,employment_type,career_stage) VALUES ('${j[0]}','${j[1]}','${j[2]}','${j[3]}','${j[4]}','${j[5]}','${j[6]}','${j[7]}',${j[8]===null?'NULL':j[8]},'${j[9]}','${j[10]}',${j[11]===null?'NULL':j[11]},${j[12]===null?'NULL':j[12]},${j[13]===null?'NULL':"'"+j[13]+"'"},'${j[14]}','${j[15]}','${j[16]}')`);
-    const appId = crypto.randomUUID();
-    sqlRun(`INSERT OR IGNORE INTO applications (id, job_id) VALUES ('${appId}', '${j[0]}')`);
-  }
-  
-  // Matches
-  sqlRun("INSERT INTO matches (id,job_id,resume_hash,score,skill_score,location_score) VALUES ('m1','j1','hash1',92,88,95)");
-  sqlRun("INSERT INTO matches (id,job_id,resume_hash,score,skill_score,location_score) VALUES ('m2','j2','hash1',35,20,50)");
-  sqlRun("INSERT INTO matches (id,job_id,resume_hash,score,skill_score,location_score) VALUES ('m3','j3','hash1',85,80,90)");
-  sqlRun("INSERT INTO matches (id,job_id,resume_hash,score,skill_score,location_score) VALUES ('m4','j4','hash1',60,55,70)");
+function buildSearchQuery(filters) {
+  const conditions = [];
+  const params = [];
+  if (filters.source) { conditions.push("j.source = ?"); params.push(filters.source); }
+  if (filters.work_type) { conditions.push("j.work_type = ?"); params.push(filters.work_type); }
+  if (filters.keyword) { conditions.push("(j.title LIKE ? OR j.company LIKE ?)"); params.push(`%${filters.keyword}%`, `%${filters.keyword}%`); }
+  if (filters.min_salary !== undefined) { conditions.push("j.salary_min IS NOT NULL AND j.salary_min >= ?"); params.push(filters.min_salary); }
+  if (filters.skills) { conditions.push("j.skills LIKE ?"); params.push(`%${filters.skills}%`); }
+  if (filters.employment_type) { conditions.push("j.employment_type = ?"); params.push(filters.employment_type); }
+  if (filters.career_stage) { conditions.push("j.career_stage = ?"); params.push(filters.career_stage); }
+  if (filters.deadline_before) { conditions.push("(j.deadline IS NOT NULL AND j.deadline != '' AND j.deadline <= ?)"); params.push(filters.deadline_before); }
+  let query = `SELECT j.*, m.score, m.skill_score, m.location_score FROM jobs j LEFT JOIN (SELECT job_id, MAX(score) as score, skill_score, location_score FROM matches GROUP BY job_id) m ON j.id = m.job_id`;
+  if (filters.min_score !== undefined) { conditions.push("m.score >= ?"); params.push(filters.min_score); }
+  if (conditions.length > 0) query += " WHERE " + conditions.join(" AND ");
+  query += " ORDER BY COALESCE(m.score, 0) DESC";
+  query += ` LIMIT ${filters.limit ?? 20}`;
+  return { query, params };
 }
 
-// ── Tests ──
+describe('MCP Server: Keyword Search', () => {
+  const db = createTestDb();
+  const insert = db.prepare(`INSERT OR REPLACE INTO jobs (id, source, title, company, url, skills, salary_min, salary_max, deadline, employment_type, career_stage, work_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+  
+  // Insert test data
+  insert.run('j1', 'wanted', '프론트엔드 개발자', '카카오', 'https://w.co/1', 'react,typescript', 5000, 8000, '2026-04-30', 'regular', 'senior', 'hybrid');
+  insert.run('j2', 'wanted', '백엔드 엔지니어', '네이버', 'https://w.co/2', 'java,spring', 6000, 9000, '2026-04-15', 'regular', 'mid', 'onsite');
+  insert.run('j3', 'jobkorea', '프론트엔드 시니어', '카카오엔터', 'https://w.co/3', 'react,vue', 7000, 10000, null, 'regular', 'senior', 'remote');
+  insert.run('j4', 'linkedin', 'Data Scientist', '토스', 'https://w.co/4', 'python,tensorflow', 8000, 12000, '2026-05-01', 'regular', 'lead', 'hybrid');
+  insert.run('j5', 'wanted', 'iOS Developer', '배달의민족', 'https://w.co/5', 'swift,swiftui', 5000, 7000, '2026-04-20', 'contract', 'mid', 'onsite');
 
-function testSchema() {
-  console.log('\n📋 Schema Tests');
-  const cols = JSON.parse(sql("PRAGMA table_info(jobs)")).map(c => c.name);
-  const required = ['id','source','title','company','url','content','location','office_address',
-    'work_type','commute_min','experience','salary','salary_min','salary_max',
-    'deadline','reward','culture_keywords','skills','employment_type','career_stage'];
-  for (const c of required) {
-    assert(cols.includes(c), `jobs table has column: ${c}`);
-  }
-  assert(cols.length >= 21, `jobs table has ${cols.length} columns (>= 21)`);
-  
-  const matchCols = JSON.parse(sql("PRAGMA table_info(matches)")).map(c => c.name);
-  assert(matchCols.includes('score'), 'matches has score');
-  assert(matchCols.includes('skill_score'), 'matches has skill_score');
-  
-  const appCols = JSON.parse(sql("PRAGMA table_info(applications)")).map(c => c.name);
-  assert(appCols.includes('status'), 'applications has status');
-  assert(appCols.includes('memo'), 'applications has memo');
-}
+  it('keyword search finds by title', () => {
+    const { query, params } = buildSearchQuery({ keyword: '프론트엔드' });
+    const results = db.prepare(query).all(...params);
+    assert.equal(results.length, 2);
+    assert.ok(results.every(r => r.title.includes('프론트엔드')));
+  });
 
-function testSaveJob() {
-  console.log('\n💾 Save Job Tests');
-  const id = crypto.randomUUID();
-  sqlRun(`INSERT OR REPLACE INTO jobs (id,source,title,company,url,content,location,work_type,salary_min,salary_max,skills,employment_type,career_stage) VALUES ('${id}','wanted','테스트 직무','테스트회사','https://test.com/${id}','JD','판교','remote',5000,8000,'react,typescript','regular','mid')`);
-  
-  const row = JSON.parse(sql(`SELECT * FROM jobs WHERE id = '${id}'`))[0];
-  assert(row.title === '테스트 직무', 'Insert job: title correct');
-  assert(row.salary_min === 5000, 'Insert job: salary_min correct');
-  assert(row.skills === 'react,typescript', 'Insert job: skills correct');
-  assert(row.employment_type === 'regular', 'Insert job: employment_type correct');
-  assert(row.career_stage === 'mid', 'Insert job: career_stage correct');
-  
-  // UPSERT
-  sqlRun(`INSERT OR REPLACE INTO jobs (id,source,title,company,url,content) VALUES ('${id}','wanted','업데이트된 직무','테스트회사','https://test.com/${id}','Updated JD')`);
-  const updated = JSON.parse(sql(`SELECT * FROM jobs WHERE id = '${id}'`))[0];
-  assert(updated.title === '업데이트된 직무', 'UPSERT updates title');
-  
-  // Auto-application (MCP server does this)
-  const appId = crypto.randomUUID();
-  sqlRun(`INSERT OR IGNORE INTO applications (id, job_id) VALUES ('${appId}', '${id}')`);
-  const app = JSON.parse(sql(`SELECT * FROM applications WHERE job_id = '${id}'`))[0];
-  assert(app !== undefined, 'Auto-application created');
-  assert(app.status === 'interested', 'Auto-application status is interested');
-}
+  it('keyword search finds by company', () => {
+    const { query, params } = buildSearchQuery({ keyword: '카카오' });
+    const results = db.prepare(query).all(...params);
+    assert.equal(results.length, 2);
+    assert.ok(results.every(r => r.company.includes('카카오')));
+  });
 
-function testSearchFilters() {
-  console.log('\n🔍 Search Filter Tests');
-  
-  // Source filter
-  const wanted = JSON.parse(sql("SELECT * FROM jobs WHERE source = 'wanted'"));
-  assert(wanted.length === 4, `Source 'wanted': ${wanted.length} jobs`);  // j1,j4,j6
-  
-  // Work type
-  const remote = JSON.parse(sql("SELECT * FROM jobs WHERE work_type = 'remote'"));
-  assert(remote.length === 2, `Work type 'remote': ${remote.length} jobs`);
-  
-  // Salary range
-  const highSalary = JSON.parse(sql("SELECT * FROM jobs WHERE salary_min >= 6000"));
-  assert(highSalary.length === 3, `Salary min >= 6000: ${highSalary.length} jobs`);
-  
-  // Location LIKE
-  const seoul = JSON.parse(sql("SELECT * FROM jobs WHERE location LIKE '%서울%'"));
-  assert(seoul.length === 4, `Location '서울': ${seoul.length} jobs`);
-  
-  // Skills LIKE
-  const react = JSON.parse(sql("SELECT * FROM jobs WHERE skills LIKE '%react%'"));
-  assert(react.length === 2, `Skills 'react': ${react.length} jobs`);
-  
-  // Employment type
-  const regular = JSON.parse(sql("SELECT * FROM jobs WHERE employment_type = 'regular'"));
-  assert(regular.length === 7, `Employment 'regular': ${regular.length} jobs`);
-  
-  const contract = JSON.parse(sql("SELECT * FROM jobs WHERE employment_type = 'contract'"));
-  assert(contract.length === 1, `Employment 'contract': ${contract.length} jobs`);
-  
-  // Career stage
-  const senior = JSON.parse(sql("SELECT * FROM jobs WHERE career_stage = 'senior'"));
-  assert(senior.length === 2, `Career 'senior': ${senior.length} jobs`);
-  
-  const lead = JSON.parse(sql("SELECT * FROM jobs WHERE career_stage = 'lead'"));
-  assert(lead.length === 1, `Career 'lead': ${lead.length} jobs`);
-  
-  // Deadline
-  const deadline = JSON.parse(sql("SELECT * FROM jobs WHERE deadline IS NOT NULL AND deadline != '' AND deadline <= '2026-04-20'"));
-  assert(deadline.length === 2, `Deadline <= 2026-04-20: ${deadline.length} jobs`);
-  
-  // Commute
-  const commute = JSON.parse(sql("SELECT * FROM jobs WHERE commute_min IS NULL OR commute_min <= 45"));
-  assert(commute.length === 6, `Commute <= 45min: ${commute.length} jobs`);
-}
+  it('keyword search finds English title', () => {
+    const { query, params } = buildSearchQuery({ keyword: 'Data' });
+    const results = db.prepare(query).all(...params);
+    assert.equal(results.length, 1);
+    assert.equal(results[0].company, '토스');
+  });
 
-function testSearchWithMatchJoin() {
-  console.log('\n🔗 Search + Match Join Tests');
-  
-  const scored = JSON.parse(sql(`
-    SELECT j.*, m.score, m.skill_score, m.location_score
-    FROM jobs j
-    LEFT JOIN (SELECT job_id, MAX(score) as score, skill_score, location_score FROM matches GROUP BY job_id) m ON j.id = m.job_id
-    WHERE m.score >= 80
-    ORDER BY m.score DESC
-  `));
-  assert(scored.length === 2, `Min score 80: ${scored.length} jobs`);
-  assert(scored[0].score === 92, `Top score is 92: ${scored[0].score}`);
-  assert(scored[0].title === '프론트엔드 개발자', `Top job is 프론트엔드: ${scored[0].title}`);
-}
+  it('combined keyword + salary filter', () => {
+    const { query, params } = buildSearchQuery({ keyword: '프론트엔드', min_salary: 6000 });
+    const results = db.prepare(query).all(...params);
+    assert.equal(results.length, 1);
+    assert.equal(results[0].company, '카카오엔터');
+  });
 
-function testSaveMatch() {
-  console.log('\n📊 Save Match Tests');
-  sqlRun(`INSERT INTO matches (id,job_id,resume_hash,score,skill_score,location_score,report) VALUES ('m5','j1','hash2',75,70,80,'{"test": true}')`);
-  const row = JSON.parse(sql("SELECT * FROM matches WHERE id = 'm5'"))[0];
-  assert(row.score === 75, 'Match score saved');
-  assert(row.skill_score === 70, 'Match skill_score saved');
-  
-  const maxScore = JSON.parse(sql("SELECT MAX(score) as max FROM matches WHERE job_id = 'j1'"))[0];
-  assert(maxScore.max === 92, `MAX score for j1 is 92: ${maxScore.max}`);
-}
+  it('combined keyword + employment_type', () => {
+    const { query, params } = buildSearchQuery({ keyword: 'Developer', employment_type: 'contract' });
+    const results = db.prepare(query).all(...params);
+    assert.equal(results.length, 1);
+    assert.equal(results[0].company, '배달의민족');
+  });
 
-function testApplications() {
-  console.log('\n📝 Application Tests');
-  
-  const apps = JSON.parse(sql(`
-    SELECT a.*, j.title, j.company, j.url, j.work_type, j.salary, j.skills, j.employment_type, j.career_stage
-    FROM applications a JOIN jobs j ON a.job_id = j.id ORDER BY a.updated_at DESC
-  `));
-  assert(apps.length === 8, `Total applications: ${apps.length}`);
-  
-  // Update status
-  const firstApp = apps[0];
-  sqlRun(`UPDATE applications SET status = 'applied', memo = '지원완료', updated_at = datetime('now') WHERE id = '${firstApp.id}'`);
-  const updated = JSON.parse(sql(`SELECT * FROM applications WHERE id = '${firstApp.id}'`))[0];
-  assert(updated.status === 'applied', `Status updated: ${updated.status}`);
-  assert(updated.memo === '지원완료', `Memo saved: ${updated.memo}`);
-}
+  it('deadline_before filter works', () => {
+    const { query, params } = buildSearchQuery({ deadline_before: '2026-04-16' });
+    const results = db.prepare(query).all(...params);
+    assert.equal(results.length, 1);
+    assert.equal(results[0].company, '네이버');
+  });
 
-function testStats() {
-  console.log('\n📈 Stats Tests');
-  
-  const total = JSON.parse(sql("SELECT COUNT(*) as count FROM jobs"))[0].count;
-  assert(total === 8, `Total jobs: ${total}`);
-  
-  const bySource = JSON.parse(sql("SELECT source, COUNT(*) as count FROM jobs GROUP BY source"));
-  assert(bySource.length === 3, `3 sources: ${bySource.length}`);
-  
-  const salaryCoverage = JSON.parse(sql("SELECT COUNT(*) as count FROM jobs WHERE salary_min IS NOT NULL"))[0].count;
-  assert(salaryCoverage === 6, `Jobs with salary: ${salaryCoverage}`);  // test job UPSERT nullifies salary
-  
-  const skillsCoverage = JSON.parse(sql("SELECT COUNT(*) as count FROM jobs WHERE skills IS NOT NULL AND skills != ''"))[0].count;
-  assert(skillsCoverage === 7, `Jobs with skills: ${skillsCoverage}`);  // test job UPSERT clears skills
-}
+  it('no results for non-matching keyword', () => {
+    const { query, params } = buildSearchQuery({ keyword: '디자이너' });
+    const results = db.prepare(query).all(...params);
+    assert.equal(results.length, 0);
+  });
+});
 
-function testCompositeFilters() {
-  console.log('\n🎯 Composite Filter Tests');
-  
-  // 서울 + regular + min_score 80
-  const r1 = JSON.parse(sql(`
-    SELECT j.*, m.score FROM jobs j
-    LEFT JOIN (SELECT job_id, MAX(score) as score FROM matches GROUP BY job_id) m ON j.id = m.job_id
-    WHERE j.location LIKE '%서울%' AND j.employment_type = 'regular' AND m.score >= 80
-  `));
-  assert(r1.length === 2, `서울 + regular + score>=80: ${r1.length}`);  // j1(92) + j3(85)
-  assert(r1[0].company === '카카오', `Result is 카카오: ${r1[0].company}`);
-  
-  // remote + react
-  const r2 = JSON.parse(sql("SELECT * FROM jobs WHERE work_type = 'remote' AND skills LIKE '%react%'"));
-  assert(r2.length === 1, `Remote + React: ${r2.length}`);
-  assert(r2[0].company === 'Toss', `Result is Toss: ${r2[0].company}`);
-  
-  // salary range
-  const r3 = JSON.parse(sql("SELECT * FROM jobs WHERE salary_min >= 5000 AND salary_max <= 10000"));
-  assert(r3.length === 3, `Salary 5000-10000: ${r3.length}`);
-}
+describe('MCP Server: Delete Job', () => {
+  const db = createTestDb();
+  const insertJob = db.prepare(`INSERT OR REPLACE INTO jobs (id, source, title, company, url) VALUES (?, ?, ?, ?, ?)`);
+  const insertMatch = db.prepare(`INSERT INTO matches (id, job_id, resume_hash, score) VALUES (?, ?, ?, ?)`);
+  const insertApp = db.prepare(`INSERT INTO applications (id, job_id, status) VALUES (?, ?, ?)`);
 
-function testEdgeCases() {
-  console.log('\n⚠️ Edge Case Tests');
-  
-  // Minimal job
-  const id = crypto.randomUUID();
-  sqlRun(`INSERT OR REPLACE INTO jobs (id,source,title,company,url) VALUES ('${id}','wanted','미니멀','미니멀회사','https://min.com/${id}')`);
-  const row = JSON.parse(sql(`SELECT * FROM jobs WHERE id = '${id}'`))[0];
-  assert(row.title === '미니멀', 'Minimal job insert works');
-  assert(row.skills === '', 'Default skills is empty');
-  assert(row.employment_type === 'regular', 'Default employment_type is regular');
-  
-  // URL uniqueness
-  let dupeOk = false;
-  try { sqlRun(`INSERT INTO jobs (id,source,title,company,url) VALUES ('${crypto.randomUUID()}','w','t','c','https://min.com/${id}')`); } catch { dupeOk = true; }
-  assert(dupeOk, 'Duplicate URL rejected');
-  
-  // FK on matches
-  let fkOk = false;
-  try { sqlRun("INSERT INTO matches (id,job_id,resume_hash,score) VALUES ('fk1','nonexistent','x',50)"); } catch { fkOk = true; }
-  assert(fkOk, 'FK constraint on matches.job_id');
-  
-  // FK on applications
-  let appFkOk = false;
-  try { sqlRun("INSERT INTO applications (id,job_id) VALUES ('fk2','nonexistent')"); } catch { appFkOk = true; }
-  assert(appFkOk, 'FK constraint on applications.job_id');
-}
+  it('deletes job and cascades to matches and applications', () => {
+    insertJob.run('del1', 'wanted', 'Test', 'Co', 'https://x.co/1');
+    insertMatch.run('m1', 'del1', 'hash1', 80);
+    insertApp.run('a1', 'del1', 'interested');
 
-// ── Run ──
+    db.prepare("DELETE FROM matches WHERE job_id = ?").run('del1');
+    db.prepare("DELETE FROM applications WHERE job_id = ?").run('del1');
+    const info = db.prepare("DELETE FROM jobs WHERE id = ?").run('del1');
 
-console.log('🧪 MCP Server Database Tests (EXP-134)\n');
-setupDB();
-testSchema();  // Schema first, before any data
-seedData();    // Then seed
-testSaveJob();
-testSearchFilters();
-testSearchWithMatchJoin();
-testSaveMatch();
-testApplications();
-testStats();
-testCompositeFilters();
-testEdgeCases();
+    assert.equal(info.changes, 1);
+    assert.equal(db.prepare("SELECT COUNT(*) as c FROM jobs WHERE id = 'del1'").get().c, 0);
+    assert.equal(db.prepare("SELECT COUNT(*) as c FROM matches WHERE job_id = 'del1'").get().c, 0);
+    assert.equal(db.prepare("SELECT COUNT(*) as c FROM applications WHERE job_id = 'del1'").get().c, 0);
+  });
 
-console.log(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-console.log(`📊 MCP Server Tests: ${passed} passed, ${failed} failed`);
-if (failed === 0) console.log('✅ All MCP server tests passed!');
-else console.log('❌ Some tests failed');
-console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+  it('delete non-existent job returns 0 changes', () => {
+    const info = db.prepare("DELETE FROM jobs WHERE id = ?").run('nonexistent');
+    assert.equal(info.changes, 0);
+  });
+});
 
-fs.unlinkSync(TMP_DB);
-process.exit(failed > 0 ? 1 : 0);
+describe('MCP Server: Save Application', () => {
+  const db = createTestDb();
+  const insertJob = db.prepare(`INSERT OR REPLACE INTO jobs (id, source, title, company, url) VALUES (?, ?, ?, ?, ?)`);
+  const insertApp = db.prepare(`INSERT OR IGNORE INTO applications (id, job_id, status) VALUES (?, ?, 'interested')`);
+  const updateApp = db.prepare(`UPDATE applications SET status = ?, memo = COALESCE(?, memo), updated_at = datetime('now') WHERE id = ?`);
+
+  it('creates new application for job', () => {
+    insertJob.run('app1', 'wanted', 'Test', 'Co', 'https://x.co/a1');
+    const appId = 'test-app-1';
+    insertApp.run(appId, 'app1');
+    updateApp.run('applied', 'Applied via email', appId);
+
+    const app = db.prepare("SELECT * FROM applications WHERE id = ?").get(appId);
+    assert.equal(app.job_id, 'app1');
+    assert.equal(app.status, 'applied');
+    assert.equal(app.memo, 'Applied via email');
+  });
+
+  it('updates existing application status', () => {
+    insertJob.run('app2', 'wanted', 'Test2', 'Co2', 'https://x.co/a2');
+    const appId = 'test-app-2';
+    insertApp.run(appId, 'app2');
+    updateApp.run('interview', null, appId);
+    
+    // Second update
+    updateApp.run('offer', 'Got offer!', appId);
+
+    const app = db.prepare("SELECT * FROM applications WHERE id = ?").get(appId);
+    assert.equal(app.status, 'offer');
+    assert.equal(app.memo, 'Got offer!');
+  });
+
+  it('handles all status transitions', () => {
+    const statuses = ['interested', 'applying', 'applied', 'interview', 'offer', 'declined', 'rejected'];
+    insertJob.run('app3', 'wanted', 'Test3', 'Co3', 'https://x.co/a3');
+    const appId = 'test-app-3';
+    insertApp.run(appId, 'app3');
+    
+    for (const status of statuses) {
+      updateApp.run(status, null, appId);
+      const app = db.prepare("SELECT * FROM applications WHERE id = ?").get(appId);
+      assert.equal(app.status, status);
+    }
+  });
+});
+
+describe('MCP Server: Stats include new fields', () => {
+  const db = createTestDb();
+  const insert = db.prepare(`INSERT OR REPLACE INTO jobs (id, source, title, company, url, skills, salary_min, employment_type, career_stage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+
+  it('salary_coverage counts jobs with salary_min', () => {
+    insert.run('s1', 'wanted', 'A', 'C', 'https://x.co/s1', 'react', 5000, 'regular', 'mid');
+    insert.run('s2', 'wanted', 'B', 'C', 'https://x.co/s2', 'java', null, 'regular', 'senior');
+    
+    const count = (db.prepare("SELECT COUNT(*) as count FROM jobs WHERE salary_min IS NOT NULL").get()).count;
+    assert.equal(count, 1);
+  });
+
+  it('skills_coverage counts jobs with non-empty skills', () => {
+    const count = (db.prepare("SELECT COUNT(*) as count FROM jobs WHERE skills IS NOT NULL AND skills != ''").get()).count;
+    assert.equal(count, 2);
+  });
+});

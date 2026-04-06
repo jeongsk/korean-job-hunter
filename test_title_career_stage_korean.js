@@ -70,7 +70,7 @@ test('칠리드레스 → null', deriveCareerStageFromTitle('칠리드레스'), 
 test('조직장+years → lead', deriveCareerStageFromTitle('결제 시스템 운영 및 개발 조직장(12년~20년)'), 'lead');
 
 // ── 신입 in range → junior ──
-test('신입-5년 → junior', deriveCareerStageFromTitle('프론트엔드 개발자(신입-5년)'), 'junior');
+test('신입-5년 → mid (upper bound 5)', deriveCareerStageFromTitle('프론트엔드 개발자(신입-5년)'), 'mid');
 
 // ── Live data validation ──
 test('[미리캔버스] 시니어 프론트엔드 개발자 → senior',

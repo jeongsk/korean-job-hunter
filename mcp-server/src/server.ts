@@ -129,6 +129,7 @@ interface JobFilters {
   employment_type?: string;
   career_stage?: string;
   deadline_before?: string;
+  keyword?: string;
   limit?: number;
 }
 
@@ -237,6 +238,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
               experience: { type: "string", description: "Experience filter (partial match)" },
               employment_type: { type: "string", description: "Employment type filter" },
               career_stage: { type: "string", description: "Career stage filter" },
+              keyword: { type: "string", description: "Search title and company (partial match)" },
               deadline_before: { type: "string", description: "Deadline before date (ISO)" },
               limit: { type: "number", description: "Max results (default 20)" },
             },
@@ -300,6 +302,33 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           id: { type: "string", description: "Job ID" },
         },
         required: ["id"],
+      },
+    },
+    {
+      name: "db_delete_job",
+      description: "Delete a job and its related matches and applications",
+      inputSchema: {
+        type: "object",
+        properties: {
+          id: { type: "string", description: "Job ID to delete" },
+        },
+        required: ["id"],
+      },
+    },
+    {
+      name: "db_save_application",
+      description: "Create or update an application for a job",
+      inputSchema: {
+        type: "object",
+        properties: {
+          job_id: { type: "string", description: "Job ID" },
+          status: {
+            type: "string",
+            description: "Status: interested | applying | applied | rejected | interview | offer | declined",
+          },
+          memo: { type: "string", description: "Optional memo/note" },
+        },
+        required: ["job_id", "status"],
       },
     },
     {
@@ -377,6 +406,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           conditions.push("j.career_stage = ?");
           params.push(filters.career_stage);
         }
+        if (filters.keyword) {
+          conditions.push("(j.title LIKE ? OR j.company LIKE ?)");
+          params.push(`%${filters.keyword}%`, `%${filters.keyword}%`);
+        }
         if (filters.deadline_before) {
           conditions.push("(j.deadline IS NOT NULL AND j.deadline != '' AND j.deadline <= ?)");
           params.push(filters.deadline_before);
@@ -439,6 +472,39 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const job = getJobById.get(id);
         return {
           content: [{ type: "text", text: JSON.stringify(job ?? null) }],
+        };
+      }
+
+      case "db_delete_job": {
+        const { id } = args as { id: string };
+        const delMatches = db.prepare("DELETE FROM matches WHERE job_id = ?");
+        const delApps = db.prepare("DELETE FROM applications WHERE job_id = ?");
+        const delJob = db.prepare("DELETE FROM jobs WHERE id = ?");
+        const info = db.transaction(() => {
+          delMatches.run(id);
+          delApps.run(id);
+          return delJob.run(id);
+        })();
+        return {
+          content: [{ type: "text", text: JSON.stringify({ success: true, deleted: info.changes > 0 }) }],
+        };
+      }
+
+      case "db_save_application": {
+        const { job_id, status, memo } = args as { job_id: string; status: string; memo?: string };
+        // Check if application already exists for this job
+        const existing = db.prepare("SELECT id FROM applications WHERE job_id = ?").get(job_id) as { id: string } | undefined;
+        if (existing) {
+          updateApplication.run({ id: existing.id, status, memo: memo ?? null });
+          return {
+            content: [{ type: "text", text: JSON.stringify({ success: true, id: existing.id, action: "updated" }) }],
+          };
+        }
+        const appId = crypto.randomUUID();
+        insertApplication.run({ id: appId, job_id });
+        updateApplication.run({ id: appId, status, memo: memo ?? null });
+        return {
+          content: [{ type: "text", text: JSON.stringify({ success: true, id: appId, action: "created" }) }],
         };
       }
 
