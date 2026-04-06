@@ -379,7 +379,11 @@ function deriveCareerStage(experience) {
 function deriveCareerStageFromTitle(title) {
   if (!title) return null;
   const t = title.toLowerCase();
-  // Lead / Principal / Staff — these are the most senior individual contributor roles
+  // Korean seniority titles — lead level (조직장, 팀장, 파트장, 그룹장, 실장, 본부장, 수석)
+  if (/(?:조직장|팀장|파트장|그룹장|실장|본부장|센터장|수석| chief)/.test(title)) return 'lead';
+  // Korean seniority titles — senior level (책임, 선임)
+  if (/(?:책임|선임)/.test(title)) return 'senior';
+  // Lead / Principal / Staff — most senior individual contributor roles
   if (/(?:^|[\s(\[/,])(?:principal|staff|tech\s*lead|team\s*lead)(?:$|[\s)\]/,])/i.test(title)) return 'lead';
   if (/(?:^|[\s(\[/,])(?:lead)(?:$|[\s)\]/,])/i.test(title)) return 'lead';
   // Korean 리드/리더 (lead) — require word boundary (space/start/end or Korean particle)
@@ -390,6 +394,26 @@ function deriveCareerStageFromTitle(title) {
   // Junior / Entry
   if (/(?:^|[\s(\[/,])(?:junior|entry[\s-]?level|jr\.?|associate)(?:$|[\s)\]/,])/i.test(title)) return 'junior';
   if (/주니어|신입/.test(title)) return 'junior';
+  // Title-embedded year ranges: "개발자(12년~20년)" or "엔지니어(5-10년)"
+  // Two formats: "N년~M년" or "N-M년"
+  const yearRange = title.match(/(\d+)\s*년?\s*[~-]\s*(\d+)\s*년/) ||
+                    title.match(/(\d+)\s*-\s*(\d+)\s*년/);
+  if (yearRange) {
+    const upper = parseInt(yearRange[2]);
+    if (upper <= 3) return 'junior';
+    if (upper <= 7) return 'mid';
+    if (upper <= 12) return 'senior';
+    return 'lead';
+  }
+  // Title-embedded minimum: "개발자 10년+" or "개발자 10년↑"
+  const yearMin = title.match(/(\d+)\s*년\s*[+↑]/);
+  if (yearMin) {
+    const years = parseInt(yearMin[1]) + 1;
+    if (years <= 3) return 'junior';
+    if (years <= 7) return 'mid';
+    if (years <= 12) return 'senior';
+    return 'lead';
+  }
   return null;
 }
 

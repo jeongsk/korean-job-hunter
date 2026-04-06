@@ -101,7 +101,7 @@ After detail-page skill extraction, UPDATE the skills column:
 sqlite3 data/jobs.db "UPDATE jobs SET skills = 'React,TypeScript,AWS,...' WHERE id = '...'"
 # salary_min/salary_max: use normalizeSalary(salary) → {min, max} in 만원 (annual)
 # employment_type: 'regular' (정규직, default), 'contract' (계약직/파견), 'intern' (인턴), 'freelance' (프리랜서)
-# career_stage: prefer deriveCareerStageFromTitle(title) first (detects 시니어→senior, 주니어→junior, 리드/리더→lead, 신입→junior, Senior/Lead/Staff/Principal→lead, Jr.→junior), then fallback deriveCareerStage(experience) → 'entry'|'junior'|'mid'|'senior'|'lead'|null
+# career_stage: prefer deriveCareerStageFromTitle(title) first (detects 시니어→senior, 주니어→junior, 리드/리더→lead, 신입→junior, Senior/Lead/Staff/Principal→lead, Jr.→junior, 조직장/팀장/파트장/그룹장/실장/본부장/센터장/수석→lead, 책임/선임→senior, title-embedded year ranges like (12년~20년)→lead, (5-10년)→senior), then fallback deriveCareerStage(experience) → 'entry'|'junior'|'mid'|'senior'|'lead'|null
 ```
 
 ## Rate Limiting
