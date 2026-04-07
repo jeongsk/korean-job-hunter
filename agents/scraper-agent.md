@@ -164,7 +164,7 @@ JobKorea cards now go through `post-process-jobkorea.js` which applies `normaliz
 
 LinkedIn cards now go through `post-process-linkedin.js` which enriches raw `{title, company, location, link}` data with:
 - **Experience level**: senior → senior, lead/principal/staff → lead, mid-senior → mid, junior/신입 → junior, intern → intern
-- **Skills**: 143 tech skills via shared skill-inference.js (EXP-114, EXP-148) — was using inline 52-pattern list
+- **Skills**: 143+ tech skills via shared skill-inference.js (EXP-114, EXP-148) — was using inline 52-pattern list. Framework-aware role supplements (EXP-162): when a specific framework is detected (Angular/Vue/Nuxt/Svelte), conflicting defaults (React) are NOT added.
 - **Salary**: 연봉/월급/억/면접후결정 via shared normalizeSalary()
 - **Work type**: remote/hybrid/onsite detection
 - **Location**: Korean↔English city normalization
