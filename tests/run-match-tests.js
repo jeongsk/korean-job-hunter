@@ -293,12 +293,15 @@ function calculateMatch(candidate, job) {
   scores.experience = { score: experienceScore, weight: 0.25, required: requiredYearsMin, actual: candidateYears };
   
   // --- 3. Company Culture Fit (15%) ---
+  // EXP-159: Synced with post-processor's 7 culture categories (was missing learning_focused, work_life_balance)
   const cultureKeywords = {
     'innovative': ['혁신', '도전', '창의', 'creative', 'innovation', '새로운'],
     'collaborative': ['협업', '팀워크', '팀', 'collaborative', 'partnership', '함께', 'agile'],
-    'structured': ['체계', 'process', 'systematic', '프로세스'],
     'fast-paced': ['agile', '빠른', '실시간', '스타트업'],
-    'autonomous': ['자율', '독립', 'self-directed', '자유'],
+    'structured': ['체계', 'process', 'systematic', '프로세스'],
+    'learning_focused': ['성장', '학습', 'learning', 'growth', '교육', '워크샵', '컨퍼런스', '스터디', '멘토링', '세미나'],
+    'autonomous': ['자율', '독립', 'self-directed', '자유', '오너십', '주도적'],
+    'work_life_balance': ['워라밸', '워크라이프밸런스', 'wlb', '유연근무', '시차출근', '자유출퇴근', '연차', '휴가', '리프레시'],
   };
   
   let cultureScore = 40; // baseline for jobs with no culture signals
@@ -307,8 +310,13 @@ function calculateMatch(candidate, job) {
   let cultureMatches = 0;
   let cultureChecked = 0;
   
+  // Use structured culture_keywords if available (from post-processor), otherwise scan text
+  const jobCultureTraits = new Set(job.culture_keywords || []);
+  
   for (const [trait, keywords] of Object.entries(cultureKeywords)) {
-    const jobHasTrait = keywords.some(kw => jobText.includes(kw));
+    const jobHasTrait = jobCultureTraits.size > 0
+      ? jobCultureTraits.has(trait)
+      : keywords.some(kw => jobText.includes(kw));
     const candidatePrefers = (candidateCulture[trait] || 0) > 0.5;
     
     if (jobHasTrait) {

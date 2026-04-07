@@ -3,7 +3,7 @@ name: job-matching
 description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring, and framework-aware primary domain alignment (EXP-049)"
 ---
 
-# Job Matching Skill v3.14 (EXP-124: Bare skill name regex fix — vue matches without .js suffix)
+# Job Matching Skill v3.15 (EXP-159: Culture categories synced — 7 traits + structured culture_keywords support)
 
 > 143 skills, 50+ similarity pairs, 17 domain categories (incl. blockchain, security).
 
