@@ -123,6 +123,25 @@ function parsePosition(pos) {
   // Derive experience from newbie flag (API doesn't give exact years)
   let experience = isNewbie ? '신입가능' : '경력';
 
+  // EXP-156: Enrich experience from title-embedded year ranges.
+  // Many Wanted titles contain "백엔드 개발자 (3년 이상)" — the career_stage
+  // is derived from this, but the raw experience field stays as "경력".
+  // Extract the year range from title so matching algorithm has specific data.
+  const titleYears = title.match(/(\d+)\s*년\s*이상/) ||
+                     title.match(/(\d+)\s*[-~]\s*(\d+)\s*년(?![가-힣])/);
+  if (titleYears) {
+    if (titleYears[2]) {
+      experience = `${titleYears[1]}~${titleYears[2]}년`;
+    } else {
+      experience = `${titleYears[1]}년 이상`;
+    }
+  }
+  // Also check for 신입-N년 range patterns
+  const newbieTitleRange = title.match(/(?:신입|0)\s*[-~]\s*(\d+)\s*년(?![가-힣])/);
+  if (newbieTitleRange) {
+    experience = `신입~${newbieTitleRange[1]}년`;
+  }
+
   // Normalize deadline to ISO date
   const normalizedDeadline = normalizeDeadline(dueTime);
 
