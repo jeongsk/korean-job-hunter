@@ -377,10 +377,10 @@ function deriveCareerStage(experience) {
   if (/무관/.test(exp)) return null;
   // Bare "경력" without year numbers → mid default (EXP-121)
   if (/경력/.test(exp) && !/\d/.test(exp)) return 'mid';
-  const rangeMatch = exp.match(/(\d+)\s*[~-]\s*(\d+)\s*년/);
+  const rangeMatch = exp.match(/(\d+)\s*[~-]\s*(\d+)\s*년(?![가-힣])/);
   const minMatch = exp.match(/(\d+)\s*년\s*이상/);
   const upMatch = exp.match(/(\d+)\s*년\s*↑/);
-  const singleMatch = exp.match(/(\d+)\s*년/);
+  const singleMatch = exp.match(/(\d+)\s*년(?![가-힣])/);
   let years = null;
   let isMinimum = false; // "N년 이상" — minimum experience, not exact
   if (rangeMatch) years = parseInt(rangeMatch[2]); // upper bound of range
@@ -422,7 +422,7 @@ function deriveCareerStageFromTitle(title) {
   if (/시니어/.test(title)) return 'senior';
   // "신입-N년" or "0~N년" range: position accepts up to N years — use upper bound for stage
   // e.g., "신입-5년" → mid, "신입~10년" → senior, "0-3년" → junior
-  const newbieRange = title.match(/(?:신입|0)\s*[-~]\s*(\d+)\s*년/);
+  const newbieRange = title.match(/(?:신입|0)\s*[-~]\s*(\d+)\s*년(?![가-힣])/);
   if (newbieRange) {
     const upper = parseInt(newbieRange[1]);
     if (upper <= 3) return 'junior';
@@ -435,8 +435,9 @@ function deriveCareerStageFromTitle(title) {
   if (/주니어|신입/.test(title)) return 'junior';
   // Title-embedded year ranges: "개발자(12년~20년)" or "엔지니어(5-10년)"
   // Two formats: "N년~M년" or "N-M년"
-  const yearRange = title.match(/(\d+)\s*년?\s*[~-]\s*(\d+)\s*년/) ||
-                    title.match(/(\d+)\s*-\s*(\d+)\s*년/);
+  // Negative lookahead prevents matching calendar years (e.g., "21년도" from "2021년도")
+  const yearRange = title.match(/(\d+)\s*년?\s*[~-]\s*(\d+)\s*년(?![가-힣])/) ||
+                    title.match(/(\d+)\s*-\s*(\d+)\s*년(?![가-힣])/);
   if (yearRange) {
     const upper = parseInt(yearRange[2]);
     if (upper <= 3) return 'junior';

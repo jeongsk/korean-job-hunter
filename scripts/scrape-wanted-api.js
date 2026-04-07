@@ -331,8 +331,11 @@ async function main() {
         } else if (expRange) {
           job.career_stage = deriveCareerStage(expRange);
         } else {
-          // Fallback: derive from combined text
-          const stage = deriveCareerStage(job.experience + ' ' + detail.description);
+          // Fallback: derive from qualification section only (full description
+          // contains calendar years like "21년도" that false-positive as experience)
+          const qualSection = detail.description.match(/자격요건[^]*?(?=우대사항|혜택|$)/);
+          const qualText = qualSection ? qualSection[0] : '';
+          const stage = deriveCareerStage(job.experience + ' ' + qualText);
           if (stage && stage !== 'mid') job.career_stage = stage;
         }
       }
