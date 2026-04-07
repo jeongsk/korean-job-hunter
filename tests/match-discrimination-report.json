@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-04-07T14:10:37.928Z",
+  "timestamp": "2026-04-07T21:10:25.647Z",
   "total_tests": 15,
   "passed": 15,
   "failed": 0,
-  "in_range": 13,
+  "in_range": 15,
   "discrimination": {
     "rule1": true,
     "rule2": true,
@@ -150,7 +150,7 @@
     {
       "id": "MED-002",
       "description": "Partial match - Frontend but Vue.js, different stack",
-      "score": 72,
+      "score": 71,
       "min_score": 40,
       "expected_range": [
         55,
@@ -161,14 +161,14 @@
       "in_range": true,
       "components": {
         "skill": {
-          "score": 71,
+          "score": 68,
           "weight": 0.35,
-          "exact": 3,
-          "strong": 1,
+          "exact": 2,
+          "strong": 2,
           "partial": 0,
-          "jobCoverage": 90,
-          "candidateRelevance": 42,
-          "jobRequired": 5
+          "jobCoverage": 88,
+          "candidateRelevance": 39,
+          "jobRequired": 4
         },
         "experience": {
           "score": 95,
@@ -330,7 +330,7 @@
     {
       "id": "MED-003",
       "description": "Partial match - Java/Spring backend, no JS overlap (domain mismatch but tier2 backend credit)",
-      "score": 56,
+      "score": 49,
       "min_score": 40,
       "expected_range": [
         40,
@@ -338,17 +338,17 @@
       ],
       "rank_group": "medium",
       "pass": true,
-      "in_range": false,
+      "in_range": true,
       "components": {
         "skill": {
-          "score": 34,
+          "score": 29,
           "weight": 0.35,
-          "exact": 3,
+          "exact": 2,
           "strong": 0,
-          "partial": 0,
-          "jobCoverage": 34,
-          "candidateRelevance": 33,
-          "jobRequired": 11
+          "partial": 1,
+          "jobCoverage": 31,
+          "candidateRelevance": 25,
+          "jobRequired": 9
         },
         "experience": {
           "score": 95,
@@ -375,7 +375,7 @@
     {
       "id": "LOW-004",
       "description": "Poor match - Flutter/Dart mobile developer, completely different domain",
-      "score": 32,
+      "score": 12,
       "min_score": 5,
       "expected_range": [
         5,
@@ -383,17 +383,17 @@
       ],
       "rank_group": "low",
       "pass": true,
-      "in_range": false,
+      "in_range": true,
       "components": {
         "skill": {
-          "score": 15,
+          "score": 0,
           "weight": 0.35,
           "exact": 0,
-          "strong": 1,
+          "strong": 0,
           "partial": 0,
-          "jobCoverage": 19,
-          "candidateRelevance": 8,
-          "jobRequired": 4
+          "jobCoverage": 0,
+          "candidateRelevance": 0,
+          "jobRequired": 3
         },
         "experience": {
           "score": 95,
@@ -406,7 +406,7 @@
           "weight": 0.15
         },
         "career": {
-          "score": 85,
+          "score": 34,
           "weight": 0.15,
           "job": "mid",
           "candidate": "mid"
@@ -701,8 +701,8 @@
     "medium": {
       "scores": [
         78,
-        72,
-        56,
+        71,
+        49,
         47,
         80,
         80
@@ -715,7 +715,7 @@
         10,
         23,
         11,
-        32,
+        12,
         12,
         38
       ],

@@ -185,7 +185,7 @@ const PRIMARY_DOMAINS = {
   'rails': 'ruby', 'ruby on rails': 'ruby',
   'laravel': 'php',
   // JS/TS runtimes (EXP-104)
-  'deno': 'js/ts', 'bun': 'js/ts',
+  'deno': 'js/ts', 'bun': 'js/ts', 'pnpm': 'js/ts', 'yarn': 'js/ts',
   // JS/TS frameworks additional (EXP-104)
   'remix': 'js/ts', 'astro': 'js/ts', 'fastify': 'js/ts', 'koa': 'js/ts',
   'hono': 'js/ts',
@@ -198,7 +198,7 @@ const PRIMARY_DOMAINS = {
   'prisma': 'js/ts', 'drizzle': 'js/ts', 'typeorm': 'js/ts', 'sequelize': 'js/ts', 'mongoose': 'js/ts',
   // State management (EXP-104)
   'redux': 'js/ts', 'zustand': 'js/ts', 'recoil': 'js/ts', 'mobx': 'js/ts',
-  'vuex': 'js/ts', 'pinia': 'js/ts',
+  'vuex': 'js/ts', 'pinia': 'js/ts', 'react query': 'js/ts', 'jotai': 'js/ts',
   // Desktop / Mobile (EXP-104)
   'electron': 'js/ts', 'tauri': 'rust', 'capacitor': 'js/ts', 'ionic': 'js/ts',
   // Monitoring (EXP-104)
@@ -244,6 +244,8 @@ const PRIMARY_DOMAINS = {
   // Platform / SRE (EXP-116)
   'sre': 'devops', 'platform engineering': 'devops',
   'istio': 'devops', 'argocd': 'devops',
+  // Build tools (EXP-163)
+  'turborepo': 'js/ts',
 };
 
 function detectPrimaryDomain(jobSkills) {

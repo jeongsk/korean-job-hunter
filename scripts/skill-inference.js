@@ -167,6 +167,13 @@ const SKILL_MAP = {
   // Runtimes
   'deno': /\bdeno\b|데노/i,
   'bun': /(?<!\w)bun(?!\w)/i,
+  'pnpm': /(?<!\w)pnpm(?!\w)/i,
+  'yarn': /(?<!\w)yarn(?!\w)/i,
+
+  // State management - React
+  'react query': /react\s*query|react\s*쿼리|tanstack\s*query|탠스택\s*쿼리/i,
+  'jotai': /(?<!\w)jotai(?!\w)|조타이/i,
+  'turborepo': /turborepo|터보레포/i,
 
   // Frameworks - additional
   'remix': /remix|레믹스/i,
@@ -333,11 +340,8 @@ function inferSkills(text, options = {}) {
 
   // Role-based supplement: add skills from role names (EXP-121, EXP-130)
   // EXP-142: Only apply to title text, not full JD descriptions.
-  // JD descriptions contain company intro text mentioning "AI 분석", "클라우드 서비스"
-  // etc. that are NOT job requirements but cause massive false positives.
-  // When includeRoleMap=false, only explicit SKILL_MAP matches are returned.
-  // EXP-162: Framework-aware role supplements — skip conflicting skills when
-  // a specific framework is already detected (e.g., Angular 프론트엔드 should NOT add React).
+  // EXP-163: Track which skills came from role supplement vs explicit detection.
+  const skillsFromRole = new Set();
   const FRAMEWORK_CONFLICTS = {
     // When these frontend frameworks are detected, skip 'react' from role supplements
     frontend: {
@@ -356,14 +360,6 @@ function inferSkills(text, options = {}) {
     },
   };
 
-  // Determine which skills to block based on already-detected skills
-  const blockedSkills = new Set();
-  for (const [, cfg] of Object.entries(FRAMEWORK_CONFLICTS)) {
-    if (cfg.conflictDetectors.some(d => skills.includes(d))) {
-      for (const bs of cfg.blockedSkills) blockedSkills.add(bs);
-    }
-  }
-
   if (includeRoleMap) {
     const lowerText = text.toLowerCase();
     for (const [role, roleSkills] of Object.entries(ROLE_SKILL_MAP)) {
@@ -381,7 +377,31 @@ function inferSkills(text, options = {}) {
       const roleRegex = new RegExp(pattern, 'i');
       if (roleRegex.test(lowerText)) {
         for (const s of roleSkills) {
-          if (!skills.includes(s) && !blockedSkills.has(s)) skills.push(s);
+          if (!skills.includes(s)) { skills.push(s); skillsFromRole.add(s); }
+        }
+      }
+    }
+  }
+
+  // EXP-163: Post-supplement conflict removal — only trigger when SKILL_MAP
+  // explicitly detected a framework/language in the text (not from role supplement).
+  // "Java 백엔드 개발자" → java detected by SKILL_MAP → remove node.js/python defaults
+  // "백엔드 개발자" → no explicit framework → keep all role defaults
+  const explicitSkills = new Set(
+    skills.filter(s => !skillsFromRole.has(s)).map(s => s.toLowerCase())
+  );
+  if (explicitSkills.size > 0) {
+    const toRemove = new Set();
+    for (const [, cfg] of Object.entries(FRAMEWORK_CONFLICTS)) {
+      if (cfg.conflictDetectors.some(d => explicitSkills.has(d))) {
+        for (const bs of cfg.blockedSkills) toRemove.add(bs);
+      }
+    }
+    if (toRemove.size > 0) {
+      // Only remove role-supplemented skills, never explicitly-detected ones
+      for (let i = skills.length - 1; i >= 0; i--) {
+        if (toRemove.has(skills[i].toLowerCase()) && skillsFromRole.has(skills[i])) {
+          skills.splice(i, 1);
         }
       }
     }

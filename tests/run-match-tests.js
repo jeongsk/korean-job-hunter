@@ -209,7 +209,7 @@ function calculateMatch(candidate, job) {
   
   // EXP-129: Use inferSkills() results for domain detection instead of manual pattern matching
   const DOMAIN_MAP = {
-    'js/ts': ['react', 'next.js', 'vue', 'nuxt', 'svelte', 'angular', 'node.js', 'express', 'nestjs', 'react native', 'deno', 'bun', 'remix', 'astro', 'fastify', 'koa', 'hono', 'vite', 'tailwind', 'vercel', 'trpc', 'storybook', 'jest', 'cypress', 'playwright', 'selenium', 'prisma', 'drizzle', 'typeorm', 'sequelize', 'mongoose', 'redux', 'zustand', 'recoil', 'mobx', 'vuex', 'pinia', 'electron', 'capacitor', 'ionic', 'sentry', 'firebase', 'supabase', 'graphql', 'rest api', 'grpc', 'javascript', 'typescript', 'vitest', 'webflux'],
+    'js/ts': ['react', 'next.js', 'vue', 'nuxt', 'svelte', 'angular', 'node.js', 'express', 'nestjs', 'react native', 'deno', 'bun', 'remix', 'astro', 'fastify', 'koa', 'hono', 'vite', 'tailwind', 'vercel', 'trpc', 'storybook', 'jest', 'cypress', 'playwright', 'selenium', 'prisma', 'drizzle', 'typeorm', 'sequelize', 'mongoose', 'redux', 'zustand', 'recoil', 'mobx', 'vuex', 'pinia', 'electron', 'capacitor', 'ionic', 'sentry', 'firebase', 'supabase', 'graphql', 'rest api', 'grpc', 'javascript', 'typescript', 'vitest', 'webflux', 'turborepo'],
     'python': ['python', 'django', 'flask', 'fastapi', 'tensorflow', 'pytorch', 'machine learning', 'llm', 'langchain', 'mlops', 'computer vision', 'nlp', 'huggingface', 'fine-tuning', 'stable diffusion', 'rag', 'prompt engineering', 'vector database', 'celery'],
     'java': ['java', 'spring', 'spring boot', 'jpa', 'kotlin', 'mybatis', 'msa'],
     'cloud': ['aws', 'gcp', 'azure', 'aws lambda', 'aws s3', 'aws sqs', 'dynamodb', 'cloudwatch'],
