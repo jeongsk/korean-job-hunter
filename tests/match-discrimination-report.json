@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-04-07T11:06:15.983Z",
-  "total_tests": 12,
-  "passed": 12,
+  "timestamp": "2026-04-07T14:10:37.928Z",
+  "total_tests": 15,
+  "passed": 15,
   "failed": 0,
-  "in_range": 10,
+  "in_range": 13,
   "discrimination": {
     "rule1": true,
     "rule2": true,
@@ -551,6 +551,141 @@
           "weight": 0.1
         }
       }
+    },
+    {
+      "id": "MED-005",
+      "description": "Bare 경력 - same skills but no year range specified",
+      "score": 80,
+      "min_score": 60,
+      "expected_range": [
+        60,
+        85
+      ],
+      "rank_group": "medium",
+      "pass": true,
+      "in_range": true,
+      "components": {
+        "skill": {
+          "score": 77,
+          "weight": 0.35,
+          "exact": 3,
+          "strong": 1,
+          "partial": 0,
+          "jobCoverage": 100,
+          "candidateRelevance": 42,
+          "jobRequired": 3
+        },
+        "experience": {
+          "score": 90,
+          "weight": 0.25,
+          "required": 0,
+          "actual": 5
+        },
+        "culture": {
+          "score": 50,
+          "weight": 0.15
+        },
+        "career": {
+          "score": 85,
+          "weight": 0.15,
+          "job": "mid",
+          "candidate": "mid"
+        },
+        "location": {
+          "score": 100,
+          "weight": 0.1
+        }
+      }
+    },
+    {
+      "id": "LOW-006",
+      "description": "Bare 경력 - zero skill overlap with no year range",
+      "score": 38,
+      "min_score": 0,
+      "expected_range": [
+        10,
+        40
+      ],
+      "rank_group": "low",
+      "pass": true,
+      "in_range": true,
+      "components": {
+        "skill": {
+          "score": 24,
+          "weight": 0.35,
+          "exact": 1,
+          "strong": 0,
+          "partial": 0,
+          "jobCoverage": 33,
+          "candidateRelevance": 11,
+          "jobRequired": 3
+        },
+        "experience": {
+          "score": 90,
+          "weight": 0.25,
+          "required": 0,
+          "actual": 5
+        },
+        "culture": {
+          "score": 50,
+          "weight": 0.15
+        },
+        "career": {
+          "score": 85,
+          "weight": 0.15,
+          "job": "mid",
+          "candidate": "mid"
+        },
+        "location": {
+          "score": 50,
+          "weight": 0.1
+        }
+      }
+    },
+    {
+      "id": "MED-006",
+      "description": "무관 experience - open to all levels",
+      "score": 80,
+      "min_score": 65,
+      "expected_range": [
+        65,
+        90
+      ],
+      "rank_group": "medium",
+      "pass": true,
+      "in_range": true,
+      "components": {
+        "skill": {
+          "score": 80,
+          "weight": 0.35,
+          "exact": 3,
+          "strong": 2,
+          "partial": 0,
+          "jobCoverage": 100,
+          "candidateRelevance": 50,
+          "jobRequired": 3
+        },
+        "experience": {
+          "score": 85,
+          "weight": 0.25,
+          "required": 0,
+          "actual": 5
+        },
+        "culture": {
+          "score": 50,
+          "weight": 0.15
+        },
+        "career": {
+          "score": 85,
+          "weight": 0.15,
+          "job": "mid",
+          "candidate": "mid"
+        },
+        "location": {
+          "score": 100,
+          "weight": 0.1
+        }
+      }
     }
   ],
   "groups": {
@@ -568,10 +703,12 @@
         78,
         72,
         56,
-        47
+        47,
+        80,
+        80
       ],
       "min": 47,
-      "max": 78
+      "max": 80
     },
     "low": {
       "scores": [
@@ -579,10 +716,11 @@
         23,
         11,
         32,
-        12
+        12,
+        38
       ],
       "min": 10,
-      "max": 32
+      "max": 38
     }
   }
 }

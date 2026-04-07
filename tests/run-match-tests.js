@@ -289,6 +289,15 @@ function calculateMatch(candidate, job) {
     } else {
       experienceScore = 30;
     }
+  } else if (job.experience === '경력') {
+    // EXP-160: Bare 경력 (no year range) — employer wants "someone with experience"
+    // Most Wanted API jobs have experience='경력' with no specific year requirement
+    if (candidateYears >= 3) experienceScore = 90;                                // solid experience, matches generic 경력 well
+    else if (candidateYears >= 1) experienceScore = 70;                           // some experience
+    else experienceScore = 30;                                                    // no experience, doesn't meet 경력 requirement
+  } else if (job.experience === '무관' || job.experience === '경력 무관') {
+    // Any experience level is fine — mild preference for some experience
+    experienceScore = Math.min(90, 60 + candidateYears * 5);
   }
   scores.experience = { score: experienceScore, weight: 0.25, required: requiredYearsMin, actual: candidateYears };
   

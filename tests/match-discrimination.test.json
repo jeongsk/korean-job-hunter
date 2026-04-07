@@ -269,6 +269,81 @@
         ],
         "rank_group": "medium"
       }
+    },
+    {
+      "id": "MED-005",
+      "description": "Bare 경력 - same skills but no year range specified",
+      "job": {
+        "title": "프론트엔드 개발자",
+        "company": "테스트컴퍼니",
+        "skills": [
+          "React",
+          "TypeScript",
+          "JavaScript"
+        ],
+        "experience": "경력",
+        "work_type": "hybrid",
+        "location": "서울",
+        "description": "프론트엔드 개발자 모집. React, TypeScript 경험자."
+      },
+      "expected": {
+        "min_score": 60,
+        "expected_range": [
+          60,
+          85
+        ],
+        "rank_group": "medium"
+      }
+    },
+    {
+      "id": "LOW-006",
+      "description": "Bare 경력 - zero skill overlap with no year range",
+      "job": {
+        "title": "백엔드 개발자",
+        "company": "자바컴퍼니",
+        "skills": [
+          "Java",
+          "Spring",
+          "MySQL"
+        ],
+        "experience": "경력",
+        "work_type": "onsite",
+        "location": "부산",
+        "description": "Java 백엔드 개발자."
+      },
+      "expected": {
+        "min_score": 0,
+        "expected_range": [
+          10,
+          40
+        ],
+        "rank_group": "low"
+      }
+    },
+    {
+      "id": "MED-006",
+      "description": "무관 experience - open to all levels",
+      "job": {
+        "title": "풀스택 개발자",
+        "company": "스타트업",
+        "skills": [
+          "React",
+          "Node.js",
+          "AWS"
+        ],
+        "experience": "무관",
+        "work_type": "remote",
+        "location": "서울",
+        "description": "경력 무관. 풀스택 개발자."
+      },
+      "expected": {
+        "min_score": 65,
+        "expected_range": [
+          65,
+          90
+        ],
+        "rank_group": "medium"
+      }
     }
   ],
   "discrimination_rules": {
