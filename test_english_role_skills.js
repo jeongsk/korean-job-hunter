@@ -34,7 +34,7 @@ test('Site Reliability Engineer', ['kubernetes', 'prometheus', 'docker']);
 
 // Mixed English/Korean
 test('Senior Backend Developer', ['node.js', 'python', 'java']);
-test('Backend Engineer (Go)', ['go', 'node.js', 'python', 'java']);
+test('Backend Engineer (Go)', ['go']);  // EXP-162: Go blocks conflicting backend defaults
 
 // Edge cases: should NOT infer skills for generic titles
 const generic = inferSkills('Product Engineer');

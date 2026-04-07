@@ -336,6 +336,34 @@ function inferSkills(text, options = {}) {
   // JD descriptions contain company intro text mentioning "AI 분석", "클라우드 서비스"
   // etc. that are NOT job requirements but cause massive false positives.
   // When includeRoleMap=false, only explicit SKILL_MAP matches are returned.
+  // EXP-162: Framework-aware role supplements — skip conflicting skills when
+  // a specific framework is already detected (e.g., Angular 프론트엔드 should NOT add React).
+  const FRAMEWORK_CONFLICTS = {
+    // When these frontend frameworks are detected, skip 'react' from role supplements
+    frontend: {
+      conflictDetectors: ['angular', 'vue', 'nuxt', 'svelte', 'swiftui'],
+      blockedSkills: ['react'],
+    },
+    // When these mobile frameworks are detected, skip competing mobile frameworks
+    mobile: {
+      conflictDetectors: ['flutter', 'react native', 'swiftui'],
+      blockedSkills: ['react native', 'flutter'],
+    },
+    // When these languages are detected, skip conflicting backend defaults
+    backend: {
+      conflictDetectors: ['go', 'rust', 'c#', 'ruby', 'php'],
+      blockedSkills: ['node.js', 'python', 'java'],
+    },
+  };
+
+  // Determine which skills to block based on already-detected skills
+  const blockedSkills = new Set();
+  for (const [, cfg] of Object.entries(FRAMEWORK_CONFLICTS)) {
+    if (cfg.conflictDetectors.some(d => skills.includes(d))) {
+      for (const bs of cfg.blockedSkills) blockedSkills.add(bs);
+    }
+  }
+
   if (includeRoleMap) {
     const lowerText = text.toLowerCase();
     for (const [role, roleSkills] of Object.entries(ROLE_SKILL_MAP)) {
@@ -353,7 +381,7 @@ function inferSkills(text, options = {}) {
       const roleRegex = new RegExp(pattern, 'i');
       if (roleRegex.test(lowerText)) {
         for (const s of roleSkills) {
-          if (!skills.includes(s)) skills.push(s);
+          if (!skills.includes(s) && !blockedSkills.has(s)) skills.push(s);
         }
       }
     }
