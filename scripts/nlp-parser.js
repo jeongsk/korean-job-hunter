@@ -171,15 +171,20 @@ function parseKoreanQuery(input) {
   const expMatch = text.match(/(\d+)\s*년(?!차)\s*(이상|이상의)?/);
   if (expMatch) {
     const years = parseInt(expMatch[1]);
-    // Map N년 이상 to career_stage for accurate filtering (not fragile LIKE '%N%')
-    // Matches deriveCareerStage logic: ≤3→junior, ≤7→mid, ≤12→senior, >12→lead
+    // Map N년 이상 to career_stage for accurate filtering
+    // deriveCareerStage: 0→entry, 1-3→junior, 4-7→mid, 8-12→senior, 13+→lead
+    // N년 이상 means "minimum N years" → include the stage N maps to AND all higher stages
     if (years <= 3) {
-      filters.push("j.career_stage IN ('entry','junior','mid','senior','lead')");
+      // 1-3년 이상: junior+ (junior = 1-3 years)
+      filters.push("j.career_stage IN ('junior','mid','senior','lead')");
     } else if (years <= 7) {
+      // 4-7년 이상: mid+ (mid = 4-7 years)
       filters.push("j.career_stage IN ('mid','senior','lead')");
     } else if (years <= 12) {
+      // 8-12년 이상: senior+ (senior = 8-12 years)
       filters.push("j.career_stage IN ('senior','lead')");
     } else {
+      // 13+년: only lead
       filters.push("j.career_stage = 'lead'");
     }
     consumedWords.add(expMatch[0]);

@@ -103,10 +103,12 @@ test('10년차 alone → senior+', '10년차 공고 있어?', (r) => {
 });
 
 // N년 이상 (without 차) should still work correctly
-test('3년 이상 → all stages', '경력 3년 이상 공고', (r) => {
+test('3년 이상 → junior+ (deriveCareerStage(3)=junior)', '경력 3년 이상 공고', (r) => {
   const cf = r.filters.find(f => f.includes('career_stage'));
   assert(cf, 'Should have career_stage filter');
-  assert(cf.includes('entry'), '3년 이상 should include all (old behavior)');
+  assert(!cf.includes('entry'), 'Should NOT include entry');
+  assert(cf.includes('junior'), 'Should include junior');
+  assert(cf.includes('mid'), 'Should include mid');
 });
 
 test('5년 이상 → mid+', '경력 5년 이상 서울', (r) => {
