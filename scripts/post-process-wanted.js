@@ -263,9 +263,14 @@ function parseWantedJob(raw) {
   // === Career Stage (EXP-077) ===
   r.career_stage = deriveCareerStage(r.experience);
 
-  // === Skill inference from title (EXP-080) ===
-  const inferred = inferSkills(r.title);
-  if (inferred.length > 0) r.skills = inferred.join(', ');
+  // === Skill inference from title (EXP-080, EXP-161: merge instead of overwrite) ===
+  const titleInferred = inferSkills(r.title);
+  if (titleInferred.length > 0) {
+    // Merge: keep existing description-inferred skills, add title-inferred ones
+    const existing = (r.skills || '').split(/,\s*/).filter(s => s.trim());
+    const merged = [...new Set([...existing, ...titleInferred])];
+    r.skills = merged.join(', ');
+  }
 
   return r;
 }
@@ -359,7 +364,7 @@ function normalizeSalary(raw) {
 
   if (/월급|월\s*급|개월/.test(text)) isMonthly = true;
 
-  const rangeMatch = text.match(/(\d[\d,]*)\s*[~\-]\s*(\d[\d,]*)\s*만?\s*원/);
+  const rangeMatch = text.match(/(\d[\d,]*)\s*만?원?\s*[~\-]\s*(\d[\d,]*)\s*만?\s*원/);
   if (rangeMatch) {
     min = parseInt(rangeMatch[1].replace(/,/g, ''));
     max = parseInt(rangeMatch[2].replace(/,/g, ''));

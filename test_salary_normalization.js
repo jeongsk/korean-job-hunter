@@ -27,7 +27,7 @@ function normalizeSalary(raw) {
   
   // Extract numbers with 만원/만 원 suffix
   // Patterns: 5000~8000만원, 5000-8000만원, 5000~8000 만원
-  const rangeMatch = text.match(/(\d[\d,]*)\s*[~\-]\s*(\d[\d,]*)\s*만?\s*원/);
+  const rangeMatch = text.match(/(\d[\d,]*)\s*만?원?\s*[~\-]\s*(\d[\d,]*)\s*만?\s*원/);
   if (rangeMatch) {
     min = parseInt(rangeMatch[1].replace(/,/g, ''));
     max = parseInt(rangeMatch[2].replace(/,/g, ''));
