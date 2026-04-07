@@ -3,7 +3,7 @@ name: job-tracking
 description: "Job application status tracking with SQLite CRUD, Korean NLP query parsing, pipeline analytics, and smart suggestions"
 ---
 
-# Job Tracking Skill v2.16 (EXP-136: Korean alias false positive fix — 뷰/다트 substring, 삼성 double-filter)
+# Job Tracking Skill v2.17 (EXP-159: Region alias queries — 수도권/지방/해외)
 
 ## Korean Natural Language Query Parsing
 
@@ -343,3 +343,13 @@ Common Korean tech companies for query matching:
 ## Location Keywords for NLP Parsing
 
 서울, 경기, 부산, 대전, 인천, 광주, 대구, 울산, 수원, 이천, 판교, 강남, 영등포, 송파, 성수, 역삼, 잠실, 마포, 용산, 구로, 분당, 일산, 평촌, 세종, 여의도, 신촌, 홍대, 건대, 동탄, 청주, 천안, 양재, 논현, 신사, 삼성, 방배, 광화문, 을지로, 종로, 시흥, 안양, 안산, 평택, 파주, 김포, 창원, 포항
+
+## Region Aliases (EXP-159)
+
+| Alias | SQL Translation |
+|-------|----------------|
+| 수도권 | `(j.location LIKE '%서울%' OR j.location LIKE '%경기%' OR j.location LIKE '%인천%')` |
+| 지방 | `(j.location NOT LIKE '%서울%' AND j.location NOT LIKE '%경기%' AND j.location NOT LIKE '%인천%')` |
+| 해외 | `(j.title LIKE '%해외%' OR j.company LIKE '%해외%' OR j.location LIKE '%해외%')` |
+
+Examples: 수도권 리액트 공고, 지방 인턴 공고, 수도권 연봉 6000 이상, 지방 마감임박 공고
