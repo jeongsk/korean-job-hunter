@@ -157,6 +157,11 @@ When `culture_keywords` is empty/null, culture score defaults to 50 (neutral). W
 | `신입` | 4+ | 40 | Senior: poor fit |
 | `신입·경력` / `신입/경력` | any | 85 | Both welcome — broad match |
 | `경력무관` | any | 80 | Experience not a factor |
+| `경력` (bare) | 0 | 30 | No experience — poor fit |
+| `경력` (bare) | 1 | 60 | Minimal — acceptable |
+| `경력` (bare) | 3 | 80 | Junior — good fit |
+| `경력` (bare) | 5-10 | 90 | Mid/Senior — great fit |
+| `경력` (bare) | 15+ | 75 | Very senior — overqualified |
 | `3~7년` | 5 | 95 | In range |
 | `3년 이상` | 5 | 90 | Meets minimum |
 | `3년 이상` | 2 | 70 | Below minimum |

@@ -298,6 +298,15 @@ function calculateExperienceScore(jobExpRange, candidateYears) {
   if (typeof jobExpRange === 'string') {
     // 신입·경력 / 신입/경력 (both entry and experienced welcome) — very common in Korean job market
     if (/신입[·/].*경력|경력[·/].*신입/.test(jobExpRange)) return 85; // broad match
+    // Bare 경력 (experienced, no specific year requirement) — most common Wanted API value
+    // Means "some experience required" — graduated scoring based on candidate years
+    if (/^경력$/.test(jobExpRange.trim())) {
+      if (candidateYears <= 0) return 30;   // no experience — poor fit
+      if (candidateYears <= 1) return 60;   // minimal — acceptable
+      if (candidateYears <= 3) return 80;   // junior — good fit
+      if (candidateYears <= 10) return 90;  // mid/senior — great fit
+      return 75;                            // very senior — slightly overqualified
+    }
     // 신입 (entry-level / new graduate)
     if (/신입/.test(jobExpRange) && !/경력/.test(jobExpRange)) {
       if (candidateYears <= 1) return 95;  // perfect: new grad
@@ -781,6 +790,13 @@ const expTests = [
   ['신입·경력', 0, 85],  // new grad → good match
   ['신입·경력', 5, 85],  // experienced → good match
   ['신입/경력', 3, 85],  // alt separator
+  // Bare 경력 (experienced, no specific years) — EXP-157
+  ['경력', 0, 30],   // no experience — poor fit
+  ['경력', 1, 60],   // minimal — acceptable
+  ['경력', 3, 80],   // junior — good fit
+  ['경력', 5, 90],   // mid — great fit
+  ['경력', 10, 90],  // senior — great fit
+  ['경력', 15, 75],  // very senior — slightly overqualified
   // N년 이상 (minimum years)
   ['3년 이상', 5, 90],  // meets minimum
   ['3년 이상', 2, 70],  // below minimum (90 - 1*20)
