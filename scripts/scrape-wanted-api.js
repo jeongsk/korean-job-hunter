@@ -159,12 +159,30 @@ function cleanCompanyName(name) {
 
 function parsePosition(pos) {
   const company = cleanCompanyName(pos.company?.name);
-  const title = pos.position || '직무 미상';
+  // Strip company bracket prefix from title: "[카카오] 시니어 개발자" → "시니어 개발자"
+  let title = pos.position || '직무 미상';
+  title = title.replace(/^\[[^\]]*\]\s*/, '');
   const id = String(pos.id || '');
   const link = id ? `https://www.wanted.co.kr/wd/${id}` : '';
   const location = pos.address?.location || '';
   const country = pos.address?.country || '';
-  const employmentType = pos.employment_type || 'regular';
+  // Normalize employment_type from API object {name: "정규직"} or string
+  let employmentType = 'regular';
+  const etRaw = pos.employment_type;
+  if (etRaw) {
+    if (typeof etRaw === 'string') {
+      if (/full.time|정규직/i.test(etRaw)) employmentType = 'regular';
+      else if (/contract|계약직/i.test(etRaw)) employmentType = 'contract';
+      else if (/intern|인턴/i.test(etRaw)) employmentType = 'intern';
+      else if (/freelance|프리랜서/i.test(etRaw)) employmentType = 'freelance';
+    } else if (etRaw.name) {
+      const n = etRaw.name;
+      if (/정규직|full.time/i.test(n)) employmentType = 'regular';
+      else if (/계약직|파견|contract/i.test(n)) employmentType = 'contract';
+      else if (/인턴|intern/i.test(n)) employmentType = 'intern';
+      else if (/프리랜서|freelance/i.test(n)) employmentType = 'freelance';
+    }
+  }
   const dueTime = pos.due_time || null;
   const reward = pos.reward?.formatted_total || '';
   const isNewbie = pos.is_newbie || false;
@@ -230,7 +248,7 @@ function parsePosition(pos) {
     experience,
     location,
     country,
-    employment_type: employmentType === 'full_time' ? 'regular' : (employmentType || 'regular'),
+    employment_type: employmentType,
     deadline: normalizedDeadline || dueTime,
     deadline_raw: dueTime,
     reward,
