@@ -111,8 +111,9 @@ function parseJobKoreaCard(raw) {
   // Work type detection
   const allText = lines.join(' ');
   let work_type = 'onsite';
-  if (/전면재택|재택근무|풀리모트|원격근무|fully?\s*remote|100%\s*remote/i.test(allText)) work_type = 'remote';
-  else if (/하이브리드|주\d일\s*출근|hybrid/i.test(allText)) work_type = 'hybrid';
+  if (/격주\s*재택|격일\s*재택|선택적?\s*재택|부분\s*재택|주\s*\d\s*일\s*(출근|재택)|하이브리드|주\d일\s*출근|hybrid/i.test(allText)) work_type = 'hybrid';
+  else if (/전면재택|재택근무|풀리모트|원격근무|fully?\s*remote|100%\s*remote/i.test(allText)) work_type = 'remote';
+  else if (/재택|remote|리모트|원격/i.test(allText)) work_type = 'remote';
 
   // Employment type extraction (EXP-085)
   let employment_type = 'regular';

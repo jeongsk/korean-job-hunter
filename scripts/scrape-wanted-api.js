@@ -97,6 +97,55 @@ function fetchJSON(url) {
  * Wanted API returns names like "(주)카카오", "주식회사 토스", "㈜배달의민족".
  * These prefixes break company matching, dedup, and NLP queries.
  */
+/**
+ * Wanted API returns structured skill_tags as numeric IDs (available at search time,
+ * no detail fetch needed). EXP-164: Resolve these to skill-inference skill names
+ * to supplement title-based inference for ~30% of jobs that have them.
+ * Source: /api/v1/tags/{id} (kind=skill)
+ */
+const WANTED_SKILL_TAG_MAP = {
+  1410: null,       // Confluence - productivity tool, not a tech skill
+  1414: null,       // JIRA - project management tool
+  1417: null,       // Slack - communication tool
+  1451: 'firebase', // Firebase
+  1470: 'redis',    // Redis
+  1554: 'python',   // Python
+  1562: 'sql',      // SQL (generic)
+  1600: null,       // 프로젝트 관리 - project management
+  1617: null,       // Excel - office tool
+  1620: null,       // Google Analytics - analytics tool
+  1631: null,       // Tableau - BI tool (not in our skill map)
+  1698: 'aws',      // AWS
+  1749: null,       // 고객 만족 - non-technical
+  1776: null,       // CRM - generic
+  1793: null,       // Microsoft 365 - office suite
+  1820: null,       // PowerPoint - office tool
+  1906: null,       // VM웨어 - VMware (not in our skill map)
+  2065: null,       // 고객 지원 - non-technical
+  2217: 'docker',   // Docker
+  2453: null,       // 프로젝트 계획 - non-technical
+  2591: null,       // 고객 유지 - non-technical
+  2642: null,       // 프로젝트 실행 - non-technical
+  2683: 'postgresql', // PostgreSQL
+  3068: null,       // OpenStack (not in our skill map)
+  6950: null,       // 고객 교육 - non-technical
+  10221: null,      // Notion - productivity tool
+  10267: null,      // Amplitude - analytics (not in our skill map)
+  10268: 'kubernetes', // Kubernetes
+  10272: null,      // Braze - marketing platform
+  10291: 'fastapi', // FastAPI
+};
+
+function resolveSkillTags(tagIds) {
+  if (!Array.isArray(tagIds) || tagIds.length === 0) return [];
+  const skills = [];
+  for (const id of tagIds) {
+    const mapped = WANTED_SKILL_TAG_MAP[id];
+    if (mapped) skills.push(mapped);
+  }
+  return skills;
+}
+
 function cleanCompanyName(name) {
   if (!name) return '회사명 미상';
   return name
@@ -152,6 +201,14 @@ function parsePosition(pos) {
   // Previously skills were always [] — only populated via --details flag.
   // Title-based inference gives meaningful skills for matching without detail fetch.
   let skills = inferSkills(title);
+
+  // EXP-164: Supplement with Wanted's structured skill_tags (available at search time).
+  // ~30% of jobs have these authoritative skill IDs from Wanted's curation.
+  // Only includes technical skills (filters out JIRA, Slack, Notion, etc).
+  const tagSkills = resolveSkillTags(pos.skill_tags);
+  if (tagSkills.length > 0) {
+    skills = [...new Set([...skills, ...tagSkills])];
+  }
 
   // EXP-132: Use category_tag as fallback when title yields no skills.
   // API returns category_tag.id which maps to job role categories.
@@ -261,8 +318,11 @@ function extractExperienceRange(description) {
 function detectWorkType(text) {
   if (!text) return null;
   const t = text.toLowerCase();
+  // Hybrid must be checked FIRST — partial/alternating remote patterns
+  if (/(격주\s*재택|격일\s*재택|선택적?\s*재택|부분\s*재택|주\s*\d\s*일\s*(출근|재택)|월\s*\d\s*일\s*재택|\d\s*일\s*재택|hybrid|하이브리드)/.test(t)) return 'hybrid';
+  // Full remote patterns
   if (/(전면\s*재택|완전\s*재택|풀\s*리모트|full\s*remote|100%\s*remote|원격\s*근무)/.test(t)) return 'remote';
-  if (/(주\s*\d\s*일\s*출근|hybrid|하이브리드|부분\s*재택)/.test(t)) return 'hybrid';
+  // Generic remote (broadest match, last resort)
   if (/(재택|remote|리모트|원격)/.test(t)) return 'remote';
   return 'onsite';
 }
@@ -366,4 +426,8 @@ async function main() {
   console.log(JSON.stringify(jobs, null, 2));
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+if (require.main === module) {
+  main().catch(e => { console.error(e); process.exit(1); });
+}
+
+module.exports = { detectWorkType, parsePosition, cleanCompanyName };

@@ -113,8 +113,9 @@ function extractSalary(text) {
 
 // === Work type detection ===
 function detectWorkType(text) {
+  if (/격주\s*재택|격일\s*재택|선택적?\s*재택|부분\s*재택|주\s*\d\s*일\s*(출근|재택)|하이브리드|주\d일\s*출근|hybrid/i.test(text)) return 'hybrid';
   if (/전면재택|재택근무|풀리모트|원격근무|fully?\s*remote|100%\s*remote/i.test(text)) return 'remote';
-  if (/하이브리드|주\d일\s*출근|hybrid/i.test(text)) return 'hybrid';
+  if (/재택|remote|리모트|원격/i.test(text)) return 'remote';
   return 'onsite';
 }
 

@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-04-07T21:10:25.647Z",
+  "timestamp": "2026-04-08T00:08:10.965Z",
   "total_tests": 15,
   "passed": 15,
   "failed": 0,
-  "in_range": 15,
+  "in_range": 14,
   "discrimination": {
     "rule1": true,
     "rule2": true,
@@ -330,7 +330,7 @@
     {
       "id": "MED-003",
       "description": "Partial match - Java/Spring backend, no JS overlap (domain mismatch but tier2 backend credit)",
-      "score": 49,
+      "score": 56,
       "min_score": 40,
       "expected_range": [
         40,
@@ -338,17 +338,17 @@
       ],
       "rank_group": "medium",
       "pass": true,
-      "in_range": true,
+      "in_range": false,
       "components": {
         "skill": {
-          "score": 29,
+          "score": 34,
           "weight": 0.35,
-          "exact": 2,
+          "exact": 3,
           "strong": 0,
-          "partial": 1,
-          "jobCoverage": 31,
-          "candidateRelevance": 25,
-          "jobRequired": 9
+          "partial": 0,
+          "jobCoverage": 34,
+          "candidateRelevance": 33,
+          "jobRequired": 11
         },
         "experience": {
           "score": 95,
@@ -702,7 +702,7 @@
       "scores": [
         78,
         71,
-        49,
+        56,
         47,
         80,
         80
