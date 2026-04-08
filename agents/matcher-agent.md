@@ -35,6 +35,8 @@ When skill score < 40, apply a **quadratic gate multiplier** to non-skill compon
 
 This smoothly dampens unrelated jobs instead of hard step-cuts, preventing infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflating scores.
 
+**Job Coverage Gate (EXP-168):** When skill ≥ 40 but jobCoverage < 60%, apply an additional 0.75 dampening to non-skill components. This catches domain-mismatched jobs where shared infrastructure skills inflate the skill score (e.g., React candidate vs Python/Django job with shared AWS/Docker/PostgreSQL).
+
 #### Primary Domain Alignment (EXP-024, EXP-049: framework-aware)
 Detect the job's primary tech domain from the description:
 - **Python**: Django, Flask, FastAPI, pandas, NumPy, Jupyter

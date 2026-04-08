@@ -522,10 +522,18 @@ function calculateMatch(candidate, job) {
     ? 1.0 
     : 0.12 + 0.88 * Math.pow(scores.skill.score / SKILL_GATE_THRESHOLD, 2);
   
-  const gatedExperience = Math.round(scores.experience.score * skillGate);
-  const gatedCulture = Math.round(scores.culture.score * skillGate);
-  const gatedCareer = Math.round(scores.career.score * skillGate);  // already has domain penalty, but gate further
-  const gatedLocation = Math.round(scores.location.score * skillGate);
+  // Domain mismatch dampening: when skill score is above gate threshold but
+  // job coverage is below 60%, the score is inflated by infrastructure/cross-domain
+  // Tier2 credit. Apply extra dampening to prevent non-skill inflation.
+  // This catches cases like a Python/Django job scoring skill=49 against a
+  // React/Node.js candidate because of shared AWS/Docker/PostgreSQL infrastructure.
+  const domainMismatchGate = (scores.skill.score >= SKILL_GATE_THRESHOLD && scores.skill.jobCoverage < 60) ? 0.75 : 1.0;
+  const effectiveGate = skillGate * domainMismatchGate;
+  
+  const gatedExperience = Math.round(scores.experience.score * effectiveGate);
+  const gatedCulture = Math.round(scores.culture.score * effectiveGate);
+  const gatedCareer = Math.round(scores.career.score * effectiveGate);  // already has domain penalty, but gate further
+  const gatedLocation = Math.round(scores.location.score * effectiveGate);
   
   // --- Total ---
   const totalScore = Math.round(

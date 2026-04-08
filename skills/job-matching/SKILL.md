@@ -1,6 +1,6 @@
 ---
 name: job-matching
-description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring, and framework-aware primary domain alignment (EXP-049)"
+description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring with job coverage gate, and framework-aware primary domain alignment (EXP-168)"
 ---
 
 # Job Matching Skill v3.15 (EXP-159: Culture categories synced — 7 traits + structured culture_keywords support)
@@ -31,6 +31,12 @@ When skill score < 40, all non-skill components are dampened by a quadratic gate
 - gate = 0.12 + 0.88 × (skillScore / 40)² for skill < 40; gate = 1.0 for skill ≥ 40
 - At skill=0: gate=0.12, skill=10: gate=0.175, skill=20: gate=0.34, skill=40: gate=1.0
 - This prevents unrelated jobs from scoring high on experience/culture/location alone
+
+### Job Coverage Gate (EXP-168)
+
+When skill score is above the quadratic gate threshold (≥ 40) but job coverage is below 60%, an additional 0.75 dampening is applied to non-skill components. This catches cases where shared infrastructure skills (AWS, Docker, PostgreSQL) inflate the skill score for fundamentally mismatched domain jobs (e.g., a React/Node.js candidate vs a Python/Django job that happens to use the same infrastructure).
+- effectiveGate = skillGate × coverageGate
+- coverageGate = 0.75 when skill ≥ 40 AND jobCoverage < 60%; otherwise 1.0
 - Experience scoring considers range upper bounds (e.g., "3~7년" with 5 years experience = 95)
 
 ## Primary Domain Alignment (EXP-024, tuned EXP-037, expanded EXP-104)
