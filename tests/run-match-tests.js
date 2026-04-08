@@ -113,6 +113,106 @@ function calculateMatch(candidate, job) {
     // ORM
     'prisma': ['drizzle', 'typeorm', 'sequelize'],
     'drizzle': ['prisma', 'typeorm'],
+    // Testing frameworks (EXP-166)
+    'vitest': ['jest'],
+    'jest': ['vitest'],
+    'cypress': ['playwright', 'selenium'],
+    'playwright': ['cypress', 'selenium'],
+    'selenium': ['cypress', 'playwright'],
+    // BaaS (EXP-166)
+    'firebase': ['supabase'],
+    'supabase': ['firebase'],
+    // Package managers (EXP-166)
+    'pnpm': ['yarn'],
+    'yarn': ['pnpm'],
+    // State management expansion (EXP-166)
+    'recoil': ['redux', 'zustand', 'mobx'],
+    'mobx': ['redux', 'zustand', 'recoil'],
+    'vuex': ['pinia'],
+    'pinia': ['vuex'],
+    'jotai': ['zustand', 'recoil'],
+    // Systems languages (EXP-166)
+    'go': ['rust', 'c++'],
+    'rust': ['go', 'c++'],
+    'c++': ['go', 'rust', 'c#'],
+    'c#': ['c++', '.net'],
+    '.net': ['c#'],
+    'ruby': ['rails'],
+    'rails': ['ruby', 'laravel'],
+    'php': ['laravel'],
+    'laravel': ['php', 'rails'],
+    // Build tools (EXP-166)
+    'vite': ['turborepo', 'storybook'],
+    'turborepo': ['vite'],
+    // CSS frameworks (EXP-166)
+    'tailwind': ['storybook'],
+    // Desktop frameworks (EXP-166)
+    'electron': ['tauri'],
+    'tauri': ['electron'],
+    // Mobile cross-platform (EXP-166)
+    'capacitor': ['ionic', 'react native'],
+    'ionic': ['capacitor', 'react native'],
+    // API protocols (EXP-166)
+    'grpc': ['graphql', 'rest api'],
+    // Data orchestration (EXP-166)
+    'airflow': ['dbt'],
+    'dbt': ['airflow'],
+    'snowflake': ['bigquery'],
+    'bigquery': ['snowflake'],
+    // Cloud services (EXP-166)
+    'dynamodb': ['mongodb'],
+    'aws lambda': ['aws'],
+    'aws s3': ['aws'],
+    'aws sqs': ['kafka'],
+    'cloudwatch': ['datadog', 'grafana'],
+    // Data stores (EXP-166)
+    'opensearch': ['elasticsearch'],
+    'mybatis': ['jpa'],
+    // AI/ML expansion (EXP-166)
+    'mlops': ['docker', 'kubernetes'],
+    'vector database': ['elasticsearch', 'mongodb'],
+    'fine-tuning': ['pytorch', 'tensorflow'],
+    'huggingface': ['pytorch', 'tensorflow'],
+    'prompt engineering': ['llm', 'rag'],
+    'stable diffusion': ['pytorch'],
+    'computer vision': ['tensorflow', 'pytorch'],
+    'nlp': ['llm', 'machine learning'],
+    // Java ecosystem (EXP-166)
+    'msa': ['kubernetes', 'docker'],
+    'webflux': ['spring', 'spring boot'],
+    'celery': ['kafka', 'rabbitmq'],
+    // Game engines (EXP-166)
+    'unity': ['unreal'],
+    'unreal': ['unity'],
+    // Blockchain (EXP-166)
+    'solidity': ['ethereum', 'blockchain', 'smart contract'],
+    'blockchain': ['solidity', 'ethereum', 'web3', 'smart contract'],
+    'web3': ['blockchain', 'ethereum'],
+    'ethereum': ['solidity', 'blockchain', 'web3'],
+    'smart contract': ['solidity', 'blockchain'],
+    // Security (EXP-166)
+    'devsecops': ['docker', 'kubernetes', 'ci/cd'],
+    'owasp': ['cybersecurity', 'penetration testing'],
+    'cybersecurity': ['owasp', 'penetration testing'],
+    'penetration testing': ['owasp', 'cybersecurity'],
+    // Platform/SRE (EXP-166)
+    'sre': ['kubernetes', 'docker', 'prometheus'],
+    'platform engineering': ['kubernetes', 'docker', 'terraform'],
+    'istio': ['kubernetes'],
+    'argocd': ['kubernetes', 'ci/cd'],
+    // Monitoring expansion (EXP-166)
+    'sentry': ['datadog'],
+    // Linux/Infra (EXP-166)
+    'linux': ['docker', 'kubernetes', 'nginx'],
+    'nginx': ['linux', 'docker'],
+    'ci/cd': ['jenkins', 'github actions'],
+    // React ecosystem (EXP-166)
+    'react query': ['graphql', 'rest api'],
+    // Frameworks (EXP-166)
+    'astro': ['next.js', 'nuxt'],
+    'r': ['python', 'machine learning'],
+    // DB ODM (EXP-166)
+    'mongoose': ['mongodb'],
   };
   
   // Tier 3 partial overlap (25%): same broad domain
@@ -351,16 +451,35 @@ function calculateMatch(candidate, job) {
     'senior': ['시니어', 'senior', 'lead', '리드', '7년 이상', '10년'],
   };
   
-  let jobSeniority = 'mid'; // default
+  let jobSeniority = null; // null = not detected from text
+  let isSpecificRange = false; // true if specific year range found (e.g., "3~7년")
+  let isMugwan = false; // true if experience is 무관 (open to all levels)
+  
   for (const [level, kws] of Object.entries(seniorityKeywords)) {
     if (kws.some(kw => jobText.includes(kw))) {
       jobSeniority = level;
+      isSpecificRange = kws.some(kw => /\d/.test(kw) && jobText.includes(kw));
       break;
     }
   }
   
+  // Check for 무관 (open to all levels) — less informative than specific ranges
+  const jobExperience = (job.experience || '').toLowerCase();
+  if (jobExperience === '무관' || jobExperience === '경력무관') {
+    isMugwan = true;
+    jobSeniority = jobSeniority || 'mid'; // default to mid for scoring
+  }
+  
+  // Default to mid if no seniority detected
+  if (!jobSeniority) jobSeniority = 'mid';
+  
   let careerScore = 50;
-  if (jobSeniority === candidate.career_stage) careerScore = 85;
+  if (jobSeniority === candidate.career_stage) {
+    careerScore = 85;
+    // Discount for non-specific signals
+    if (isMugwan) careerScore = 70; // 무관: accepts everyone, less informative
+    else if (!isSpecificRange) careerScore = 75; // no specific year range detected
+  }
   else if (
     (jobSeniority === 'junior' && candidate.career_stage === 'mid') ||
     (jobSeniority === 'mid' && candidate.career_stage === 'senior')

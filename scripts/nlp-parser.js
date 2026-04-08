@@ -5,6 +5,7 @@
 
 function parseKoreanQuery(input) {
   const filters = [];
+  const careerStageFilters = []; // EXP-169: Collect separately, pick most restrictive
   let order = "a.updated_at DESC";
   const text = input.trim();
   if (!text) return { filters, order };
@@ -26,6 +27,18 @@ function parseKoreanQuery(input) {
     consumedWords.add('마감순');
   }
 
+  // === "Unapplied" status detection (안 + 지원, 미지원, 지원하지 않은) ===
+  let isUnapplied = false;
+  if (/(?:지원\s*안\s*(?:한|했)|미지원|지원하지\s*않|안\s*지원)/.test(text)) {
+    filters.push("a.status IS NULL OR a.status = ''");
+    consumedWords.add('미지원');
+    isUnapplied = true;
+    const unappliedWords = text.match(/[가-힣]+/g) || [];
+    for (const w of unappliedWords) {
+      if (/^(지원|미지원|안|않|않은|않는|아직)$/.test(w)) consumedWords.add(w);
+    }
+  }
+
   // === Status detection ===
   const statusPatterns = [
     { regex: /면접(?!후결정)(잡힌|보는)?/, status: 'interview', words: ['면접', '면접보는', '면접잡힌'] },
@@ -37,15 +50,17 @@ function parseKoreanQuery(input) {
     { regex: /지원(예정|할)/, status: 'applying', words: ['지원예정', '지원할'] },
   ];
 
-  for (const { regex, status, words } of statusPatterns) {
-    if (regex.test(text)) {
-      if (status.includes(',')) {
-        filters.push(`a.status IN ('${status.split(',').join("','")}')`);
-      } else {
-        filters.push(`a.status = '${status}'`);
+  if (!isUnapplied) {
+    for (const { regex, status, words } of statusPatterns) {
+      if (regex.test(text)) {
+        if (status.includes(',')) {
+          filters.push(`a.status IN ('${status.split(',').join("','")}')`);
+        } else {
+          filters.push(`a.status = '${status}'`);
+        }
+        for (const w of words) consumedWords.add(w);
+        break;
       }
-      for (const w of words) consumedWords.add(w);
-      break;
     }
   }
 
@@ -110,6 +125,30 @@ function parseKoreanQuery(input) {
       filters.push("j.salary IS NOT NULL AND j.salary != ''");
     }
   }
+  // EXP-169: Salary threshold without 연봉 prefix — "5000만원 이상", "3천만원 이상"
+  if (!salaryThresholdApplied) {
+    // N만원 이상/부터 pattern (e.g., "5000만원 이상")
+    const bareManThreshold = text.match(/(\d[\d,]*)\s*만원\s*(이상|부터|↑)/);
+    if (bareManThreshold) {
+      const val = parseInt(bareManThreshold[1].replace(/,/g, ''));
+      filters.push(`j.salary_min >= ${val}`);
+      consumedWords.add(bareManThreshold[0]);
+      consumedWords.add('만원');
+      salaryThresholdApplied = true;
+    }
+    // N천만원 이상 pattern (e.g., "5천만원 이상")
+    if (!salaryThresholdApplied) {
+      const cheonMatch = text.match(/(\d+)\s*천\s*만원\s*(이상|부터|↑)?/);
+      if (cheonMatch) {
+        const val = parseInt(cheonMatch[1]) * 1000;
+        filters.push(`j.salary_min >= ${val}`);
+        consumedWords.add(cheonMatch[0]);
+        consumedWords.add('천');
+        consumedWords.add('만원');
+        salaryThresholdApplied = true;
+      }
+    }
+  }
   // 면접후결정 (negotiable salary) — NOT an interview status
   if (/면접\s*후\s*결정|면접후결정/.test(text)) {
     filters.push("(j.salary LIKE '%면접후결정%' OR j.salary LIKE '%협의%' OR j.salary IS NULL OR j.salary = '')");
@@ -145,21 +184,21 @@ function parseKoreanQuery(input) {
     consumedWords.add('프리랜서'); consumedWords.add('프리랜스');
   }
 
-  // === Career stage filter (EXP-095) ===
+  // === Career stage filter (EXP-095, EXP-169: collect separately) ===
   if (/시니어|senior/i.test(text)) {
-    filters.push("j.career_stage = 'senior'");
+    careerStageFilters.push({ stages: ['senior'], sql: "j.career_stage = 'senior'" });
     consumedWords.add('시니어');
   }
   if (/(?<![가-힣])리드(?![가-힣])/.test(text) || /lead\s*포지션|lead\s*position/i.test(text)) {
-    filters.push("j.career_stage = 'lead'");
+    careerStageFilters.push({ stages: ['lead'], sql: "j.career_stage = 'lead'" });
     consumedWords.add('리드');
   }
   if (/미드|미들|mid\s*level/i.test(text)) {
-    filters.push("j.career_stage = 'mid'");
+    careerStageFilters.push({ stages: ['mid'], sql: "j.career_stage = 'mid'" });
     consumedWords.add('미드'); consumedWords.add('미들');
   }
   if (/주니어|junior/i.test(text)) {
-    filters.push("j.career_stage = 'junior'");
+    careerStageFilters.push({ stages: ['junior'], sql: "j.career_stage = 'junior'" });
     consumedWords.add('주니어');
   }
 
@@ -176,16 +215,16 @@ function parseKoreanQuery(input) {
     // N년 이상 means "minimum N years" → include the stage N maps to AND all higher stages
     if (years <= 3) {
       // 1-3년 이상: junior+ (junior = 1-3 years)
-      filters.push("j.career_stage IN ('junior','mid','senior','lead')");
+      careerStageFilters.push({ stages: ['junior','mid','senior','lead'], sql: "j.career_stage IN ('junior','mid','senior','lead')" });
     } else if (years <= 7) {
       // 4-7년 이상: mid+ (mid = 4-7 years)
-      filters.push("j.career_stage IN ('mid','senior','lead')");
+      careerStageFilters.push({ stages: ['mid','senior','lead'], sql: "j.career_stage IN ('mid','senior','lead')" });
     } else if (years <= 12) {
       // 8-12년 이상: senior+ (senior = 8-12 years)
-      filters.push("j.career_stage IN ('senior','lead')");
+      careerStageFilters.push({ stages: ['senior','lead'], sql: "j.career_stage IN ('senior','lead')" });
     } else {
       // 13+년: only lead
-      filters.push("j.career_stage = 'lead'");
+      careerStageFilters.push({ stages: ['lead'], sql: "j.career_stage = 'lead'" });
     }
     consumedWords.add(expMatch[0]);
   }
@@ -198,26 +237,26 @@ function parseKoreanQuery(input) {
     if (isMinimum) {
       // N년차 이상: restrictive, matching N년 이상 logic
       if (years <= 3) {
-        filters.push("j.career_stage IN ('mid','senior','lead')");
+        careerStageFilters.push({ stages: ['mid','senior','lead'], sql: "j.career_stage IN ('mid','senior','lead')" });
       } else if (years <= 7) {
-        filters.push("j.career_stage IN ('mid','senior','lead')");
+        careerStageFilters.push({ stages: ['mid','senior','lead'], sql: "j.career_stage IN ('mid','senior','lead')" });
       } else if (years <= 12) {
-        filters.push("j.career_stage IN ('senior','lead')");
+        careerStageFilters.push({ stages: ['senior','lead'], sql: "j.career_stage IN ('senior','lead')" });
       } else {
-        filters.push("j.career_stage = 'lead'");
+        careerStageFilters.push({ stages: ['lead'], sql: "j.career_stage = 'lead'" });
       }
     } else {
       // N년차 alone: show jobs suitable for that experience level
       if (years <= 1) {
-        filters.push("j.career_stage IN ('entry','junior','mid','senior','lead')");
+        careerStageFilters.push({ stages: ['entry','junior','mid','senior','lead'], sql: "j.career_stage IN ('entry','junior','mid','senior','lead')" });
       } else if (years <= 3) {
-        filters.push("j.career_stage IN ('entry','junior','mid','senior','lead')");
+        careerStageFilters.push({ stages: ['entry','junior','mid','senior','lead'], sql: "j.career_stage IN ('entry','junior','mid','senior','lead')" });
       } else if (years <= 7) {
-        filters.push("j.career_stage IN ('mid','senior','lead')");
+        careerStageFilters.push({ stages: ['mid','senior','lead'], sql: "j.career_stage IN ('mid','senior','lead')" });
       } else if (years <= 12) {
-        filters.push("j.career_stage IN ('senior','lead')");
+        careerStageFilters.push({ stages: ['senior','lead'], sql: "j.career_stage IN ('senior','lead')" });
       } else {
-        filters.push("j.career_stage = 'lead'");
+        careerStageFilters.push({ stages: ['lead'], sql: "j.career_stage = 'lead'" });
       }
     }
     consumedWords.add(yoeMatch[0]);
@@ -474,6 +513,15 @@ function parseKoreanQuery(input) {
     { canonical: 'sre', patterns: [/(?<!\w)sre(?!\w)|사이트[\s-]*신뢰성/i] },
     { canonical: 'istio', patterns: [/(?<!\w)istio(?!\w)|이스티오/i] },
     { canonical: 'argocd', patterns: [/(?<!\w)argocd(?!\w)|아르고시디/i] },
+    // EXP-167: Missing skill patterns from skill-inference sync
+    { canonical: 'vitest', patterns: [/(?<!\w)vitest(?!\w)|바이테스트/i] },
+    { canonical: 'dynamodb', patterns: [/(?<!\w)dynamo(?:db)?(?!\w)|다이나모/i] },
+    { canonical: 'cloudwatch', patterns: [/(?<!\w)cloudwatch(?!\w)|클라우드워치/i] },
+    { canonical: 'mybatis', patterns: [/(?<!\w)mybatis(?!\w)|마이바티스/i] },
+    { canonical: 'msa', patterns: [/(?<!\w)msa(?!\w)|엠에스에이|마이크로서비스/i] },
+    { canonical: 'opensearch', patterns: [/(?<!\w)opensearch(?!\w)|오픈서치/i] },
+    { canonical: 'celery', patterns: [/(?<!\w)celery(?!\w)|셀러리/i] },
+    { canonical: 'webflux', patterns: [/(?<!\w)webflux(?!\w)|웹플럭스/i] },
   ];
 
   for (const { canonical, patterns } of skillPatterns) {
@@ -506,6 +554,8 @@ function parseKoreanQuery(input) {
     { role: '데이터 분석', skills: ['python', 'sql', 'bigquery'] },
     { role: '데이터 사이언티스트', skills: ['python', 'tensorflow', 'pytorch'] },
     { role: '데이터 분석가', skills: ['python', 'sql', 'bigquery'] },
+    // EXP-167: Web developer role (Korean)
+    { role: '웹', skills: ['react', 'javascript', 'html', 'css'] },
   ];
   for (const { role, skills } of roleSkillMap) {
     if (text.includes(role)) {
@@ -538,6 +588,15 @@ function parseKoreanQuery(input) {
     '데이터엔지니어', '데이터분석', '데이터사이언티스트', '데이터분석가', '사이언티스트', '분석가',
     // EXP-145: Common Korean words that leak as keywords
     '가능', '가능한', '개발자', '전체', '담당자', '담당', '찾는', '원하는', '필요한', '관련', '분야', '경험', '있어요', '없는', '높은', '낮은', '빠른', '느린', '좋은', '많은', '적은', '큰', '작은', '새로운', '다음', '이전', '최고', '최소', '평균', '기준', '위치', '지역', '근무', '근무지', '환경', '복지', '혜택',
+    // EXP-167: Conversational Korean noise words
+    '열정', '열정적인', '이력서', '포트폴리오', '준비', '협의', '추천', '추천해줘', '알려줘', '찾아줘', '보여줘', '어떤', '없어', '뭐있어', '뭐', '있어', '해줘', '좀', '좀알려줘', '경력직', '협상', '협의',
+    '채용', '공고', '구인', '모집', '지원자', '지원서', '면접', '면접관', '오퍼', '오퍼받은',
+    '이번', '저번', '지금', '현재', '오늘', '내일', '이번주', '저번주', '이번달', '저번달',
+    '바이트', '마이바티스', '엠에스에이', '마이크로서비스', '오픈서치', '셀러리', '웹플럭스', '다이나모', '클라우드워치', '바이테스트',
+    // EXP-169: Salary-related words that shouldn't become keyword searches
+    '천만원', '만원',
+    // EXP-168: Conversational phrase noise
+    '가장', '잘', '맞는', '맞는지', '정렬', '아직', '미지원', '지원하지', '않은', '않는', '안', '적합한', '추천순', '높은순', '낮은순',
   ]);
   const koreanParticles = /^(.+?)(?:에서|으로|로서|으로서|에게|한테|으로부터|부터|까지|에서부터|에|은|는|이|가|을|를|와|과|의|도|만|조차|마저|부터|까지|이나|나|니|대로|만큼|처럼|같이|하고|랑|이랑|아|야|여|이여|한|인|적인|적인지|적)$/;
   const koreanWords = (text.match(/[가-힣]{2,}/g) || []).map(w => {
@@ -561,6 +620,34 @@ function parseKoreanQuery(input) {
         if (status) filters[statusIdx] = `a.status != '${status}'`;
       } else if (orig.includes("IN (")) {
         filters[statusIdx] = orig.replace('IN (', 'NOT IN (');
+      }
+    }
+  }
+
+  // === EXP-169: Merge career stage filters — pick most restrictive ===
+  // Stage hierarchy: entry < junior < mid < senior < lead
+  // When multiple filters exist (e.g., "시니어" + "5년 이상"), intersect to keep
+  // only stages that appear in ALL filters.
+  if (careerStageFilters.length > 0) {
+    if (careerStageFilters.length === 1) {
+      filters.push(careerStageFilters[0].sql);
+    } else {
+      // Intersect: keep stages present in every filter
+      const stageOrder = ['entry', 'junior', 'mid', 'senior', 'lead'];
+      let intersected = careerStageFilters[0].stages;
+      for (let i = 1; i < careerStageFilters.length; i++) {
+        intersected = intersected.filter(s => careerStageFilters[i].stages.includes(s));
+      }
+      if (intersected.length === 0) {
+        // Contradictory (e.g., "리드" + "주니어") — no results possible, use most restrictive single
+        const mostRestrictive = careerStageFilters.reduce((best, f) =>
+          f.stages.length < best.stages.length ? f : best, careerStageFilters[0]);
+        intersected = mostRestrictive.stages;
+      }
+      if (intersected.length === 1) {
+        filters.push(`j.career_stage = '${intersected[0]}'`);
+      } else {
+        filters.push(`j.career_stage IN ('${intersected.join("','")}')`);
       }
     }
   }

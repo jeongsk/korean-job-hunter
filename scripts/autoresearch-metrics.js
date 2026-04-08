@@ -137,23 +137,34 @@ function calculateOverallScore(job, resume) {
   const wtScore = matchWorkTypeScore(job.work_type, resume.work_preference);
   const commScore = matchCommuteScore(job, resume);
 
+  // Quadratic skill gate (EXP-165): dampen non-skill components when skill score is low
+  // gate = 0.12 + 0.88 × (skill/40)² for skill < 40; gate = 1.0 for skill ≥ 40
+  const skillRaw = skillResult.score;
+  const gate = skillRaw >= 40 ? 1.0 : 0.12 + 0.88 * Math.pow(skillRaw / 40, 2);
+
+  const gatedExp = Math.round(expScore * gate);
+  const gatedPref = Math.round(prefScore * gate);
+  const gatedWt = Math.round(wtScore * gate);
+  const gatedComm = Math.round(commScore * gate);
+
   const overall = Math.round(
-    skillResult.score * weights.skill +
-    expScore * weights.experience +
-    prefScore * weights.preferred +
-    wtScore * weights.work_type +
-    commScore * weights.commute
+    skillRaw * weights.skill +
+    gatedExp * weights.experience +
+    gatedPref * weights.preferred +
+    gatedWt * weights.work_type +
+    gatedComm * weights.commute
   );
 
   return {
     overall: Math.min(100, Math.max(0, overall)),
     components: {
-      skill: { score: skillResult.score, weighted: Math.round(skillResult.score * weights.skill) },
-      experience: { score: expScore, weighted: Math.round(expScore * weights.experience) },
-      preferred: { score: prefScore, weighted: Math.round(prefScore * weights.preferred) },
-      work_type: { score: wtScore, weighted: Math.round(wtScore * weights.work_type) },
-      commute: { score: commScore, weighted: Math.round(commScore * weights.commute) }
-    }
+      skill: { score: skillRaw, weighted: Math.round(skillRaw * weights.skill) },
+      experience: { score: expScore, weighted: Math.round(gatedExp * weights.experience), gated: gatedExp },
+      preferred: { score: prefScore, weighted: Math.round(gatedPref * weights.preferred), gated: gatedPref },
+      work_type: { score: wtScore, weighted: Math.round(gatedWt * weights.work_type), gated: gatedWt },
+      commute: { score: commScore, weighted: Math.round(gatedComm * weights.commute), gated: gatedComm }
+    },
+    gate
   };
 }
 

@@ -1,224 +1,161 @@
 #!/usr/bin/env node
 /**
- * autoresearch-scrape.js
+ * autoresearch-scrape.js v2
  * 
  * job-scraping 스킬의 성능을 측정하는 스크립트.
- * agent-browser를 사용하여 실제 사이트에서 스크래핑 후 메트릭을 계산한다.
+ * Wanted API scraper + post-processor를 사용하여 실제 파이프라인 품질을 평가한다.
+ * v1은 agent-browser 기반이었으나 셀렉터가 구식이 되어 0 results를 반환함.
  * 
  * Usage:
- *   node scripts/autoresearch-scrape.js --source wanted --keyword "백엔드"
- *   node scripts/autoresearch-scrape.js --source all --keyword "Node.js"
+ *   node scripts/autoresearch-scrape.js --keyword "백엔드"
+ *   node scripts/autoresearch-scrape.js --keyword "프론트엔드" --limit 20
+ *   node scripts/autoresearch-scrape.js --keyword "Node.js" --details
  */
 
 const fs = require('fs');
 const { execSync } = require('child_process');
 const path = require('path');
+const { inferSkills, deriveCareerStage, deriveCareerStageFromTitle } = require('./skill-inference');
 
 const ARGS = process.argv.slice(2);
-const SOURCE = getArg('--source', 'wanted');
 const KEYWORD = getArg('--keyword', '백엔드');
+const LIMIT = parseInt(getArg('--limit', '20'), 10);
+const DETAILS = ARGS.includes('--details');
 const OUTPUT_DIR = 'data/autoresearch/scraping';
 const RESULTS_PATH = path.join(OUTPUT_DIR, 'scrape_results.json');
 
-// ── 소스별 설정 ───────────────────────────────────────
+// ── Wanted API 스크래핑 ──────────────────────────────
 
-const SOURCES = {
-  wanted: {
-    name: 'Wanted',
-    url: (kw) => `https://www.wanted.co.kr/search?query=${encodeURIComponent(kw)}&tab=position`,
-    selectors: {
-      primary: '.JobCard_container',
-      fallback: ['[data-testid="job-card"]', '.job-card', '[class*="JobCard"]'],
-      title: ['.JobCard_title', '[data-testid="job-title"]', 'h2', '[class*="title"]'],
-      company: ['.JobCard_company', '[data-testid="company-name"]', '.company', '[class*="company"]', '[class*="Company"]'],
-      location: ['.JobCard_location', '[data-testid="location"]', '.location', '[class*="location"]'],
-      link: ['a']
-    }
-  },
-  jobkorea: {
-    name: 'JobKorea',
-    url: (kw) => `https://www.jobkorea.co.kr/Search/?stext=${encodeURIComponent(kw)}&tabType=recruit`,
-    selectors: {
-      primary: '.list-item',
-      fallback: ['.recruit-item', '[data-recruit-id]', '[class*="list"]'],
-      title: ['.title', '.link', 'h2', '[class*="title"]'],
-      company: ['.name', '.company', '.corp', '[class*="name"]', '[class*="company"]'],
-      location: ['.location', '.loc', '[class*="location"]'],
-      link: ['a']
-    }
-  },
-  linkedin: {
-    name: 'LinkedIn',
-    url: (kw) => `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(kw)}&location=South+Korea`,
-    selectors: {
-      primary: '.jobs-search__results-list li',
-      fallback: ['.job-search-card', '[class*="job-card"]', '[class*="JobCard"]'],
-      title: ['.base-search-card__title', 'h3', '[class*="title"]'],
-      company: ['.base-search-card__subtitle', 'h4', '[class*="company"]', '[class*="subtitle"]'],
-      location: ['.job-search-card__location', '[class*="location"]'],
-      link: ['a']
-    }
-  }
-};
-
-// ── 스크래핑 함수 ─────────────────────────────────────
-
-function runAgentBrowser(cmd) {
+function scrapeWantedAPI(keyword, limit) {
+  const cmd = `node scripts/scrape-wanted-api.js --keyword "${keyword}" --limit ${limit} ${DETAILS ? '--details' : ''} 2>/dev/null`;
   try {
-    return execSync(`agent-browser ${cmd}`, { encoding: 'utf-8', timeout: 30000 }).trim();
+    const output = execSync(cmd, { encoding: 'utf-8', timeout: 60000, cwd: path.resolve(__dirname, '..') });
+    // Find JSON array in output (may have log lines before it)
+    const jsonStart = output.indexOf('[');
+    if (jsonStart === -1) return null;
+    const jsonStr = output.substring(jsonStart);
+    return JSON.parse(jsonStr);
   } catch (e) {
+    console.error('  ❌ API scrape failed:', e.message);
     return null;
   }
-}
-
-function scrapeWithFallback(sourceConfig) {
-  const results = [];
-  
-  // 1. 브라우저 열기
-  console.log(`  🌐 Opening ${sourceConfig.name}...`);
-  const openResult = runAgentBrowser(`open "${sourceConfig.url(KEYWORD)}"`);
-  if (!openResult) {
-    console.log(`  ❌ Failed to open ${sourceConfig.name}`);
-    return null;
-  }
-
-  // 2. 페이지 로드 대기
-  runAgentBrowser('wait 3000');
-
-  // 3. 스냅샷
-  runAgentBrowser('snapshot -i --json > /dev/null 2>&1');
-
-  // 4. 셀렉터 순회하며 데이터 추출
-  const allSelectors = [sourceConfig.selectors.primary, ...sourceConfig.selectors.fallback];
-  
-  let jsCode = '';
-  for (const selector of allSelectors) {
-    const titleSel = sourceConfig.selectors.title.join(', ');
-    const companySel = sourceConfig.selectors.company.join(', ');
-    const locationSel = sourceConfig.selectors.location.join(', ');
-    
-    jsCode = `[...document.querySelectorAll('${selector}')].map(card => ({
-      title: card.querySelector('${titleSel}')?.textContent?.trim() || null,
-      company: card.querySelector('${companySel}')?.textContent?.trim() || null,
-      location: card.querySelector('${locationSel}')?.textContent?.trim() || null,
-      link: card.querySelector('a')?.href || null,
-      selector: '${selector}',
-      scraped_at: new Date().toISOString()
-    })).filter(item => item.title || item.company)`;
-    
-    const evalResult = runAgentBrowser(`eval "${jsCode.replace(/"/g, '\\"')}" --json 2>/dev/null`);
-    if (evalResult) {
-      try {
-        const parsed = JSON.parse(evalResult);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          results.push(...parsed);
-          console.log(`  ✅ Selector "${selector}": ${parsed.length} jobs found`);
-          break;
-        }
-      } catch (e) {}
-    }
-    console.log(`  ⚠️ Selector "${selector}": no results, trying fallback...`);
-  }
-
-  // 5. 브라우저 종료
-  runAgentBrowser('close');
-
-  return results;
 }
 
 // ── 메트릭 계산 ───────────────────────────────────────
 
-function calculateScrapeMetrics(jobs) {
+function calculatePipelineMetrics(jobs) {
   if (!jobs || jobs.length === 0) {
-    return {
-      total: 0,
-      success_rate: 0,
-      fields_completeness: 0,
-      unique_jobs: 0,
-      duplicate_rate: 0
-    };
+    return { total: 0, success_rate: 0, fields_completeness: 0 };
   }
 
   const total = jobs.length;
+  const FIELDS = ['title', 'company', 'location', 'experience', 'work_type', 'skills', 'career_stage', 'salary_min', 'salary_max', 'source'];
   
-  // Fields completeness
   let filledFields = 0;
-  const totalFields = total * 4; // title, company, location, link
+  let totalFields = total * FIELDS.length;
   
   for (const job of jobs) {
-    if (job.title) filledFields++;
-    if (job.company) filledFields++;
-    if (job.location) filledFields++;
-    if (job.link) filledFields++;
+    for (const field of FIELDS) {
+      const val = job[field];
+      if (val !== null && val !== undefined && val !== '' && !(Array.isArray(val) && val.length === 0)) {
+        filledFields++;
+      }
+    }
   }
 
   const completeness = Math.round(filledFields / totalFields * 100);
   
-  // Unique jobs (by link)
-  const links = jobs.map(j => j.link).filter(Boolean);
-  const unique = [...new Set(links)].length;
-  const duplicateRate = links.length > 0 ? Math.round((links.length - unique) / links.length * 100) : 0;
+  // Per-field rates
+  const fieldRates = {};
+  for (const field of FIELDS) {
+    const filled = jobs.filter(j => {
+      const val = j[field];
+      return val !== null && val !== undefined && val !== '' && !(Array.isArray(val) && val.length === 0);
+    }).length;
+    fieldRates[field] = Math.round(filled / total * 100);
+  }
 
-  // Jobs with title (most important)
-  const withTitle = jobs.filter(j => j.title).length;
-  const withCompany = jobs.filter(j => j.company).length;
-  const withLocation = jobs.filter(j => j.location).length;
+  // Skills analysis
+  const jobsWithSkills = jobs.filter(j => j.skills && j.skills.length > 0).length;
+  const avgSkillCount = jobsWithSkills > 0 
+    ? (jobs.reduce((sum, j) => sum + (j.skills?.length || 0), 0) / total).toFixed(1) 
+    : 0;
+  
+  // Career stage distribution
+  const careerDist = {};
+  for (const job of jobs) {
+    const stage = job.career_stage != null ? job.career_stage : 'null';
+    careerDist[stage] = (careerDist[stage] || 0) + 1;
+  }
+
+  // Work type distribution
+  const workTypeDist = {};
+  for (const job of jobs) {
+    const wt = job.work_type != null ? job.work_type : 'null';
+    workTypeDist[wt] = (workTypeDist[wt] || 0) + 1;
+  }
 
   return {
     total,
-    with_title: withTitle,
-    with_company: withCompany,
-    with_location: withLocation,
-    success_rate: Math.round(withTitle / total * 100),
     fields_completeness: completeness,
-    unique_jobs: unique,
-    duplicate_rate: duplicateRate
+    field_rates: fieldRates,
+    jobs_with_skills: jobsWithSkills,
+    skills_rate: Math.round(jobsWithSkills / total * 100),
+    avg_skill_count: parseFloat(avgSkillCount),
+    career_stage_distribution: careerDist,
+    work_type_distribution: workTypeDist,
+    // Company extraction quality
+    company_clean: jobs.filter(j => j.company && !j.company.match(/^(주식회사|㈜|\(주\))/)).length,
+    company_rate: fieldRates.company,
   };
 }
 
 // ── 메인 ──────────────────────────────────────────────
 
 function main() {
-  console.log(`\n🔬 Job Scraping Performance Test\n`);
+  console.log(`\n🔬 Job Scraping Pipeline Performance Test (v2 - API-based)\n`);
   console.log(`Keyword: "${KEYWORD}"`);
-  console.log(`Source: ${SOURCE}\n`);
+  console.log(`Limit: ${LIMIT}`);
+  console.log(`Details: ${DETAILS ? 'Yes' : 'No (search-time only)'}\n`);
 
-  const sources = SOURCE === 'all' ? Object.keys(SOURCES) : [SOURCE];
-  const allResults = {};
+  const startTime = Date.now();
+  
+  console.log(`📡 Scraping Wanted API...`);
+  const jobs = scrapeWantedAPI(KEYWORD, LIMIT);
+  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+  
+  if (!jobs) {
+    console.log(`❌ Scraping failed\n`);
+    process.exit(1);
+  }
 
-  for (const sourceName of sources) {
-    const config = SOURCES[sourceName];
-    if (!config) {
-      console.log(`❌ Unknown source: ${sourceName}`);
-      continue;
-    }
+  console.log(`  ✅ Got ${jobs.length} jobs in ${elapsed}s\n`);
 
-    console.log(`\n📡 Scraping ${config.name}...`);
-    const startTime = Date.now();
-    
-    const jobs = scrapeWithFallback(config);
-    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-    
-    if (!jobs) {
-      console.log(`  ❌ Scraping failed for ${config.name}\n`);
-      allResults[sourceName] = { error: true, elapsed };
-      continue;
-    }
+  const metrics = calculatePipelineMetrics(jobs);
 
-    const metrics = calculateScrapeMetrics(jobs);
-    metrics.elapsed_seconds = parseFloat(elapsed);
+  console.log(`📊 Pipeline Metrics:`);
+  console.log(`   Total jobs:           ${metrics.total}`);
+  console.log(`   Overall completeness: ${metrics.fields_completeness}%`);
+  console.log(`   Time:                 ${elapsed}s`);
+  
+  console.log(`\n📋 Per-Field Rates:`);
+  for (const [field, rate] of Object.entries(metrics.field_rates)) {
+    const bar = '█'.repeat(Math.floor(rate / 5)) + '░'.repeat(20 - Math.floor(rate / 5));
+    console.log(`   ${field.padEnd(15)} ${bar} ${rate}%`);
+  }
 
-    console.log(`\n  📊 ${config.name} Results:`);
-    console.log(`     Total jobs:      ${metrics.total}`);
-    console.log(`     With title:      ${metrics.with_title} (${metrics.success_rate}%)`);
-    console.log(`     With company:    ${metrics.with_company}`);
-    console.log(`     With location:   ${metrics.with_location}`);
-    console.log(`     Fields complete: ${metrics.fields_completeness}%`);
-    console.log(`     Unique:          ${metrics.unique_jobs}`);
-    console.log(`     Duplicates:      ${metrics.duplicate_rate}%`);
-    console.log(`     Time:            ${elapsed}s`);
+  console.log(`\n🧠 Skills Analysis:`);
+  console.log(`   Jobs with skills: ${metrics.jobs_with_skills}/${metrics.total} (${metrics.skills_rate}%)`);
+  console.log(`   Avg skills/job:   ${metrics.avg_skill_count}`);
 
-    allResults[sourceName] = { metrics, jobs: jobs.slice(0, 20) }; // 최대 20개만 저장
+  console.log(`\n📈 Career Stage Distribution:`);
+  for (const [stage, count] of Object.entries(metrics.career_stage_distribution || {}).sort((a, b) => b[1] - a[1])) {
+    console.log(`   ${stage.padEnd(10)} ${count}`);
+  }
+
+  console.log(`\n🏢 Work Type Distribution:`);
+  for (const [wt, count] of Object.entries(metrics.work_type_distribution).sort((a, b) => b[1] - a[1])) {
+    console.log(`   ${wt.padEnd(10)} ${count}`);
   }
 
   // Save results
@@ -229,20 +166,33 @@ function main() {
   const output = {
     timestamp: new Date().toISOString(),
     keyword: KEYWORD,
-    sources: allResults
+    limit: LIMIT,
+    details: DETAILS,
+    elapsed_seconds: parseFloat(elapsed),
+    metrics,
+    sample_jobs: jobs.slice(0, 5)
   };
 
   fs.writeFileSync(RESULTS_PATH, JSON.stringify(output, null, 2));
   console.log(`\n💾 Results saved to ${RESULTS_PATH}`);
 
-  // Summary
+  // Quality assessment
   console.log(`\n${'='.repeat(50)}`);
-  console.log(`📊 Summary`);
-  for (const [name, data] of Object.entries(allResults)) {
-    if (data.error) {
-      console.log(`  ${SOURCES[name]?.name || name}: ❌ Failed`);
-    } else {
-      console.log(`  ${SOURCES[name]?.name || name}: ${data.metrics.total} jobs, ${data.metrics.fields_completeness}% complete, ${data.metrics.elapsed_seconds}s`);
+  console.log(`📊 Quality Assessment`);
+  
+  const issues = [];
+  if (metrics.field_rates.title < 95) issues.push(`Title extraction: ${metrics.field_rates.title}%`);
+  if (metrics.field_rates.company < 90) issues.push(`Company extraction: ${metrics.field_rates.company}%`);
+  if (metrics.field_rates.skills < 70) issues.push(`Skills extraction: ${metrics.field_rates.skills}%`);
+  if (metrics.field_rates.career_stage < 70) issues.push(`Career stage: ${metrics.field_rates.career_stage}%`);
+  if (metrics.skills_rate < 80) issues.push(`Skills coverage: ${metrics.skills_rate}%`);
+  
+  if (issues.length === 0) {
+    console.log(`  ✅ All quality checks passed`);
+  } else {
+    console.log(`  ⚠️ Issues found:`);
+    for (const issue of issues) {
+      console.log(`     - ${issue}`);
     }
   }
 }

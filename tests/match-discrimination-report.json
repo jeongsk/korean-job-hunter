@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-08T05:08:28.550Z",
+  "timestamp": "2026-04-08T17:57:32.272Z",
   "total_tests": 15,
   "passed": 15,
   "failed": 0,
@@ -150,7 +150,7 @@
     {
       "id": "MED-002",
       "description": "Partial match - Frontend but Vue.js, different stack",
-      "score": 71,
+      "score": 69,
       "min_score": 40,
       "expected_range": [
         55,
@@ -181,7 +181,7 @@
           "weight": 0.15
         },
         "career": {
-          "score": 85,
+          "score": 75,
           "weight": 0.15,
           "job": "mid",
           "candidate": "mid"
@@ -271,7 +271,7 @@
           "weight": 0.15
         },
         "career": {
-          "score": 59,
+          "score": 53,
           "weight": 0.15,
           "job": "mid",
           "candidate": "mid"
@@ -406,7 +406,7 @@
           "weight": 0.15
         },
         "career": {
-          "score": 34,
+          "score": 30,
           "weight": 0.15,
           "job": "mid",
           "candidate": "mid"
@@ -555,7 +555,7 @@
     {
       "id": "MED-005",
       "description": "Bare 경력 - same skills but no year range specified",
-      "score": 80,
+      "score": 78,
       "min_score": 60,
       "expected_range": [
         60,
@@ -586,7 +586,7 @@
           "weight": 0.15
         },
         "career": {
-          "score": 85,
+          "score": 75,
           "weight": 0.15,
           "job": "mid",
           "candidate": "mid"
@@ -631,7 +631,7 @@
           "weight": 0.15
         },
         "career": {
-          "score": 85,
+          "score": 75,
           "weight": 0.15,
           "job": "mid",
           "candidate": "mid"
@@ -645,7 +645,7 @@
     {
       "id": "MED-006",
       "description": "무관 experience - open to all levels",
-      "score": 80,
+      "score": 77,
       "min_score": 65,
       "expected_range": [
         65,
@@ -676,7 +676,7 @@
           "weight": 0.15
         },
         "career": {
-          "score": 85,
+          "score": 70,
           "weight": 0.15,
           "job": "mid",
           "candidate": "mid"
@@ -701,14 +701,14 @@
     "medium": {
       "scores": [
         79,
-        71,
+        69,
         55,
         45,
-        80,
-        80
+        78,
+        77
       ],
       "min": 45,
-      "max": 80
+      "max": 79
     },
     "low": {
       "scores": [

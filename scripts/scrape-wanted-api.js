@@ -251,11 +251,16 @@ function parsePosition(pos) {
 
 async function fetchDetail(wdId, title) {
   try {
-    const data = await fetchJSON(`https://www.wanted.co.kr/api/v1/jobs/${wdId}?lang=ko`);
+    // Fetch both v1 (JD text) and v4 (salary data) APIs
+    const [v1Data, v4Data] = await Promise.all([
+      fetchJSON(`https://www.wanted.co.kr/api/v1/jobs/${wdId}?lang=ko`),
+      fetchJSON(`https://www.wanted.co.kr/api/v4/jobs/${wdId}`).catch(() => null),
+    ]);
+
     // Wanted detail API returns flat structure with 'jd' as full description text
-    const description = data?.jd || '';
-    const fullLocation = data?.address?.full_location || data?.address?.location || '';
-    const geoLocation = data?.address?.geo_location?.location || null;
+    const description = v1Data?.jd || '';
+    const fullLocation = v1Data?.address?.full_location || v1Data?.address?.location || '';
+    const geoLocation = v1Data?.address?.geo_location?.location || null;
 
     // Use shared skill inference (135+ skills) instead of inline patterns
     // EXP-142: Role map disabled for full JD text — company descriptions mentioning
@@ -273,17 +278,41 @@ async function fetchDetail(wdId, title) {
     // Detect work type from description
     const workType = detectWorkType(description);
 
+    // EXP-167: Use v4 API annual_from/annual_to for salary (천만원 단위)
+    // annual_to >= 99 means "협의" (negotiable/unspecified)
+    const v4Job = v4Data?.job;
+    const annualFrom = v4Job?.annual_from;
+    const annualTo = v4Job?.annual_to;
+    let salary = null, salaryMin = null, salaryMax = null;
+    if (annualFrom != null && annualTo != null && annualTo < 99) {
+      salaryMin = annualFrom * 1000;  // 천만원 → 만원
+      salaryMax = annualTo * 1000;
+      salary = `${salaryMin}~${salaryMax}만원`;
+    }
+
+    // Fallback: try JD text salary extraction if v4 didn't have data
+    if (!salary && description) {
+      const salaryLine = extractSalaryLine(description);
+      if (salaryLine) {
+        salary = salaryLine;
+        const norm = normalizeSalary(salaryLine);
+        if (norm) { salaryMin = norm.min; salaryMax = norm.max; }
+      }
+    }
+
     return {
       description,
       full_location: fullLocation,
       geo_location: geoLocation,
-      office_address: data?.address?.full_location || '',
-      latitude: data?.address?.geo_location?.location?.lat || null,
-      longitude: data?.address?.geo_location?.location?.lng || null,
+      office_address: v1Data?.address?.full_location || '',
+      latitude: v1Data?.address?.geo_location?.location?.lat || null,
+      longitude: v1Data?.address?.geo_location?.location?.lng || null,
       skills: foundSkills,
       culture_keywords: cultureKeywords,
       work_type: workType,
-      salary: null,
+      salary,
+      salary_min: salaryMin,
+      salary_max: salaryMax,
     };
   } catch {
     return { description: '', full_location: '', geo_location: null, skills: [], salary: null, work_type: null };
@@ -381,17 +410,11 @@ async function main() {
         job.latitude = detail.latitude;
         job.longitude = detail.longitude;
       }
-      // Extract salary from detail JD description (EXP-126)
-      if (detail.description && !job.salary) {
-        const salaryLine = extractSalaryLine(detail.description);
-        if (salaryLine) {
-          job.salary = salaryLine;
-          const norm = normalizeSalary(salaryLine);
-          if (norm) {
-            job.salary_min = norm.min;
-            job.salary_max = norm.max;
-          }
-        }
+      // EXP-167: Use v4 API salary data (annual_from/annual_to) first, then JD text fallback
+      if (detail.salary && !job.salary) {
+        job.salary = detail.salary;
+        job.salary_min = detail.salary_min;
+        job.salary_max = detail.salary_max;
       }
       // Extract specific experience range from detail description
       if (detail.description) {

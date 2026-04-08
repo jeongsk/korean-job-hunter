@@ -247,3 +247,9 @@ This prevents a 3000만원 job from scoring identically to a 7000만원 job when
 | 3-7 | mid |
 | 7-12 | senior |
 | 12+ | lead |
+
+### Career Score Modifiers
+
+- **Specific range detected** (e.g., "3~7년", "5년"): base score (85 for match)
+- **Bare 경력 / no specific range**: -10 (75 for match) — less informative than explicit ranges
+- **무관 (open to all)**: -15 (70 for match) — accepts all career stages, lowest specificity

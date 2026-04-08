@@ -89,6 +89,11 @@ Match against candidate preferences. Keyword overlap ratio = score.
 
 Compare job level vs candidate level. Same level = 100%, one step off = 70%, two+ steps = 30%.
 
+**Career score modifiers by specificity:**
+- Specific year range detected → base score
+- Bare 경력 (no range) → -10 from base (less informative)
+- 무관 (open to all) → -15 from base (lowest specificity)
+
 ### Location/Work/Salary/Employment (10%) (EXP-084, EXP-085)
 
 - Exact location match → +15

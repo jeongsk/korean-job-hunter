@@ -1,17 +1,177 @@
 {
-  "timestamp": "2026-04-07T01:05:19.354Z",
+  "timestamp": "2026-04-08T16:46:12.043Z",
   "keyword": "백엔드",
-  "sources": {
-    "wanted": {
-      "metrics": {
-        "total": 0,
-        "success_rate": 0,
-        "fields_completeness": 0,
-        "unique_jobs": 0,
-        "duplicate_rate": 0,
-        "elapsed_seconds": 7.7
-      },
-      "jobs": []
+  "limit": 20,
+  "details": false,
+  "elapsed_seconds": 0.4,
+  "metrics": {
+    "total": 12,
+    "fields_completeness": 80,
+    "field_rates": {
+      "title": 100,
+      "company": 100,
+      "location": 100,
+      "experience": 100,
+      "work_type": 100,
+      "skills": 100,
+      "career_stage": 100,
+      "salary_min": 0,
+      "salary_max": 0,
+      "source": 100
+    },
+    "jobs_with_skills": 12,
+    "skills_rate": 100,
+    "avg_skill_count": 3.3,
+    "career_stage_distribution": {
+      "senior": 3,
+      "mid": 9
+    },
+    "work_type_distribution": {
+      "onsite": 12
+    },
+    "company_clean": 12,
+    "company_rate": 100
+  },
+  "sample_jobs": [
+    {
+      "id": "353687",
+      "title": "비즈 & 그로스 스쿼드 백엔드 엔지니어 - 10년 이상 ",
+      "company": "트래블월렛",
+      "experience": "10년 이상",
+      "location": "서울",
+      "country": "한국",
+      "employment_type": "regular",
+      "deadline": null,
+      "deadline_raw": null,
+      "reward": "100만원",
+      "link": "https://www.wanted.co.kr/wd/353687",
+      "source": "wanted-api",
+      "work_type": "onsite",
+      "salary": null,
+      "salary_min": null,
+      "salary_max": null,
+      "career_stage": "senior",
+      "culture_keywords": [],
+      "skills": [
+        "node.js",
+        "python",
+        "java"
+      ],
+      "office_address": "",
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "id": "353690",
+      "title": "비즈 & 그로스(광고 플랫폼) 백엔드 엔지니어 - 10년 이상 ",
+      "company": "트래블월렛",
+      "experience": "10년 이상",
+      "location": "서울",
+      "country": "한국",
+      "employment_type": "regular",
+      "deadline": null,
+      "deadline_raw": null,
+      "reward": "100만원",
+      "link": "https://www.wanted.co.kr/wd/353690",
+      "source": "wanted-api",
+      "work_type": "onsite",
+      "salary": null,
+      "salary_min": null,
+      "salary_max": null,
+      "career_stage": "senior",
+      "culture_keywords": [],
+      "skills": [
+        "node.js",
+        "python",
+        "java"
+      ],
+      "office_address": "",
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "id": "353562",
+      "title": "비즈 & 서비스 플랫폼 백엔드 엔지니어 - 3년 이상 ",
+      "company": "트래블월렛",
+      "experience": "3년 이상",
+      "location": "서울",
+      "country": "한국",
+      "employment_type": "regular",
+      "deadline": null,
+      "deadline_raw": null,
+      "reward": "100만원",
+      "link": "https://www.wanted.co.kr/wd/353562",
+      "source": "wanted-api",
+      "work_type": "onsite",
+      "salary": null,
+      "salary_min": null,
+      "salary_max": null,
+      "career_stage": "mid",
+      "culture_keywords": [],
+      "skills": [
+        "node.js",
+        "python",
+        "java"
+      ],
+      "office_address": "",
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "id": "353591",
+      "title": "Backend Engineer (5년 이상)",
+      "company": "워트인텔리전스",
+      "experience": "5년 이상",
+      "location": "서울",
+      "country": "한국",
+      "employment_type": "regular",
+      "deadline": "2026-05-29",
+      "deadline_raw": "2026-05-29T00:00:00",
+      "reward": "100만원",
+      "link": "https://www.wanted.co.kr/wd/353591",
+      "source": "wanted-api",
+      "work_type": "onsite",
+      "salary": null,
+      "salary_min": null,
+      "salary_max": null,
+      "career_stage": "mid",
+      "culture_keywords": [],
+      "skills": [
+        "node.js",
+        "python",
+        "java"
+      ],
+      "office_address": "",
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "id": "351138",
+      "title": "[Cre8orClub] AI 엔지니어",
+      "company": "라텔앤드파트너즈",
+      "experience": "경력",
+      "location": "서울",
+      "country": "한국",
+      "employment_type": "regular",
+      "deadline": "2026-04-30",
+      "deadline_raw": "2026-04-30T00:00:00",
+      "reward": "100만원",
+      "link": "https://www.wanted.co.kr/wd/351138",
+      "source": "wanted-api",
+      "work_type": "onsite",
+      "salary": null,
+      "salary_min": null,
+      "salary_max": null,
+      "career_stage": "mid",
+      "culture_keywords": [],
+      "skills": [
+        "python",
+        "tensorflow",
+        "pytorch"
+      ],
+      "office_address": "",
+      "latitude": null,
+      "longitude": null
     }
-  }
+  ]
 }

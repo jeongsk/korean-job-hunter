@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-08T06:10:04.595Z",
+  "timestamp": "2026-04-08T16:54:13.329Z",
   "skill": "job-matching",
   "weights": {
     "skill": 0.5,
@@ -9,13 +9,13 @@
     "commute": 0.1
   },
   "metrics": {
-    "discrimination": 52.53,
-    "spread": 24.51,
+    "discrimination": 74.53,
+    "spread": 34.37,
     "false_positive_rate": 0,
     "coverage": 100,
     "positive_avg": 79.2,
-    "negative_avg": 26.67,
-    "borderline_avg": 48
+    "negative_avg": 4.67,
+    "borderline_avg": 36.5
   },
   "results": [
     {
@@ -29,19 +29,23 @@
         },
         "experience": {
           "score": 100,
-          "weighted": 15
+          "weighted": 15,
+          "gated": 100
         },
         "preferred": {
           "score": 50,
-          "weighted": 5
+          "weighted": 5,
+          "gated": 50
         },
         "work_type": {
           "score": 100,
-          "weighted": 15
+          "weighted": 15,
+          "gated": 100
         },
         "commute": {
           "score": 100,
-          "weighted": 10
+          "weighted": 10,
+          "gated": 100
         }
       },
       "expected": {
@@ -60,19 +64,23 @@
         },
         "experience": {
           "score": 100,
-          "weighted": 15
+          "weighted": 15,
+          "gated": 100
         },
         "preferred": {
           "score": 50,
-          "weighted": 5
+          "weighted": 5,
+          "gated": 50
         },
         "work_type": {
           "score": 70,
-          "weighted": 11
+          "weighted": 11,
+          "gated": 70
         },
         "commute": {
           "score": 80,
-          "weighted": 8
+          "weighted": 8,
+          "gated": 80
         }
       },
       "expected": {
@@ -83,7 +91,7 @@
     {
       "id": "TC-003",
       "label": "negative",
-      "score": 28,
+      "score": 8,
       "components": {
         "skill": {
           "score": 8,
@@ -91,19 +99,23 @@
         },
         "experience": {
           "score": 70,
-          "weighted": 11
+          "weighted": 2,
+          "gated": 11
         },
         "preferred": {
           "score": 25,
-          "weighted": 3
+          "weighted": 0,
+          "gated": 4
         },
         "work_type": {
           "score": 50,
-          "weighted": 8
+          "weighted": 1,
+          "gated": 8
         },
         "commute": {
           "score": 30,
-          "weighted": 3
+          "weighted": 1,
+          "gated": 5
         }
       },
       "expected": {
@@ -114,7 +126,7 @@
     {
       "id": "TC-004",
       "label": "negative",
-      "score": 26,
+      "score": 3,
       "components": {
         "skill": {
           "score": 0,
@@ -122,19 +134,23 @@
         },
         "experience": {
           "score": 100,
-          "weighted": 15
+          "weighted": 2,
+          "gated": 12
         },
         "preferred": {
           "score": 0,
-          "weighted": 0
+          "weighted": 0,
+          "gated": 0
         },
         "work_type": {
           "score": 50,
-          "weighted": 8
+          "weighted": 1,
+          "gated": 6
         },
         "commute": {
           "score": 30,
-          "weighted": 3
+          "weighted": 0,
+          "gated": 4
         }
       },
       "expected": {
@@ -153,19 +169,23 @@
         },
         "experience": {
           "score": 100,
-          "weighted": 15
+          "weighted": 15,
+          "gated": 100
         },
         "preferred": {
           "score": 100,
-          "weighted": 10
+          "weighted": 10,
+          "gated": 100
         },
         "work_type": {
           "score": 70,
-          "weighted": 11
+          "weighted": 11,
+          "gated": 70
         },
         "commute": {
           "score": 80,
-          "weighted": 8
+          "weighted": 8,
+          "gated": 80
         }
       },
       "expected": {
@@ -176,7 +196,7 @@
     {
       "id": "TC-006",
       "label": "borderline",
-      "score": 38,
+      "score": 19,
       "components": {
         "skill": {
           "score": 19,
@@ -184,25 +204,29 @@
         },
         "experience": {
           "score": 70,
-          "weighted": 11
+          "weighted": 3,
+          "gated": 22
         },
         "preferred": {
           "score": 25,
-          "weighted": 3
+          "weighted": 1,
+          "gated": 8
         },
         "work_type": {
           "score": 50,
-          "weighted": 8
+          "weighted": 2,
+          "gated": 16
         },
         "commute": {
           "score": 80,
-          "weighted": 8
+          "weighted": 3,
+          "gated": 25
         }
       },
       "expected": {
-        "min_score": 20,
+        "min_score": 15,
         "max_score": 55,
-        "reason": "스킬 불일치, 출근 필수, 경력 약간 부족. Spring≈Spring Boot 유사도로 약간의 점수"
+        "reason": "스킬 불일치, 출근 필수, 경력 약간 부족. Spring≈Spring Boot 유사도로 약간의 점수. Gate correctly dampens at skill=19 (gate≈0.32)."
       }
     },
     {
@@ -216,19 +240,23 @@
         },
         "experience": {
           "score": 100,
-          "weighted": 15
+          "weighted": 15,
+          "gated": 100
         },
         "preferred": {
           "score": 0,
-          "weighted": 0
+          "weighted": 0,
+          "gated": 0
         },
         "work_type": {
           "score": 100,
-          "weighted": 15
+          "weighted": 15,
+          "gated": 100
         },
         "commute": {
           "score": 100,
-          "weighted": 10
+          "weighted": 10,
+          "gated": 100
         }
       },
       "expected": {
@@ -247,19 +275,23 @@
         },
         "experience": {
           "score": 100,
-          "weighted": 15
+          "weighted": 15,
+          "gated": 100
         },
         "preferred": {
           "score": 50,
-          "weighted": 5
+          "weighted": 5,
+          "gated": 50
         },
         "work_type": {
           "score": 70,
-          "weighted": 11
+          "weighted": 11,
+          "gated": 70
         },
         "commute": {
           "score": 80,
-          "weighted": 8
+          "weighted": 8,
+          "gated": 80
         }
       },
       "expected": {
@@ -270,7 +302,7 @@
     {
       "id": "TC-009",
       "label": "negative",
-      "score": 26,
+      "score": 3,
       "components": {
         "skill": {
           "score": 0,
@@ -278,19 +310,23 @@
         },
         "experience": {
           "score": 100,
-          "weighted": 15
+          "weighted": 2,
+          "gated": 12
         },
         "preferred": {
           "score": 0,
-          "weighted": 0
+          "weighted": 0,
+          "gated": 0
         },
         "work_type": {
           "score": 50,
-          "weighted": 8
+          "weighted": 1,
+          "gated": 6
         },
         "commute": {
           "score": 30,
-          "weighted": 3
+          "weighted": 0,
+          "gated": 4
         }
       },
       "expected": {
@@ -301,7 +337,7 @@
     {
       "id": "TC-010",
       "label": "borderline",
-      "score": 58,
+      "score": 54,
       "components": {
         "skill": {
           "score": 38,
@@ -309,19 +345,23 @@
         },
         "experience": {
           "score": 100,
-          "weighted": 15
+          "weighted": 14,
+          "gated": 91
         },
         "preferred": {
           "score": 50,
-          "weighted": 5
+          "weighted": 5,
+          "gated": 46
         },
         "work_type": {
           "score": 70,
-          "weighted": 11
+          "weighted": 10,
+          "gated": 64
         },
         "commute": {
           "score": 80,
-          "weighted": 8
+          "weighted": 7,
+          "gated": 73
         }
       },
       "expected": {
