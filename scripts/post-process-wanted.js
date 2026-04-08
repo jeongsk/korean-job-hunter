@@ -74,8 +74,11 @@ function parseWantedJob(raw) {
   let t = allText;
 
   // === Work type detection ===
-  // Hybrid must be checked FIRST — partial/alternating remote patterns
-  if (/격주\s*재택|격일\s*재택|선택적?\s*재택|부분\s*재택|주\s*\d\s*일\s*(출근|재택)|하이브리드|주\d일\s*출근|hybrid/i.test(t)) {
+  // EXP-165: Negated patterns (재택불가, 원격불가) must be checked FIRST → onsite
+  if (/재택\s*불가|원격\s*불가|리모트\s*불가|remote\s*불가/i.test(t)) {
+    r.work_type = 'onsite';
+    t = t.replace(/재택\s*불가|원격\s*불가|리모트\s*불가|remote\s*불가/gi, ' ');
+  } else if (/격주\s*재택|격일\s*재택|선택적?\s*재택|부분\s*재택|주\s*\d\s*일\s*(출근|재택)|하이브리드|주\d일\s*출근|hybrid/i.test(t)) {
     r.work_type = 'hybrid';
   } else if (/전면재택|재택근무|풀리모트|원격근무|fully?\s*remote|100%\s*remote/i.test(t)) {
     r.work_type = 'remote';
@@ -84,7 +87,11 @@ function parseWantedJob(raw) {
   } else {
     r.work_type = 'onsite';
   }
-  t = t.replace(/전면재택|재택근무|풀리모트|원격근무|fully?\s*remote|100%\s*remote|하이브리드|주\d일\s*출근|hybrid/gi, ' ');
+  // Strip all work-type keywords + qualifiers (가능, 불가) from text to prevent title pollution
+  t = t.replace(/전면재택|재택근무|풀리모트|원격근무|fully?\s*remote|100%\s*remote|하이브리드|주\d일\s*출근|hybrid|재택|remote|리모트|원격/gi, ' ');
+  // EXP-165: Strip qualifiers that follow work-type keywords (가능=possible, 불가=not possible)
+  // and standalone 출근 (commute) that indicates onsite work
+  t = t.replace(/(가능|불가|출근)/g, ' ');
 
   // === Location from brackets ===
   const bm = t.match(new RegExp('\\[.*?' + CITIES + '.*?\\]'));
