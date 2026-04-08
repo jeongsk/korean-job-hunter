@@ -78,6 +78,17 @@ test('[미리캔버스] 시니어 프론트엔드 개발자 → senior',
 test('프론트엔드 개발 리드 (React Native) → lead',
   deriveCareerStageFromTitle('프론트엔드 개발 리드 (React Native)'), 'lead');
 
+// ── Title-embedded N년 이상 (EXP-171) ──
+test('5년 이상 → mid', deriveCareerStageFromTitle('Frontend Engineer (5년 이상)'), 'mid');
+test('3년 이상 → mid', deriveCareerStageFromTitle('iOS 개발자 (3년 이상)'), 'mid');
+test('10년 이상 → senior', deriveCareerStageFromTitle('백엔드 개발자 10년 이상'), 'senior');
+test('15년 이상 → lead', deriveCareerStageFromTitle('DevOps Engineer (15년 이상)'), 'lead');
+test('1년 이상 → junior', deriveCareerStageFromTitle('프론트엔드 개발자 (1년 이상)'), 'junior');
+test('7년 이상 → senior', deriveCareerStageFromTitle('시니어 개발자 (7년 이상)'), 'senior');
+
+// ── Negative: no 이상 pattern ──
+test('경력 5년 (no 이상) → null', deriveCareerStageFromTitle('백엔드 개발자 경력 5년'), null);
+
 console.log('───────────────────────────────────────────────────');
 console.log(`📊 Title Career Stage (Korean + Year Ranges): ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

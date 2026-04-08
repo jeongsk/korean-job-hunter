@@ -502,10 +502,18 @@ function deriveCareerStageFromTitle(title) {
     if (upper <= 12) return 'senior';
     return 'lead';
   }
-  // Title-embedded minimum: "개발자 10년+" or "개발자 10년↑"
+  // Title-embedded minimum: "개발자 10년+" or "개발자 10년↑" or "(5년 이상)"
   const yearMin = title.match(/(\d+)\s*년\s*[+↑]/);
+  const yearMinEtc = title.match(/(\d+)\s*년\s*이상(?![가-힣])/);
   if (yearMin) {
     const years = parseInt(yearMin[1]) + 1;
+    if (years <= 3) return 'junior';
+    if (years <= 7) return 'mid';
+    if (years <= 12) return 'senior';
+    return 'lead';
+  }
+  if (yearMinEtc) {
+    const years = parseInt(yearMinEtc[1]) + 1; // +1 bump like deriveCareerStage
     if (years <= 3) return 'junior';
     if (years <= 7) return 'mid';
     if (years <= 12) return 'senior';
