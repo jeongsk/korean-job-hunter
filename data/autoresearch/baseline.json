@@ -1,24 +1,334 @@
 {
-  "timestamp": "2026-04-08T04:14:03.533Z",
+  "timestamp": "2026-04-08T06:10:04.595Z",
   "skill": "job-matching",
-  "gate": "quadratic EXP-165: 0.12 + 0.88*(s/40)²",
   "weights": {
-    "skill": 0.35,
-    "experience": 0.25,
-    "culture": 0.15,
-    "career": 0.15,
-    "location": 0.1
+    "skill": 0.5,
+    "experience": 0.15,
+    "preferred": 0.1,
+    "work_type": 0.15,
+    "commute": 0.1
   },
   "metrics": {
-    "spread": 82,
-    "high_min": 84,
-    "med_max": 80,
-    "med_min": 45,
-    "low_max": 29,
-    "high_med_gap": 4,
-    "med_low_gap": 16,
-    "positive_avg": 86,
-    "borderline_avg": 68,
-    "negative_avg": 10
-  }
+    "discrimination": 52.53,
+    "spread": 24.51,
+    "false_positive_rate": 0,
+    "coverage": 100,
+    "positive_avg": 79.2,
+    "negative_avg": 26.67,
+    "borderline_avg": 48
+  },
+  "results": [
+    {
+      "id": "TC-001",
+      "label": "positive",
+      "score": 82,
+      "components": {
+        "skill": {
+          "score": 73,
+          "weighted": 37
+        },
+        "experience": {
+          "score": 100,
+          "weighted": 15
+        },
+        "preferred": {
+          "score": 50,
+          "weighted": 5
+        },
+        "work_type": {
+          "score": 100,
+          "weighted": 15
+        },
+        "commute": {
+          "score": 100,
+          "weighted": 10
+        }
+      },
+      "expected": {
+        "min_score": 70,
+        "reason": "필수 스킬 2/3 일치, 우대 1/2 일치, 경력 충족, 재택 선호 일치"
+      }
+    },
+    {
+      "id": "TC-002",
+      "label": "positive",
+      "score": 81,
+      "components": {
+        "skill": {
+          "score": 85,
+          "weighted": 43
+        },
+        "experience": {
+          "score": 100,
+          "weighted": 15
+        },
+        "preferred": {
+          "score": 50,
+          "weighted": 5
+        },
+        "work_type": {
+          "score": 70,
+          "weighted": 11
+        },
+        "commute": {
+          "score": 80,
+          "weighted": 8
+        }
+      },
+      "expected": {
+        "min_score": 75,
+        "reason": "필수 스킬 3/3 일치, 우대 2/2 일치, 경력 충족, 하이브리드 선호"
+      }
+    },
+    {
+      "id": "TC-003",
+      "label": "negative",
+      "score": 28,
+      "components": {
+        "skill": {
+          "score": 8,
+          "weighted": 4
+        },
+        "experience": {
+          "score": 70,
+          "weighted": 11
+        },
+        "preferred": {
+          "score": 25,
+          "weighted": 3
+        },
+        "work_type": {
+          "score": 50,
+          "weighted": 8
+        },
+        "commute": {
+          "score": 30,
+          "weighted": 3
+        }
+      },
+      "expected": {
+        "max_score": 40,
+        "reason": "필수 스킬 0/4 일치, 경력 부족, 출근 필수, 원격 불가"
+      }
+    },
+    {
+      "id": "TC-004",
+      "label": "negative",
+      "score": 26,
+      "components": {
+        "skill": {
+          "score": 0,
+          "weighted": 0
+        },
+        "experience": {
+          "score": 100,
+          "weighted": 15
+        },
+        "preferred": {
+          "score": 0,
+          "weighted": 0
+        },
+        "work_type": {
+          "score": 50,
+          "weighted": 8
+        },
+        "commute": {
+          "score": 30,
+          "weighted": 3
+        }
+      },
+      "expected": {
+        "max_score": 30,
+        "reason": "스킬 전혀 불일치, 부산 근무, 출근 필수"
+      }
+    },
+    {
+      "id": "TC-005",
+      "label": "positive",
+      "score": 94,
+      "components": {
+        "skill": {
+          "score": 100,
+          "weighted": 50
+        },
+        "experience": {
+          "score": 100,
+          "weighted": 15
+        },
+        "preferred": {
+          "score": 100,
+          "weighted": 10
+        },
+        "work_type": {
+          "score": 70,
+          "weighted": 11
+        },
+        "commute": {
+          "score": 80,
+          "weighted": 8
+        }
+      },
+      "expected": {
+        "min_score": 85,
+        "reason": "필수 3/3, 우대 3/3, 경력 충족, 하이브리드 선호, 통근 짧음"
+      }
+    },
+    {
+      "id": "TC-006",
+      "label": "borderline",
+      "score": 38,
+      "components": {
+        "skill": {
+          "score": 19,
+          "weighted": 10
+        },
+        "experience": {
+          "score": 70,
+          "weighted": 11
+        },
+        "preferred": {
+          "score": 25,
+          "weighted": 3
+        },
+        "work_type": {
+          "score": 50,
+          "weighted": 8
+        },
+        "commute": {
+          "score": 80,
+          "weighted": 8
+        }
+      },
+      "expected": {
+        "min_score": 20,
+        "max_score": 55,
+        "reason": "스킬 불일치, 출근 필수, 경력 약간 부족. Spring≈Spring Boot 유사도로 약간의 점수"
+      }
+    },
+    {
+      "id": "TC-007",
+      "label": "positive",
+      "score": 69,
+      "components": {
+        "skill": {
+          "score": 58,
+          "weighted": 29
+        },
+        "experience": {
+          "score": 100,
+          "weighted": 15
+        },
+        "preferred": {
+          "score": 0,
+          "weighted": 0
+        },
+        "work_type": {
+          "score": 100,
+          "weighted": 15
+        },
+        "commute": {
+          "score": 100,
+          "weighted": 10
+        }
+      },
+      "expected": {
+        "min_score": 65,
+        "reason": "필수 2/3, 재택, 경력 충족"
+      }
+    },
+    {
+      "id": "TC-008",
+      "label": "positive",
+      "score": 70,
+      "components": {
+        "skill": {
+          "score": 62,
+          "weighted": 31
+        },
+        "experience": {
+          "score": 100,
+          "weighted": 15
+        },
+        "preferred": {
+          "score": 50,
+          "weighted": 5
+        },
+        "work_type": {
+          "score": 70,
+          "weighted": 11
+        },
+        "commute": {
+          "score": 80,
+          "weighted": 8
+        }
+      },
+      "expected": {
+        "min_score": 70,
+        "reason": "Express≈Node.js 유사도, MySQL≈PostgreSQL 유사도, TypeScript 우대 일치"
+      }
+    },
+    {
+      "id": "TC-009",
+      "label": "negative",
+      "score": 26,
+      "components": {
+        "skill": {
+          "score": 0,
+          "weighted": 0
+        },
+        "experience": {
+          "score": 100,
+          "weighted": 15
+        },
+        "preferred": {
+          "score": 0,
+          "weighted": 0
+        },
+        "work_type": {
+          "score": 50,
+          "weighted": 8
+        },
+        "commute": {
+          "score": 30,
+          "weighted": 3
+        }
+      },
+      "expected": {
+        "max_score": 25,
+        "reason": "스킬 전혀 불일치, 대전 근무, 출근 필수"
+      }
+    },
+    {
+      "id": "TC-010",
+      "label": "borderline",
+      "score": 58,
+      "components": {
+        "skill": {
+          "score": 38,
+          "weighted": 19
+        },
+        "experience": {
+          "score": 100,
+          "weighted": 15
+        },
+        "preferred": {
+          "score": 50,
+          "weighted": 5
+        },
+        "work_type": {
+          "score": 70,
+          "weighted": 11
+        },
+        "commute": {
+          "score": 80,
+          "weighted": 8
+        }
+      },
+      "expected": {
+        "min_score": 40,
+        "max_score": 65,
+        "reason": "PostgreSQL 일치, Docker 우대 일치, FastAPI≈Python 유사도, 통근 매우 짧음"
+      }
+    }
+  ]
 }

@@ -140,11 +140,21 @@ function parseWantedJob(raw) {
   if (r.location) t = t.replace(new RegExp(escapeRegExp(r.location), 'g'), ' ').trim();
 
   // === Experience ===
-  const em = t.match(/경력[\s]*(\d+[~-]\d+년|\d+년\s*이상|\d+년↑|무관)/);
-  if (em) { r.experience = '경력 ' + em[1]; t = t.replace(em[0], ' '); }
+  const em = t.match(/경력[\s]*(신입[\s]*[~-][\s]*\d+년|\d+[~-]\d+년|\d+년\s*이상|\d+년↑|무관|신입)/);
+  if (em) { r.experience = '경력 ' + em[1].replace(/(\d)\s*([~-])\s*(\d)/g, '$1$2$3'); t = t.replace(em[0], ' '); }
   // Also catch standalone 경력무관
   const em2 = t.match(/경력[\s]*무관/);
   if (em2 && !r.experience) { r.experience = '경력 무관'; t = t.replace(em2[0], ' '); }
+  // Catch standalone 신입~N년 without 경력 prefix
+  if (!r.experience) {
+    const em3 = t.match(/(신입[\s]*[~-][\s]*\d+년)/);
+    if (em3) { r.experience = em3[1].replace(/\s/g, ''); t = t.replace(em3[0], ' '); }
+  }
+  // Catch standalone 경력 (bare, without year range) for career_stage derivation
+  if (!r.experience) {
+    const em4 = t.match(/경력(?!\s*(신입[\s]*[~-]|\d|무관))/);
+    if (em4) { r.experience = '경력'; t = t.replace(em4[0], ' '); }
+  }
 
   // === Reward ===
   const rm = t.match(/(보상금|합격금|성과금)[\s]*([\d,]+만원)/);

@@ -56,7 +56,7 @@ for (const item of liveData) {
 
   results.push({ ...parsed, _checks: { companyOk, expOk, titleOk, rewardOk } });
   if (!allOk) {
-    console.log(`❌ FAIL ${raw.id}: company=${parsed.company}(${companyOk}) exp=${parsed.experience}(${expOk}) title="${parsed.title}"(${titleOk}) reward=${parsed.reward}(${rewardOk})`);
+    console.log(`❌ FAIL ${item.id}: company=${parsed.company}(${companyOk}) exp=${parsed.experience}(${expOk}) title="${parsed.title}"(${titleOk}) reward=${parsed.reward}(${rewardOk})`);
   }
 }
 
