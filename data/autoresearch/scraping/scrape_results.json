@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-04-08T16:46:12.043Z",
+  "timestamp": "2026-04-08T18:04:55.720Z",
   "keyword": "백엔드",
   "limit": 20,
   "details": false,
-  "elapsed_seconds": 0.4,
+  "elapsed_seconds": 0.3,
   "metrics": {
     "total": 12,
     "fields_completeness": 80,
@@ -146,8 +146,8 @@
       "longitude": null
     },
     {
-      "id": "351138",
-      "title": "[Cre8orClub] AI 엔지니어",
+      "id": "351735",
+      "title": "[Cre8orClub] 백엔드 개발자",
       "company": "라텔앤드파트너즈",
       "experience": "경력",
       "location": "서울",
@@ -156,7 +156,7 @@
       "deadline": "2026-04-30",
       "deadline_raw": "2026-04-30T00:00:00",
       "reward": "100만원",
-      "link": "https://www.wanted.co.kr/wd/351138",
+      "link": "https://www.wanted.co.kr/wd/351735",
       "source": "wanted-api",
       "work_type": "onsite",
       "salary": null,
@@ -165,9 +165,9 @@
       "career_stage": "mid",
       "culture_keywords": [],
       "skills": [
+        "node.js",
         "python",
-        "tensorflow",
-        "pytorch"
+        "java"
       ],
       "office_address": "",
       "latitude": null,

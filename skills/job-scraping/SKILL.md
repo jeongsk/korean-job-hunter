@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(curl)
 ---
 
-# Job Scraping Skill v6.3 (EXP-150: Experience context stripped from rawCompany to fix contaminated company names)
+# Job Scraping Skill v6.4 (EXP-167: Korean word boundary fix — 뷰/다트 lookbehind prevents 리뷰→vue, 스타다트→dart false positives)
 
 > **핵심**: agent-browser에 `--user-agent` 플래그가 **필수**. 없으면 Wanted에서 403 에러 발생.
 

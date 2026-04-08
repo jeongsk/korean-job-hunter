@@ -99,5 +99,52 @@ test('NLP: "golang 공고" still works', () => {
   assert.ok(sf && sf.includes('go'), `Expected go skill filter, got: ${r.filters}`);
 });
 
+// === EXP-167: 뷰 false positive from 리뷰 (Korean word boundary) ===
+test('inferSkills: "코드 리뷰" does NOT extract vue', () => {
+  const skills = inferSkills('코드 리뷰 경험');
+  assert.ok(!skills.includes('vue'), `리뷰 should not match vue, got: ${skills}`);
+});
+
+test('inferSkills: "리뷰" standalone does NOT extract vue', () => {
+  const skills = inferSkills('리뷰');
+  assert.ok(!skills.includes('vue'), `리뷰 should not match vue, got: ${skills}`);
+});
+
+test('inferSkills: "뷰 프레임워크" DOES extract vue', () => {
+  const skills = inferSkills('뷰 프레임워크');
+  assert.ok(skills.includes('vue'), `뷰 프레임워크 should match vue, got: ${skills}`);
+});
+
+test('inferSkills: "프론트엔드 뷰 개발" DOES extract vue', () => {
+  const skills = inferSkills('프론트엔드 뷰 개발');
+  assert.ok(skills.includes('vue'), `프론트엔드 뷰 should match vue, got: ${skills}`);
+});
+
+test('inferSkills: "뷰티" does NOT extract vue', () => {
+  const skills = inferSkills('뷰티 앱 개발');
+  assert.ok(!skills.includes('vue'), `뷰티 should not match vue, got: ${skills}`);
+});
+
+test('inferSkills: "스타다트" does NOT extract dart', () => {
+  const skills = inferSkills('스타다트');
+  assert.ok(!skills.includes('dart'), `스타다트 should not match dart, got: ${skills}`);
+});
+
+test('inferSkills: "다트게임" does NOT extract dart', () => {
+  const skills = inferSkills('다트게임 플랫폼');
+  assert.ok(!skills.includes('dart'), `다트게임 should not match dart, got: ${skills}`);
+});
+
+test('inferSkills: "다트 프레임워크" DOES extract dart', () => {
+  const skills = inferSkills('다트 프레임워크');
+  assert.ok(skills.includes('dart'), `다트 standalone should match dart, got: ${skills}`);
+});
+
+test('NLP: "리뷰 공고" does NOT generate vue skill filter', () => {
+  const r = parseKoreanQuery('리뷰 공고');
+  const sf = r.filters.find(f => f.includes("j.skills"));
+  assert.ok(!sf || !sf.includes('vue'), `리뷰 should not create vue filter, got: ${r.filters}`);
+});
+
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

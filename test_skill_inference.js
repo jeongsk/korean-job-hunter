@@ -390,7 +390,7 @@ assertIncludes('CloudWatch English', inferSkills('AWS CloudWatch'), ['aws', 'clo
 assertEq('Dynamo false positive', inferSkills('DynamoSaur').includes('dynamodb'), false);
 assertEq('dynamo alone false positive', inferSkills('dynamo').includes('dynamodb'), false);
 
-const expectedSkillCount = 150; // 145 + 5 (pnpm, yarn, react query, jotai, turborepo — EXP-163)
+const expectedSkillCount = 157; // 150 + 7 (mariadb, sqs, sns, aurora, documentdb, elasticache, msk)
 const actualSkillCount = Object.keys(SKILL_MAP).length;
 if (actualSkillCount === expectedSkillCount) {
   console.log(`✅ SKILL_MAP has ${actualSkillCount} entries`);

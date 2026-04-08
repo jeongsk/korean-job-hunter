@@ -218,9 +218,11 @@ const PRIMARY_DOMAINS = {
   // AWS Services (EXP-104)
   'aws lambda': 'cloud', 'aws s3': 'cloud', 'aws sqs': 'cloud',
   'dynamodb': 'cloud', 'cloudwatch': 'cloud',
+  'sqs': 'cloud', 'sns': 'cloud', 'aurora': 'cloud', 'documentdb': 'cloud',
+  'elasticache': 'cloud', 'msk': 'cloud',
   // Data stores (EXP-104)
   'postgresql': 'data', 'mysql': 'data', 'mongodb': 'data', 'redis': 'data',
-  'elasticsearch': 'data', 'oracle': 'data', 'mssql': 'data',
+  'elasticsearch': 'data', 'oracle': 'data', 'mssql': 'data', 'mariadb': 'data',
   'kafka': 'data', 'rabbitmq': 'data',
   // Data Engineering (EXP-104)
   'spark': 'data', 'hadoop': 'data', 'airflow': 'data', 'dbt': 'data',

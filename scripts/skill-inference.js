@@ -27,13 +27,13 @@ const SKILL_MAP = {
   'kotlin': /kotlin|코틀린/i,
   'ruby': /ruby|루비/i,
   'php': /php/i,
-  'dart': /(?<!\w)dart(?!\w)|다트(?![가-힣])/i,
+  'dart': /(?<!\w)dart(?!\w)|(?<![가-힣])다트(?![가-힣])/i,
   'r': /(?<!\w)r\s*language|(?<!\w)rlang|(?<=\s)r(?=\s|$)/i,
 
   // Frameworks
   'next.js': /next\.?js|넥스트/i,
   'nuxt': /nuxt|넉스트/i,
-  'vue': /vue(?:\.?js)?|뷰(?![가-힣])/i,
+  'vue': /vue(?:\.?js)?|(?<![가-힣])뷰(?![가-힣])/i,
   'angular': /angular|앵귤러/i,
   'svelte': /svelte|스벨트/i,
   'node.js': /node\.?js|노드/i,
@@ -105,6 +105,15 @@ const SKILL_MAP = {
   'postgresql': /postgresql|postgres|포스트그레스/i,
   'oracle': /oracle|오라클/i,
   'mssql': /mssql|sql\s*server/i,
+  'mariadb': /mariadb|마리아디비|마리아db/i,
+
+  // AWS Services
+  'sqs': /\/?\bsqs\b|simple\s*queue\s*service/i,
+  'sns': /\/?\bsns\b|simple\s*notification\s*service/i,
+  'aurora': /aurora(?:db)?|오로라(?:db)?/i,
+  'documentdb': /documentdb|다큐먼트db/i,
+  'elasticache': /elasti.?c?ache|엘라스티캐시/i,
+  'msk': /\/?\bmsk\b|managed\s*streaming\s*(?:for\s*)?kafka/i,
 
   // ORM / Java Persistence
   'jpa': /jpa|hibernate|하이버네이트/i,
