@@ -1,14 +1,14 @@
 {
-  "timestamp": "2026-04-08T00:08:10.965Z",
+  "timestamp": "2026-04-08T05:08:28.550Z",
   "total_tests": 15,
   "passed": 15,
   "failed": 0,
-  "in_range": 14,
+  "in_range": 15,
   "discrimination": {
     "rule1": true,
     "rule2": true,
     "rule3": true,
-    "spread": 77,
+    "spread": 82,
     "allPassed": true
   },
   "results": [
@@ -105,7 +105,7 @@
     {
       "id": "MED-001",
       "description": "Partial match - Python backend, no frontend overlap (primary domain mismatch)",
-      "score": 78,
+      "score": 79,
       "min_score": 55,
       "expected_range": [
         70,
@@ -195,7 +195,7 @@
     {
       "id": "LOW-001",
       "description": "Poor match - Data scientist, no skill overlap",
-      "score": 10,
+      "score": 5,
       "min_score": 5,
       "expected_range": [
         5,
@@ -240,7 +240,7 @@
     {
       "id": "LOW-002",
       "description": "Poor match - iOS developer, completely different domain",
-      "score": 23,
+      "score": 11,
       "min_score": 10,
       "expected_range": [
         10,
@@ -285,7 +285,7 @@
     {
       "id": "LOW-003",
       "description": "Poor match - Hardware engineer, zero overlap",
-      "score": 11,
+      "score": 5,
       "min_score": 5,
       "expected_range": [
         5,
@@ -330,7 +330,7 @@
     {
       "id": "MED-003",
       "description": "Partial match - Java/Spring backend, no JS overlap (domain mismatch but tier2 backend credit)",
-      "score": 56,
+      "score": 55,
       "min_score": 40,
       "expected_range": [
         40,
@@ -338,7 +338,7 @@
       ],
       "rank_group": "medium",
       "pass": true,
-      "in_range": false,
+      "in_range": true,
       "components": {
         "skill": {
           "score": 34,
@@ -375,7 +375,7 @@
     {
       "id": "LOW-004",
       "description": "Poor match - Flutter/Dart mobile developer, completely different domain",
-      "score": 12,
+      "score": 6,
       "min_score": 5,
       "expected_range": [
         5,
@@ -465,7 +465,7 @@
     {
       "id": "LOW-005",
       "description": "Poor match - AI/ML researcher, Python/TensorFlow domain",
-      "score": 12,
+      "score": 6,
       "min_score": 5,
       "expected_range": [
         5,
@@ -510,7 +510,7 @@
     {
       "id": "MED-004",
       "description": "Partial match - DevOps/SRE, heavy infrastructure overlap",
-      "score": 47,
+      "score": 45,
       "min_score": 40,
       "expected_range": [
         35,
@@ -600,7 +600,7 @@
     {
       "id": "LOW-006",
       "description": "Bare 경력 - zero skill overlap with no year range",
-      "score": 38,
+      "score": 29,
       "min_score": 0,
       "expected_range": [
         10,
@@ -700,27 +700,27 @@
     },
     "medium": {
       "scores": [
-        78,
+        79,
         71,
-        56,
-        47,
+        55,
+        45,
         80,
         80
       ],
-      "min": 47,
+      "min": 45,
       "max": 80
     },
     "low": {
       "scores": [
-        10,
-        23,
+        5,
         11,
-        12,
-        12,
-        38
+        5,
+        6,
+        6,
+        29
       ],
-      "min": 10,
-      "max": 38
+      "min": 5,
+      "max": 29
     }
   }
 }

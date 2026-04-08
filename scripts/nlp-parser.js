@@ -466,7 +466,7 @@ function parseKoreanQuery(input) {
     { canonical: 'web3', patterns: [/(?<!\w)web3(?!\w)|웹3/i] },
     // EXP-116: Security
     { canonical: 'devsecops', patterns: [/(?<!\w)devsecops(?!\w)|데브시큐옵스/i] },
-    { canonical: 'cybersecurity', patterns: [/cyber[\s-]?secur|사이버보안|정보보안/i] },
+    { canonical: 'cybersecurity', patterns: [/cyber[\s-]?secur|사이버보안|정보보안|보안[\s-]*(엔지니어|전문가|담당자|분야|직무|분석)/i] },
     { canonical: 'owasp', patterns: [/(?<!\w)owasp(?!\w)/i] },
     { canonical: 'penetration testing', patterns: [/pen(?:etration)?[\s-]?test|침투테스트|모의해킹/i] },
     // EXP-116: Platform / SRE
@@ -501,6 +501,11 @@ function parseKoreanQuery(input) {
     { role: '백엔드', skills: ['node.js', 'python', 'java'] },
     { role: '안드로이드', skills: ['kotlin', 'java'] },
     { role: '프론트', skills: ['react', 'typescript', 'javascript'] },
+    // EXP-166: Data role skill inference
+    { role: '데이터 엔지니어', skills: ['python', 'spark', 'airflow', 'dbt'] },
+    { role: '데이터 분석', skills: ['python', 'sql', 'bigquery'] },
+    { role: '데이터 사이언티스트', skills: ['python', 'tensorflow', 'pytorch'] },
+    { role: '데이터 분석가', skills: ['python', 'sql', 'bigquery'] },
   ];
   for (const { role, skills } of roleSkillMap) {
     if (text.includes(role)) {
@@ -526,7 +531,11 @@ function parseKoreanQuery(input) {
     '블록체', '그라파', '패스티파',
     // EXP-128: Additional Korean aliases that could leak
     '그라파나', '프로메테우스', '웹3', '젠킨스', '램다', '포스트그레스', '포스트그레스큐엘', '시샵', '그래프큐엘', '지알피시', '레스트', '스토리북',
+    // EXP-166: Security keyword stopWord
+    '보안',
     '프레임워크', '프로그래밍', '개발', '엔지니어', '매니저', '디자이너', '플랫폼', '서비스', '솔루션', '시스템', '프로젝트', '테스트', '분석', '데이터', '모델', '알고리즘',
+    // EXP-166: Data role stopwords
+    '데이터엔지니어', '데이터분석', '데이터사이언티스트', '데이터분석가', '사이언티스트', '분석가',
     // EXP-145: Common Korean words that leak as keywords
     '가능', '가능한', '개발자', '전체', '담당자', '담당', '찾는', '원하는', '필요한', '관련', '분야', '경험', '있어요', '없는', '높은', '낮은', '빠른', '느린', '좋은', '많은', '적은', '큰', '작은', '새로운', '다음', '이전', '최고', '최소', '평균', '기준', '위치', '지역', '근무', '근무지', '환경', '복지', '혜택',
   ]);

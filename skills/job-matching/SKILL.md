@@ -25,11 +25,11 @@ After scoring, these rules must hold:
 - **HIGH min − MED max** gap ≥ 15
 - **LOW** group: score ≤ 25
 
-## Skill-Gated Scoring (EXP-021, tuned EXP-037)
+## Skill-Gated Scoring (EXP-021, tuned EXP-037, EXP-165)
 
 When skill score < 40, all non-skill components are dampened by a quadratic gate multiplier:
-- Multiplier = `(skillScore / 40)²`, minimum 0.04
-- At skill=0: gate=0.04, skill=10: gate=0.0625, skill=20: gate=0.25, skill=40: gate=1.0
+- gate = 0.12 + 0.88 × (skillScore / 40)² for skill < 40; gate = 1.0 for skill ≥ 40
+- At skill=0: gate=0.12, skill=10: gate=0.175, skill=20: gate=0.34, skill=40: gate=1.0
 - This prevents unrelated jobs from scoring high on experience/culture/location alone
 - Experience scoring considers range upper bounds (e.g., "3~7년" with 5 years experience = 95)
 

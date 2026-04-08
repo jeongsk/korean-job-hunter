@@ -392,15 +392,16 @@ function calculateMatch(candidate, job) {
   locationScore = Math.min(100, locationScore);
   scores.location = { score: locationScore, weight: 0.10 };
   
-  // --- Skill-gated multiplier ---
+  // --- Skill-gated multiplier (EXP-165: quadratic gate synced with SKILL.md) ---
   // When skill overlap is low, dampen all non-skill components.
   // Rationale: culture fit, career alignment, etc. are meaningless
   // if you don't have the right skills for the job.
-  // Gate function: 1.0 when skill >= 50, ramps down to 0.25 when skill = 0
-  const SKILL_GATE_THRESHOLD = 50;
+  // Quadratic gate: 0.12 + 0.88 * (skill/40)² for skill < 40, gate = 1.0 for skill >= 40
+  // At skill=0: gate=0.12, skill=10: gate=0.175, skill=20: gate=0.34, skill=40: gate=1.0
+  const SKILL_GATE_THRESHOLD = 40;
   const skillGate = scores.skill.score >= SKILL_GATE_THRESHOLD 
     ? 1.0 
-    : 0.25 + (scores.skill.score / SKILL_GATE_THRESHOLD) * 0.75;
+    : 0.12 + 0.88 * Math.pow(scores.skill.score / SKILL_GATE_THRESHOLD, 2);
   
   const gatedExperience = Math.round(scores.experience.score * skillGate);
   const gatedCulture = Math.round(scores.culture.score * skillGate);

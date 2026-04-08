@@ -28,10 +28,10 @@ You are a job matching specialist. Compare resumes with job postings using the v
 - **Tier 2 (75%)**: Strong compatibility — Spring↔Spring Boot, Express↔Node.js↔NestJS, AWS↔GCP↔Azure, Java↔Kotlin, React↔React Native, GraphQL↔REST API, Jenkins↔GitHub Actions, Kafka↔RabbitMQ, TensorFlow↔PyTorch, Elasticsearch↔Redis, **FastAPI↔Django↔Flask** (Python web framework cross-similarity, EXP-074), **JPA↔Spring↔Java** (ORM ecosystem, EXP-088), **DevOps↔Docker↔Kubernetes↔Terraform↔CI/CD** (DevOps umbrella, EXP-088), **AWS Lambda/S3/SQS↔AWS** (AWS services, EXP-088), **Dart↔Flutter** (Flutter's language, EXP-096), **Angular↔TypeScript** (Angular mandates TypeScript, EXP-096), **LLM↔ML↔PyTorch↔TensorFlow** (AI/ML ecosystem, EXP-097), **LangChain↔LLM** (orchestration, EXP-097), **RAG↔LLM↔Vector DB** (retrieval generation, EXP-097), **Computer Vision↔ML** (CV subfield, EXP-097), **NLP↔ML↔LLM** (NLP subfield, EXP-097), **HuggingFace↔PyTorch↔LLM** (model hosting, EXP-097), **MLOps↔ML↔Docker↔K8s** (ML+DevOps, EXP-097)
 - **Tier 3 (25%)**: Partial overlap — React↔Vue↔Svelte↔**Angular** (frontend frameworks, EXP-074), Node.js↔Python, SQL↔MongoDB, Docker↔Terraform, Spark↔Hadoop, MongoDB↔Redis, **DevOps↔Jenkins↔GitHub Actions** (CI/CD tools, EXP-088), **AWS Lambda↔Docker↔Kubernetes** (compute models, EXP-088), **AWS S3↔BigQuery↔Snowflake** (data pipeline, EXP-088), **AWS SQS↔Kafka↔RabbitMQ** (messaging, EXP-088), **Figma↔React↔Angular↔Vue** (design-frontend overlap, EXP-088)
 
-#### Skill Gate (EXP-021, tuned EXP-037)
+#### Skill Gate (EXP-021, tuned EXP-037, EXP-165)
 When skill score < 40, apply a **quadratic gate multiplier** to non-skill components:
-- Multiplier = `(skillScore / 40)²`, minimum 0.04
-- At skill=0: gate=0.04, skill=10: gate=0.0625, skill=20: gate=0.25, skill=40: gate=1.0
+- gate = 0.12 + 0.88 × (skillScore / 40)² for skill < 40; gate = 1.0 for skill ≥ 40
+- At skill=0: gate=0.12, skill=10: gate=0.175, skill=20: gate=0.34, skill=40: gate=1.0
 
 This smoothly dampens unrelated jobs instead of hard step-cuts, preventing infrastructure-only overlap (AWS, Docker, PostgreSQL) from inflating scores.
 
