@@ -1,6 +1,6 @@
 ---
 name: job-matching
-description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring with job coverage gate, and framework-aware primary domain alignment (EXP-168)"
+description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring with job coverage gate, framework-aware primary domain alignment, and 신입가능 experience scoring (EXP-169)"
 ---
 
 # Job Matching Skill v3.15 (EXP-159: Culture categories synced — 7 traits + structured culture_keywords support)
@@ -161,6 +161,10 @@ When `culture_keywords` is empty/null, culture score defaults to 50 (neutral). W
 | `신입` | 0-1 | 95 | Perfect: new graduate |
 | `신입` | 2-3 | 65 | Junior: overqualified |
 | `신입` | 4+ | 40 | Senior: poor fit |
+| `신입가능` / `신입 가능` | 0-1 | 95 | New grad welcome — perfect |
+| `신입가능` / `신입 가능` | 2-3 | 80 | Junior — good |
+| `신입가능` / `신입 가능` | 4-7 | 70 | Mid — acceptable |
+| `신입가능` / `신입 가능` | 8+ | 50 | Senior — overqualified |
 | `신입·경력` / `신입/경력` | any | 85 | Both welcome — broad match |
 | `경력무관` | any | 80 | Experience not a factor |
 | `경력` (bare) | 0 | 30 | No experience — poor fit |

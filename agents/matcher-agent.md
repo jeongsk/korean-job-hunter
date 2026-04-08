@@ -126,6 +126,7 @@ This prevents partially-scraped jobs from all scoring ~50 regardless of actual t
 ## Experience Scoring (EXP-076)
 
 - `신입` → 0-1yr: 95, 2-3yr: 65, 4+yr: 40 (overqualified penalty)
+- `신입가능` → 0-1yr: 95, 2-3yr: 80, 4-7yr: 70, 8+yr: 50 (new-grad-welcome, graduated overqualified)
 - `신입·경력` / `신입/경력` → 85 (broad match, both welcome)
 - `경력` (bare, no specific years) → graduated: 0yr=30, 1yr=60, 3yr=80, 5-10yr=90, 15+=75
 - `경력무관` → 80 (neutral-high)

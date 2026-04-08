@@ -395,6 +395,13 @@ function calculateMatch(candidate, job) {
     if (candidateYears >= 3) experienceScore = 90;                                // solid experience, matches generic 경력 well
     else if (candidateYears >= 1) experienceScore = 70;                           // some experience
     else experienceScore = 30;                                                    // no experience, doesn't meet 경력 requirement
+  } else if (job.experience === '신입가능' || job.experience === '신입 가능' || job.experience === '신입·경력' || job.experience === '신입/경력') {
+    // EXP-169: 신입가능 / 신입·경력 — job explicitly welcomes new graduates
+    // High score for 0-1yr (ideal target), moderate for experienced (still acceptable)
+    if (candidateYears <= 1) experienceScore = 95;     // perfect fit: new grad
+    else if (candidateYears <= 3) experienceScore = 80; // junior: still good
+    else if (candidateYears <= 7) experienceScore = 70; // mid: acceptable, may be overqualified
+    else experienceScore = 50;                           // senior: overqualified for entry-welcoming role
   } else if (job.experience === '무관' || job.experience === '경력 무관') {
     // Any experience level is fine — mild preference for some experience
     experienceScore = Math.min(90, 60 + candidateYears * 5);
