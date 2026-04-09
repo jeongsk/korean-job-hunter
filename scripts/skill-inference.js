@@ -434,13 +434,16 @@ function deriveCareerStage(experience) {
   if (/무관/.test(exp)) return null;
   // Bare "경력" without year numbers → mid default (EXP-121)
   if (/경력/.test(exp) && !/\d/.test(exp)) return 'mid';
+  // N년차 pattern: 5년차 = person with 5 years of experience
+  const yearCarMatch = exp.match(/(\d+)\s*년차/);
   const rangeMatch = exp.match(/(\d+)\s*[~-]\s*(\d+)\s*년(?![가-힣])/);
   const minMatch = exp.match(/(\d+)\s*년\s*이상/);
   const upMatch = exp.match(/(\d+)\s*년\s*↑/);
   const singleMatch = exp.match(/(\d+)\s*년(?![가-힣])/);
   let years = null;
   let isMinimum = false; // "N년 이상" — minimum experience, not exact
-  if (rangeMatch) years = parseInt(rangeMatch[2]); // upper bound of range
+  if (yearCarMatch) years = parseInt(yearCarMatch[1]); // N년차 = exact years
+  else if (rangeMatch) years = parseInt(rangeMatch[2]); // upper bound of range
   else if (minMatch) { years = parseInt(minMatch[1]); isMinimum = true; }
   else if (upMatch) { years = parseInt(upMatch[1]); isMinimum = true; }
   else if (singleMatch) years = parseInt(singleMatch[1]);

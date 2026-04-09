@@ -409,6 +409,34 @@ async function main() {
 
   const jobs = positions.map(parsePosition);
 
+  // EXP-174: Parallel v4 salary enrichment at search time.
+  // The v4 API is lightweight (no JD text) and returns annual_from/annual_to (천만원).
+  // Skip when --details is used since fetchDetail already fetches v4.
+  if (!withDetails && jobs.length > 0) {
+    console.error(`[scrape-wanted-api] Enriching salary from v4 API for ${jobs.length} jobs...`);
+    const salaryPromises = jobs.filter(j => j.id).map(async (job) => {
+      try {
+        const v4Data = await fetchJSON(`https://www.wanted.co.kr/api/v4/jobs/${job.id}`).catch(() => null);
+        const v4Job = v4Data?.job;
+        if (!v4Job) return;
+        const annualFrom = v4Job.annual_from;
+        const annualTo = v4Job.annual_to;
+        // annual_to >= 99 means "협의" (negotiable/unspecified)
+        // annual_from=0 is a placeholder for entry-level, not a real salary
+        if (annualFrom != null && annualTo != null && annualTo < 99 && annualFrom > 0) {
+          job.salary_min = annualFrom * 1000;  // 천만원 → 만원
+          job.salary_max = annualTo * 1000;
+          job.salary = `${job.salary_min}~${job.salary_max}만원`;
+        } else if (annualFrom != null && annualTo != null && (annualTo >= 99 || annualFrom === 0)) {
+          job.salary = '면접후결정';
+        }
+      } catch { /* ignore individual failures */ }
+    });
+    await Promise.all(salaryPromises);
+    const enriched = jobs.filter(j => j.salary_min != null).length;
+    console.error(`[scrape-wanted-api] Salary enriched: ${enriched}/${jobs.length}`);
+  }
+
   if (withDetails) {
     console.error(`[scrape-wanted-api] Fetching details for ${jobs.length} jobs...`);
     for (const job of jobs) {
