@@ -351,7 +351,7 @@ assertIncludes('Supplement: 데브옵스 gets docker+k8s', inferSkills('데브�
 assertIncludes('Supplement: 머신러닝 gets python+tf', inferSkills('머신러닝 엔지니어'), ['machine learning', 'python', 'tensorflow']);
 assertIncludes('Supplement: 클라우드 gets aws+docker+k8s', inferSkills('클라우드 엔지니어'), ['aws', 'docker', 'kubernetes']);
 assertIncludes('Supplement: sre gets k8s+prometheus+docker', inferSkills('sre 엔지니어'), ['kubernetes', 'prometheus', 'docker']);
-assertIncludes('Supplement: QA gets jest+cypress', inferSkills('qa 엔지니어'), ['jest', 'cypress']);
+assertIncludes('Supplement: QA gets selenium+jest', inferSkills('qa 엔지니어'), ['selenium', 'jest']);
 assertIncludes('Supplement: AI gets python+tf+pytorch', inferSkills('ai 리서처'), ['python', 'tensorflow', 'pytorch']);
 // Explicit tech should still be primary, role only supplements what's missing
 assertIncludes('Explicit+Supplement: Spring 백엔드', inferSkills('Spring 백엔드'), ['spring', 'java', 'node.js', 'python']);

@@ -44,7 +44,7 @@ test('Backend Developer', ['node.js', 'python', 'java']);
 test('Frontend Engineer', ['react', 'typescript', 'javascript']);
 test('DevOps Engineer', ['docker', 'kubernetes', 'ci/cd']);
 test('Data Scientist', ['python', 'machine learning']);
-test('QA Engineer', ['jest', 'cypress']);
+test('QA Engineer', ['selenium', 'jest']);
 
 console.log(`📊 EXP-143 Role-Skill Map Coverage: ${passed} passed, ${failed} failed`);
 if (failures.length > 0) {

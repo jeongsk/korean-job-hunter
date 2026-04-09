@@ -253,8 +253,8 @@ const ROLE_SKILL_MAP = {
   '클라우드': ['aws', 'docker', 'kubernetes'],
   '시큐리티': ['cybersecurity'],
   '정보보안': ['cybersecurity'],
-  'qa': ['jest', 'cypress', 'playwright'],
-  '테스트': ['jest', 'cypress', 'playwright'],
+  'qa': ['selenium', 'jest'],
+  '테스트': ['selenium', 'jest'],
   'sre': ['kubernetes', 'prometheus', 'docker'],
   '임베디드': ['c++', 'linux', 'python'],
   '인프라': ['aws', 'docker', 'kubernetes', 'linux'],
@@ -315,6 +315,8 @@ const ROLE_SKILL_MAP = {
   'mlops': ['mlops', 'docker', 'kubernetes', 'python'],
   'ml ops': ['mlops', 'docker', 'kubernetes', 'python'],
   'ml/ops': ['mlops', 'docker', 'kubernetes', 'python'],
+  'ml engineer': ['python', 'tensorflow', 'pytorch'],
+  'machine learning engineer': ['python', 'tensorflow', 'pytorch'],
   'sre engineer': ['kubernetes', 'prometheus', 'docker'],
   'product manager': [],  // non-technical role, no skill inference
   'project manager': [],  // non-technical role
