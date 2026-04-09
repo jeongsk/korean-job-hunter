@@ -1,9 +1,9 @@
 ---
 name: job-matching
-description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring with job coverage gate, framework-aware primary domain alignment, and 신입가능 experience scoring (EXP-169)"
+description: "Resume-to-job matching with tiered skill similarity, skill-gated scoring with job coverage gate, framework-aware primary domain alignment, location proximity clusters, and 신입가능 experience scoring (EXP-169)"
 ---
 
-# Job Matching Skill v3.15 (EXP-159: Culture categories synced — 7 traits + structured culture_keywords support)
+# Job Matching Skill v3.16 (EXP-173: Location proximity clusters for Korean districts)
 
 > 143 skills, 50+ similarity pairs, 17 domain categories (incl. blockchain, security).
 
@@ -194,6 +194,30 @@ When `job.skills` is empty or has <2 entries (common from LinkedIn/partial scrap
 ## Salary Preference Alignment (EXP-084)
 
 The 10% Location/Work/Salary component now includes salary preference matching when both the candidate has `preferences.salary_range: {min, max}` and the job has `salary_min`/`salary_max` populated.
+
+## Location Proximity Clusters (EXP-173)
+
+Location matching uses proximity clusters to provide partial credit for nearby districts, not just exact string matches.
+
+**Scoring:**
+- **Exact match** (candidate pref is substring of job location): +15
+- **Same cluster** (e.g., 강남↔역삼, 판교↔분당, 홍대↔마포): +10
+- **Adjacent clusters** (e.g., 강남↔성수, 강남↔판교): +5
+- **No proximity** (e.g., 강남↔부산): +0
+
+**Clusters:**
+- **gangnam**: 강남, 역삼, 삼성, 논현, 신사, 청담, 압구정, 선릉, 대치, 도곡, 개포, 일원, 수서
+- **pangyo**: 판교, 분당, 정자, 수내, 미금, 서현, 이매, 야탑, 구미
+- **cbd**: 여의도, 영등포, 당산, 문래, 신길
+- **downtown**: 광화문, 을지로, 종로, 서울역, 명동, 충무로
+- **hongdae**: 홍대, 신촌, 마포, 합정, 망원, 상수, 연남, 공덕, DMC
+- **seongsu**: 성수, 용산, 건대, 왕십리, 한남, 이태원
+- **guro**: 구로, 가산, 독산, 신도림, 관악, 신림, 봉천
+- **incheon**: 인천, 송도, 부평, 일산, 파주, 김포
+- **suwon**: 수원, 평촌, 안양, 동탄, 화성, 천안
+- **daejeon**: 대전, 세종, 유성, 둔산
+
+**Adjacent pairs:** gangnam↔pangyo, gangnam↔seongsu, cbd↔guro, hongdae↔seongsu, downtown↔hongdae, downtown↔cbd, gangnam↔suwon, pangyo↔suwon
 
 **Scoring breakdown** (base 50):
 - Location match: +15

@@ -403,10 +403,107 @@ function calculateSalaryAlignment(jobSalaryMin, jobSalaryMax, candidateSalaryRan
   return 5;
 }
 
-// === Location/Work/Salary Score (EXP-084: salary preference added) ===
+// === Location Proximity Clusters (EXP-173) ===
+const LOCATION_CLUSTERS = {
+  // Gangnam tech belt
+  gangnam: ['강남', '역삼', '삼성', '논현', '신사', '청담', '압구정', '선릉', '대치', '도곡', '개포', '일원', '수서'],
+  // Pangyo/Bundang tech hub
+  pangyo: ['판교', '분당', '정자', '수내', '미금', '서현', '이매', '야탑', '구미'],
+  // CBD/Finance
+  cbd: ['여의도', '영등포', '당산', '문래', '신길', '여의도동'],
+  // Seoul Station/Jongno
+  downtown: ['광화문', '을지로', '종로', '서울역', '명동', '충무로', '회기', '신당', '을지로3가'],
+  // Hongdae/Mapo
+  hongdae: ['홍대', '신촌', '마포', '합정', '망원', '상수', '연남', '공덕', 'DMC'],
+  // Yongsan/Seongsu
+  seongsu: ['성수', '용산', '건대', '왕십리', '한남', '이태원', '서빙고', '금호'],
+  // Gangbuk
+  gangbuk: ['강북', '노원', '도봉', '미아', '수유', '중계', '상계'],
+  // Guro/Gasan digital
+  guro: ['구로', '가산', '독산', '신도림', '관악', '신림', '봉천'],
+  // Incheon/West Gyeonggi
+  incheon: ['인천', '송도', '부평', '계양', '남동', '일산', '파주', '김포'],
+  // Suwon/South Gyeonggi
+  suwon: ['수원', '평촌', '안양', '의왕', '군포', '동탄', '화성', '오산', '천안'],
+  // Sejong/Daejeon
+  daejeon: ['대전', '세종', '유성', '둔산'],
+  // Busan
+  busan: ['부산', '해운대', '센텀', '동래', '부산진', '남포'],
+  // Daegu
+  daegu: ['대구'],
+  // Gwangju
+  gwangju: ['광주'],
+};
+
+// Map each location to its cluster name
+const LOCATION_TO_CLUSTER = {};
+for (const [cluster, locs] of Object.entries(LOCATION_CLUSTERS)) {
+  for (const loc of locs) {
+    LOCATION_TO_CLUSTER[loc] = cluster;
+  }
+}
+
+function locationProximity(jobLocation, candidateLocations) {
+  if (!jobLocation || !candidateLocations?.length) return 0;
+
+  // Direct match: candidate pref is substring of job location or vice versa
+  for (const pref of candidateLocations) {
+    if (jobLocation.includes(pref)) return 15;
+  }
+
+  // Cluster-based proximity
+  let bestCluster = null;
+  for (const pref of candidateLocations) {
+    // Find cluster for candidate preference
+    const prefCluster = LOCATION_TO_CLUSTER[pref];
+    if (!prefCluster) {
+      // Try substring match in clusters
+      for (const [cluster, locs] of Object.entries(LOCATION_CLUSTERS)) {
+        if (locs.some(l => pref.includes(l) || l.includes(pref))) {
+          bestCluster = cluster;
+          break;
+        }
+      }
+    } else {
+      bestCluster = prefCluster;
+    }
+    if (bestCluster) break;
+  }
+
+  if (!bestCluster) return 0;
+
+  // Check if job location is in same cluster
+  const jobCluster = LOCATION_TO_CLUSTER[jobLocation];
+  if (jobCluster) {
+    if (jobCluster === bestCluster) return 10; // Same cluster
+  }
+
+  // Try substring match for job location in cluster
+  const clusterLocs = LOCATION_CLUSTERS[bestCluster];
+  if (clusterLocs?.some(l => jobLocation.includes(l))) return 10;
+
+  // Adjacent clusters (gangnam↔pangyo, gangnam↔seongsu, cbd↔guro, hongdae↔seongsu, downtown↔hongdae)
+  const ADJACENT = new Set([
+    'gangnam,pangyo', 'pangyo,gangnam',
+    'gangnam,seongsu', 'seongsu,gangnam',
+    'cbd,guro', 'guro,cbd',
+    'hongdae,seongsu', 'seongsu,hongdae',
+    'downtown,hongdae', 'hongdae,downtown',
+    'downtown,cbd', 'cbd,downtown',
+    'gangnam,suwon', 'suwon,gangnam',
+    'pangyo,suwon', 'suwon,pangyo',
+  ]);
+
+  if (jobCluster && ADJACENT.has(`${bestCluster},${jobCluster}`)) return 5;
+
+  return 0;
+}
+
+// === Location/Work/Salary Score (EXP-084: salary preference added, EXP-173: proximity) ===
 function calculateLocationWorkScore(jobLocation, jobWorkType, candidatePrefs, jobSalaryMin, jobSalaryMax, jobEmploymentType) {
   let score = 50;
-  if (candidatePrefs.locations?.some(l => jobLocation?.includes(l))) score += 15;
+  const locBonus = locationProximity(jobLocation, candidatePrefs.locations);
+  score += locBonus;
   if (candidatePrefs.work_types?.some(w => w === jobWorkType)) score += 15;
   // Salary alignment (EXP-084)
   score += calculateSalaryAlignment(jobSalaryMin, jobSalaryMax, candidatePrefs.salary_range);
@@ -890,6 +987,59 @@ for (const [jMin, jMax, pref, expectedRange, desc] of salaryUnitTests) {
   console.log(`${ok ? '✅' : '❌'} ${desc}: ${score} (expected ${expectedRange[0]}~${expectedRange[1]})`);
   ok ? passed++ : failed++;
 }
+
+// === Location Proximity Tests (EXP-173) ===
+console.log('\n--- Location Proximity Tests (EXP-173) ---');
+
+const proximityTests = [
+  // Exact match
+  { job: '서울 강남구', prefs: ['강남'], expected: 15, label: 'Direct substring match' },
+  { job: '서울', prefs: ['서울'], expected: 15, label: 'Exact city match' },
+  { job: '판교', prefs: ['판교'], expected: 15, label: 'Exact district match' },
+  // Same cluster (not direct match)
+  { job: '역삼', prefs: ['강남'], expected: 10, label: 'Same gangnam cluster: 강남→역삼' },
+  { job: '삼성', prefs: ['강남'], expected: 10, label: 'Same gangnam cluster: 강남→삼성' },
+  { job: '선릉', prefs: ['강남'], expected: 10, label: 'Same gangnam cluster: 강남→선릉' },
+  { job: '신사', prefs: ['논현'], expected: 10, label: 'Same gangnam cluster: 논현→신사' },
+  { job: '성수', prefs: ['건대'], expected: 10, label: 'Same seongsu cluster: 건대→성수' },
+  { job: '마포', prefs: ['홍대'], expected: 10, label: 'Same hongdae cluster: 홍대→마포' },
+  { job: '분당', prefs: ['판교'], expected: 10, label: 'Same pangyo cluster: 판교→분당' },
+  { job: '가산', prefs: ['구로'], expected: 10, label: 'Same guro cluster: 구로→가산' },
+  { job: '영등포', prefs: ['여의도'], expected: 10, label: 'Same cbd cluster: 여의도→영등포' },
+  // Adjacent clusters
+  { job: '성수', prefs: ['강남'], expected: 5, label: 'Adjacent: 강남→성수' },
+  { job: '마포', prefs: ['성수'], expected: 5, label: 'Adjacent: 성수→마포' },
+  { job: '판교', prefs: ['강남'], expected: 5, label: 'Adjacent: 강남→판교' },
+  { job: '구로', prefs: ['여의도'], expected: 5, label: 'Adjacent: 여의도→구로' },
+  { job: '수원', prefs: ['강남'], expected: 5, label: 'Adjacent: 강남→수원' },
+  // No match
+  { job: '부산', prefs: ['강남'], expected: 0, label: 'No proximity: 강남→부산' },
+  { job: '대전', prefs: ['강남'], expected: 0, label: 'No proximity: 강남→대전' },
+  { job: '광주', prefs: ['판교'], expected: 0, label: 'No proximity: 판교→광주' },
+  // Full score calculation with proximity
+  { job: '역삼', prefs: ['강남'], work: 'hybrid', prefWork: ['hybrid'], expectedLoc: 75, label: 'Full: 강남→역삼 proximity(10)+work_type(15)' },
+  { job: '성수', prefs: ['강남'], work: 'onsite', prefWork: ['remote'], expectedLoc: 55, label: 'Full: 강남→성수 adjacent, work_type mismatch' },
+];
+
+for (const t of proximityTests) {
+  if (t.expectedLoc !== undefined) {
+    const score = calculateLocationWorkScore(t.job, t.work, { locations: t.prefs, work_types: t.prefWork }, null, null, null);
+    const ok = score === t.expectedLoc;
+    console.log(`${ok ? '✅' : '❌'} ${t.label}: ${score} (expected ${t.expectedLoc})`);
+    ok ? passed++ : failed++;
+  } else {
+    const result = locationProximity(t.job, t.prefs);
+    const ok = result === t.expected;
+    console.log(`${ok ? '✅' : '❌'} ${t.label}: ${result} (expected ${t.expected})`);
+    ok ? passed++ : failed++;
+  }
+}
+
+// Also test that existing HIGH-001 location score improved or stayed same
+// HIGH-001: 서울 강남구, prefs: ['서울', '판교'] → '서울' substring match → 15 (unchanged)
+const testProxExisting = locationProximity('서울 강남구', ['서울', '판교']);
+console.log(`${testProxExisting === 15 ? '✅' : '❌'} Existing HIGH-001 location still exact match: ${testProxExisting} (expected 15)`);
+testProxExisting === 15 ? passed++ : failed++;
 
 // === Employment Type Tests (EXP-085) ===
 console.log('\n--- Employment Type Tests (EXP-085) ---');

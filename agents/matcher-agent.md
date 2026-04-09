@@ -96,9 +96,13 @@ Compare job level vs candidate level. Same level = 100%, one step off = 70%, two
 - Bare 경력 (no range) → -10 from base (less informative)
 - 무관 (open to all) → -15 from base (lowest specificity)
 
-### Location/Work/Salary/Employment (10%) (EXP-084, EXP-085)
+### Location/Work/Salary/Employment (10%) (EXP-084, EXP-085, EXP-173)
 
-- Exact location match → +15
+- Location proximity (EXP-173):
+  - Exact match → +15
+  - Same cluster (강남↔역삼, 판교↔분당) → +10
+  - Adjacent cluster (강남↔성수, 강남↔판교) → +5
+  - No proximity → +0
 - Work type match → +15
 - Salary alignment (when both candidate preference and job salary data exist):
   - Ranges overlap → +5 to +20
