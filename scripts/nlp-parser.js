@@ -91,8 +91,12 @@ function parseKoreanQuery(input) {
     const eokSingle = !eokRange && text.match(/(연봉|급여|연수입|월급|월수입)\s*(\d+(?:\.\d+)?)\s*억/);
     // 만원 range: 연봉 5000~8000만원 or 연봉 5000에서 8000 사이
     const manRange = !eokRange && !eokSingle && text.match(/(연봉|급여|연수입|월급|월수입)\s*(\d[\d,]*)\s*(?:[~\-]|에서)\s*(\d[\d,]*)\s*(?:만원|사이)?/);
+    // Korean number-word range: 연봉 4천~6천, 연봉 5천에서 8천만원
+    const cheonRange = !eokRange && !eokSingle && !manRange && text.match(/(연봉|급여|연수입|월급|월수입)\s*(\d+(?:\.\d+)?)\s*천\s*(?:[~\-]|에서)\s*(\d+(?:\.\d+)?)\s*천\s*(만원)?/);
+    // Korean number-word single: 연봉 5천, 연봉 5천만원
+    const cheonSingle = !eokRange && !eokSingle && !manRange && !cheonRange && text.match(/(연봉|급여|연수입|월급|월수입)\s*(\d+(?:\.\d+)?)\s*천\s*(만원)?/);
     // 만원 threshold: 연봉 6000 이상
-    const manThreshold = !manRange && !eokRange && !eokSingle && text.match(/(연봉|급여|연수입|월급|월수입)\s*(\d[\d,]*)\s*(만원)?\s*(이상|부터|↑)?/);
+    const manThreshold = !manRange && !eokRange && !eokSingle && !cheonRange && !cheonSingle && text.match(/(연봉|급여|연수입|월급|월수입)\s*(\d[\d,]*)\s*(만원)?\s*(이상|부터|↑)?/);
 
     if (eokRange) {
       const min = Math.round(parseFloat(eokRange[2]) * 10000);
@@ -112,6 +116,24 @@ function parseKoreanQuery(input) {
       if (isMonthly) { min = Math.round(min * 12); max = Math.round(max * 12); }
       filters.push(`(j.salary_min <= ${max} AND j.salary_max >= ${min})`);
       consumedWords.add(manRange[0]);
+      salaryThresholdApplied = true;
+    } else if (cheonRange) {
+      const isMonthly = /월급|월수입/.test(cheonRange[1]);
+      let min = Math.round(parseFloat(cheonRange[2]) * 1000);
+      let max = Math.round(parseFloat(cheonRange[3]) * 1000);
+      if (isMonthly) { min = Math.round(min * 12); max = Math.round(max * 12); }
+      filters.push(`(j.salary_min <= ${max} AND j.salary_max >= ${min})`);
+      consumedWords.add(cheonRange[0]);
+      consumedWords.add('천');
+      consumedWords.add('천에서');
+      salaryThresholdApplied = true;
+    } else if (cheonSingle) {
+      const isMonthly = /월급|월수입/.test(cheonSingle[1]);
+      let val = Math.round(parseFloat(cheonSingle[2]) * 1000);
+      if (isMonthly) val = Math.round(val * 12);
+      filters.push(`j.salary_min >= ${val}`);
+      consumedWords.add(cheonSingle[0]);
+      consumedWords.add('천');
       salaryThresholdApplied = true;
     } else if (manThreshold) {
       const isMonthly = /월급|월수입/.test(manThreshold[1]);
@@ -602,7 +624,7 @@ function parseKoreanQuery(input) {
     '이번', '저번', '지금', '현재', '오늘', '내일', '이번주', '저번주', '이번달', '저번달',
     '바이트', '마이바티스', '엠에스에이', '마이크로서비스', '오픈서치', '셀러리', '웹플럭스', '다이나모', '클라우드워치', '바이테스트',
     // EXP-169: Salary-related words that shouldn't become keyword searches
-    '천만원', '만원',
+    '천만원', '만원', '근처', '근교', '인근', '신입가능', '신입 가능', '연차',
     // EXP-168: Conversational phrase noise
     '가장', '잘', '맞는', '맞는지', '정렬', '아직', '미지원', '지원하지', '않은', '않는', '안', '적합한', '추천순', '높은순', '낮은순',
   ]);
