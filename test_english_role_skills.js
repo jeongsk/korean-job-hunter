@@ -45,8 +45,10 @@ const generic2 = inferSkills('Software Engineer');
 assert.strictEqual(generic2.length, 0, 'Software Engineer should have no skills (too generic)');
 passed++;
 
-const generic3 = inferSkills('Engineering Manager');
-assert.strictEqual(generic3.length, 0, 'Engineering Manager should have no skills');
+// EXP-177: Engineering Manager now returns leadership skills (aws, docker, kubernetes)
+const em = inferSkills('Engineering Manager');
+assert.ok(em.length > 0, 'Engineering Manager should have leadership skills post-EXP-177');
+assert.ok(em.includes('docker'), 'Engineering Manager should include docker');
 passed++;
 
 // Korean equivalents still work

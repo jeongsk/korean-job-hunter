@@ -323,6 +323,14 @@ const ROLE_SKILL_MAP = {
   'scrum master': [],     // non-technical role
   'agile coach': [],      // non-technical role
   'technical writer': [], // non-technical role
+  // EXP-178: Testing/QA English role titles
+  'test engineer': ['selenium', 'jest', 'ci/cd'],
+  'sdet': ['selenium', 'jest', 'ci/cd', 'python'],
+  'automation engineer': ['selenium', 'jest', 'ci/cd'],
+  'automation tester': ['selenium', 'jest'],
+  'qa engineer': ['selenium', 'jest'],
+  'quality assurance': ['selenium', 'jest'],
+  'software test': ['selenium', 'jest'],
   // EXP-177: Leadership role titles
   'cto': ['aws', 'docker', 'kubernetes', 'python', 'java'],
   'cpo': ['figma', 'react', 'typescript'],
