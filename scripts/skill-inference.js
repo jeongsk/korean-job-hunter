@@ -323,6 +323,18 @@ const ROLE_SKILL_MAP = {
   'scrum master': [],     // non-technical role
   'agile coach': [],      // non-technical role
   'technical writer': [], // non-technical role
+  // EXP-177: Leadership role titles
+  'cto': ['aws', 'docker', 'kubernetes', 'python', 'java'],
+  'cpo': ['figma', 'react', 'typescript'],
+  'chief technology': ['aws', 'docker', 'kubernetes', 'python', 'java'],
+  'vp engineering': ['aws', 'docker', 'kubernetes', 'python', 'java'],
+  'engineering manager': ['aws', 'docker', 'kubernetes'],
+  '연구소장': ['python', 'tensorflow', 'docker'],
+  '기술이사': ['aws', 'docker', 'kubernetes'],
+  '개발총괄': ['aws', 'docker', 'kubernetes'],
+  '기술 총괄': ['aws', 'docker', 'kubernetes'],
+  'tech lead': ['python', 'java', 'aws', 'docker'],
+  'engineering lead': ['python', 'java', 'aws', 'docker'],
 };
 
 /**
