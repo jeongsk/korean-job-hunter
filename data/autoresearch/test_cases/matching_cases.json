@@ -5,36 +5,28 @@
     "job": {
       "title": "백엔드 개발자",
       "company": "테크스타트업",
-      "required_skills": [
-        "Node.js",
-        "TypeScript",
-        "PostgreSQL"
-      ],
-      "preferred_skills": [
-        "Docker",
-        "AWS"
-      ],
+      "required_skills": ["Node.js", "TypeScript", "PostgreSQL"],
+      "preferred_skills": ["Docker", "AWS"],
       "experience_years": 3,
       "work_type": "remote",
-      "location": null
+      "location": null,
+      "career_stage": "mid",
+      "culture_keywords": ["innovative", "autonomous", "fast_paced"],
+      "salary_min": 5000,
+      "salary_max": 8000
     },
     "resume": {
-      "skills": [
-        "Node.js",
-        "TypeScript",
-        "MySQL",
-        "Docker"
-      ],
+      "skills": ["Node.js", "TypeScript", "MySQL", "Docker"],
       "experience_years": 4,
-      "work_preference": [
-        "remote",
-        "hybrid"
-      ],
-      "home": "서울시 마포구"
+      "work_preference": ["remote", "hybrid"],
+      "home": "서울시 마포구",
+      "culture_preferences": ["innovative", "autonomous"],
+      "salary_min": 5000,
+      "salary_max": 7000
     },
     "expected": {
       "min_score": 70,
-      "reason": "필수 스킬 2/3 일치, 우대 1/2 일치, 경력 충족, 재택 선호 일치"
+      "reason": "필수 스킬 2/3 일치, 우대 1/2 일치, 경력 충족, 재택 선호 일치, culture 2/3 match, mid↔4yr OK"
     }
   },
   {
@@ -43,37 +35,28 @@
     "job": {
       "title": "프론트엔드 개발자",
       "company": "대기업",
-      "required_skills": [
-        "React",
-        "TypeScript",
-        "CSS"
-      ],
-      "preferred_skills": [
-        "Next.js",
-        "Testing"
-      ],
+      "required_skills": ["React", "TypeScript", "CSS"],
+      "preferred_skills": ["Next.js", "Testing"],
       "experience_years": 2,
       "work_type": "hybrid",
-      "location": "서울시 강남구"
+      "location": "서울시 강남구",
+      "career_stage": "junior",
+      "culture_keywords": ["structured", "collaborative"],
+      "salary_min": 4000,
+      "salary_max": 6000
     },
     "resume": {
-      "skills": [
-        "React",
-        "Next.js",
-        "TypeScript",
-        "CSS",
-        "Jest"
-      ],
+      "skills": ["React", "Next.js", "TypeScript", "CSS", "Jest"],
       "experience_years": 3,
-      "work_preference": [
-        "remote",
-        "hybrid"
-      ],
-      "home": "서울시 마포구"
+      "work_preference": ["remote", "hybrid"],
+      "home": "서울시 마포구",
+      "culture_preferences": ["collaborative", "learning_focused"],
+      "salary_min": 4500,
+      "salary_max": 6500
     },
     "expected": {
       "min_score": 75,
-      "reason": "필수 스킬 3/3 일치, 우대 2/2 일치, 경력 충족, 하이브리드 선호"
+      "reason": "필수 스킬 3/3 일치, 우대 1+similar, 경력 충족, 하이브리드 선호, culture 1/2"
     }
   },
   {
@@ -82,37 +65,28 @@
     "job": {
       "title": "데이터 엔지니어",
       "company": "데이터회사",
-      "required_skills": [
-        "Python",
-        "Spark",
-        "Airflow",
-        "Hadoop"
-      ],
-      "preferred_skills": [
-        "Kafka",
-        "Kubernetes"
-      ],
+      "required_skills": ["Python", "Spark", "Airflow", "Hadoop"],
+      "preferred_skills": ["Kafka", "Kubernetes"],
       "experience_years": 5,
       "work_type": "onsite",
-      "location": "경기도 성남시"
+      "location": "경기도 성남시",
+      "career_stage": "senior",
+      "culture_keywords": ["structured", "learning_focused"],
+      "salary_min": 6000,
+      "salary_max": 9000
     },
     "resume": {
-      "skills": [
-        "Node.js",
-        "TypeScript",
-        "PostgreSQL",
-        "Docker"
-      ],
+      "skills": ["Node.js", "TypeScript", "PostgreSQL", "Docker"],
       "experience_years": 4,
-      "work_preference": [
-        "remote",
-        "hybrid"
-      ],
-      "home": "서울시 마포구"
+      "work_preference": ["remote", "hybrid"],
+      "home": "서울시 마포구",
+      "culture_preferences": ["innovative", "autonomous"],
+      "salary_min": 5000,
+      "salary_max": 7000
     },
     "expected": {
       "max_score": 40,
-      "reason": "필수 스킬 0/4 일치, 경력 부족, 출근 필수, 원격 불가"
+      "reason": "필수 스킬 0/4 일치, domain mismatch (python vs js/ts), 경력 부족, 출근 필수, culture 0/2"
     }
   },
   {
@@ -121,36 +95,28 @@
     "job": {
       "title": "iOS 개발자",
       "company": "모바일스타트업",
-      "required_skills": [
-        "Swift",
-        "UIKit",
-        "CoreData"
-      ],
-      "preferred_skills": [
-        "SwiftUI",
-        "Combine"
-      ],
+      "required_skills": ["Swift", "UIKit", "CoreData"],
+      "preferred_skills": ["SwiftUI", "Combine"],
       "experience_years": 2,
       "work_type": "onsite",
-      "location": "부산시 해운대구"
+      "location": "부산시 해운대구",
+      "career_stage": "junior",
+      "culture_keywords": ["fast_paced", "innovative"],
+      "salary_min": 4000,
+      "salary_max": 5500
     },
     "resume": {
-      "skills": [
-        "Node.js",
-        "TypeScript",
-        "React",
-        "PostgreSQL"
-      ],
+      "skills": ["Node.js", "TypeScript", "React", "PostgreSQL"],
       "experience_years": 4,
-      "work_preference": [
-        "remote",
-        "hybrid"
-      ],
-      "home": "서울시 마포구"
+      "work_preference": ["remote", "hybrid"],
+      "home": "서울시 마포구",
+      "culture_preferences": ["innovative", "autonomous"],
+      "salary_min": 5000,
+      "salary_max": 7000
     },
     "expected": {
-      "max_score": 30,
-      "reason": "스킬 전혀 불일치, 부산 근무, 출근 필수"
+      "max_score": 25,
+      "reason": "스킬 전혀 불일치 (swift vs js/ts domain), 부산 근무, 출근 필수, skill gate dampens all"
     }
   },
   {
@@ -159,39 +125,28 @@
     "job": {
       "title": "풀스택 개발자",
       "company": "SaaS 기업",
-      "required_skills": [
-        "Node.js",
-        "React",
-        "PostgreSQL"
-      ],
-      "preferred_skills": [
-        "TypeScript",
-        "Docker",
-        "AWS"
-      ],
+      "required_skills": ["Node.js", "React", "PostgreSQL"],
+      "preferred_skills": ["TypeScript", "Docker", "AWS"],
       "experience_years": 3,
       "work_type": "hybrid",
-      "location": "서울시 용산구"
+      "location": "서울시 용산구",
+      "career_stage": "mid",
+      "culture_keywords": ["autonomous", "innovative", "work_life_balance"],
+      "salary_min": 5000,
+      "salary_max": 8000
     },
     "resume": {
-      "skills": [
-        "Node.js",
-        "TypeScript",
-        "React",
-        "PostgreSQL",
-        "Docker",
-        "AWS"
-      ],
+      "skills": ["Node.js", "TypeScript", "React", "PostgreSQL", "Docker", "AWS"],
       "experience_years": 4,
-      "work_preference": [
-        "remote",
-        "hybrid"
-      ],
-      "home": "서울시 마포구"
+      "work_preference": ["remote", "hybrid"],
+      "home": "서울시 마포구",
+      "culture_preferences": ["autonomous", "innovative"],
+      "salary_min": 5500,
+      "salary_max": 7500
     },
     "expected": {
       "min_score": 85,
-      "reason": "필수 3/3, 우대 3/3, 경력 충족, 하이브리드 선호, 통근 짧음"
+      "reason": "필수 3/3, 우대 3/3, 경력 충족, 하이브리드 선호, same location cluster, culture 2/3, salary overlap"
     }
   },
   {
@@ -200,37 +155,29 @@
     "job": {
       "title": "백엔드 개발자 (Java)",
       "company": "금융사",
-      "required_skills": [
-        "Java",
-        "Spring Boot",
-        "MySQL"
-      ],
-      "preferred_skills": [
-        "Kubernetes",
-        "JPA"
-      ],
+      "required_skills": ["Java", "Spring Boot", "MySQL"],
+      "preferred_skills": ["Kubernetes", "JPA"],
       "experience_years": 5,
       "work_type": "onsite",
-      "location": "서울시 영등포구"
+      "location": "서울시 영등포구",
+      "career_stage": "senior",
+      "culture_keywords": ["structured", "collaborative"],
+      "salary_min": 6000,
+      "salary_max": 9000
     },
     "resume": {
-      "skills": [
-        "Node.js",
-        "TypeScript",
-        "PostgreSQL",
-        "Docker"
-      ],
+      "skills": ["Node.js", "TypeScript", "PostgreSQL", "Docker"],
       "experience_years": 4,
-      "work_preference": [
-        "remote",
-        "hybrid"
-      ],
-      "home": "서울시 마포구"
+      "work_preference": ["remote", "hybrid"],
+      "home": "서울시 마포구",
+      "culture_preferences": ["innovative", "autonomous"],
+      "salary_min": 5000,
+      "salary_max": 7000
     },
     "expected": {
-      "min_score": 15,
+      "min_score": 10,
       "max_score": 55,
-      "reason": "스킬 불일치, 출근 필수, 경력 약간 부족. Spring≈Spring Boot 유사도로 약간의 점수. Gate correctly dampens at skill=19 (gate≈0.32)."
+      "reason": "Domain mismatch (java vs js/ts), MySQL≈PostgreSQL similarity, Spring≈Spring Boot only for Java candidates. Gate dampens at low skill. Domain penalty 40% further reduces."
     }
   },
   {
@@ -239,36 +186,28 @@
     "job": {
       "title": "DevOps 엔지니어",
       "company": "클라우드스타트업",
-      "required_skills": [
-        "AWS",
-        "Docker",
-        "Kubernetes"
-      ],
-      "preferred_skills": [
-        "Terraform",
-        "CI/CD"
-      ],
+      "required_skills": ["AWS", "Docker", "Kubernetes"],
+      "preferred_skills": ["Terraform", "CI/CD"],
       "experience_years": 3,
       "work_type": "remote",
-      "location": null
+      "location": null,
+      "career_stage": "mid",
+      "culture_keywords": ["innovative", "fast_paced", "autonomous"],
+      "salary_min": 5500,
+      "salary_max": 8500
     },
     "resume": {
-      "skills": [
-        "Node.js",
-        "Docker",
-        "AWS",
-        "PostgreSQL"
-      ],
+      "skills": ["Node.js", "Docker", "AWS", "PostgreSQL"],
       "experience_years": 4,
-      "work_preference": [
-        "remote",
-        "hybrid"
-      ],
-      "home": "서울시 마포구"
+      "work_preference": ["remote", "hybrid"],
+      "home": "서울시 마포구",
+      "culture_preferences": ["innovative", "autonomous"],
+      "salary_min": 5000,
+      "salary_max": 7000
     },
     "expected": {
-      "min_score": 65,
-      "reason": "필수 2/3, 재택, 경력 충족"
+      "min_score": 60,
+      "reason": "필수 2/3 (AWS, Docker exact), 재택, 경력 충족, culture 2/3. Cross-domain: devops vs js/ts but strong infra overlap."
     }
   },
   {
@@ -277,36 +216,28 @@
     "job": {
       "title": "Node.js 백엔드 개발자",
       "company": "이커머스",
-      "required_skills": [
-        "Node.js",
-        "Express",
-        "MySQL"
-      ],
-      "preferred_skills": [
-        "TypeScript",
-        "Redis"
-      ],
+      "required_skills": ["Node.js", "Express", "MySQL"],
+      "preferred_skills": ["TypeScript", "Redis"],
       "experience_years": 2,
       "work_type": "hybrid",
-      "location": "서울시 송파구"
+      "location": "서울시 송파구",
+      "career_stage": "junior",
+      "culture_keywords": ["collaborative", "learning_focused"],
+      "salary_min": 4000,
+      "salary_max": 6000
     },
     "resume": {
-      "skills": [
-        "Node.js",
-        "TypeScript",
-        "PostgreSQL",
-        "Docker"
-      ],
+      "skills": ["Node.js", "TypeScript", "PostgreSQL", "Docker"],
       "experience_years": 4,
-      "work_preference": [
-        "remote",
-        "hybrid"
-      ],
-      "home": "서울시 마포구"
+      "work_preference": ["remote", "hybrid"],
+      "home": "서울시 마포구",
+      "culture_preferences": ["collaborative", "learning_focused"],
+      "salary_min": 5000,
+      "salary_max": 7000
     },
     "expected": {
       "min_score": 70,
-      "reason": "Express≈Node.js 유사도, MySQL≈PostgreSQL 유사도, TypeScript 우대 일치"
+      "reason": "Express≈Node.js similarity, MySQL≈PostgreSQL similarity, TypeScript 우대 일치, culture 2/2, salary overlap"
     }
   },
   {
@@ -315,36 +246,28 @@
     "job": {
       "title": "안드로이드 개발자",
       "company": "게임회사",
-      "required_skills": [
-        "Kotlin",
-        "Android SDK",
-        "Jetpack Compose"
-      ],
-      "preferred_skills": [
-        "C++",
-        "Unity"
-      ],
+      "required_skills": ["Kotlin", "Android SDK", "Jetpack Compose"],
+      "preferred_skills": ["C++", "Unity"],
       "experience_years": 3,
       "work_type": "onsite",
-      "location": "대전시 유성구"
+      "location": "대전시 유성구",
+      "career_stage": "mid",
+      "culture_keywords": ["collaborative", "structured"],
+      "salary_min": 4000,
+      "salary_max": 6000
     },
     "resume": {
-      "skills": [
-        "Node.js",
-        "TypeScript",
-        "React",
-        "PostgreSQL"
-      ],
+      "skills": ["Node.js", "TypeScript", "React", "PostgreSQL"],
       "experience_years": 4,
-      "work_preference": [
-        "remote",
-        "hybrid"
-      ],
-      "home": "서울시 마포구"
+      "work_preference": ["remote", "hybrid"],
+      "home": "서울시 마포구",
+      "culture_preferences": ["innovative", "autonomous"],
+      "salary_min": 5000,
+      "salary_max": 7000
     },
     "expected": {
-      "max_score": 25,
-      "reason": "스킬 전혀 불일치, 대전 근무, 출근 필수"
+      "max_score": 20,
+      "reason": "Domain mismatch (java/kotlin vs js/ts), 대전 근무, 출근 필수, culture 0/2, skill gate fully dampens"
     }
   },
   {
@@ -353,38 +276,29 @@
     "job": {
       "title": "플랫폼 엔지니어",
       "company": "미디어 기업",
-      "required_skills": [
-        "Python",
-        "FastAPI",
-        "PostgreSQL"
-      ],
-      "preferred_skills": [
-        "Docker",
-        "Kubernetes",
-        "gRPC"
-      ],
+      "required_skills": ["Python", "FastAPI", "PostgreSQL"],
+      "preferred_skills": ["Docker", "Kubernetes", "gRPC"],
       "experience_years": 4,
       "work_type": "hybrid",
-      "location": "서울시 마포구"
+      "location": "서울시 마포구",
+      "career_stage": "mid",
+      "culture_keywords": ["collaborative", "work_life_balance"],
+      "salary_min": 5000,
+      "salary_max": 8000
     },
     "resume": {
-      "skills": [
-        "Node.js",
-        "TypeScript",
-        "PostgreSQL",
-        "Docker"
-      ],
+      "skills": ["Node.js", "TypeScript", "PostgreSQL", "Docker"],
       "experience_years": 4,
-      "work_preference": [
-        "remote",
-        "hybrid"
-      ],
-      "home": "서울시 마포구"
+      "work_preference": ["remote", "hybrid"],
+      "home": "서울시 마포구",
+      "culture_preferences": ["innovative", "autonomous"],
+      "salary_min": 5000,
+      "salary_max": 7000
     },
     "expected": {
-      "min_score": 40,
+      "min_score": 25,
       "max_score": 65,
-      "reason": "PostgreSQL 일치, Docker 우대 일치, FastAPI≈Python 유사도, 통근 매우 짧음"
+      "reason": "PostgreSQL exact, Docker preferred exact, FastAPI≈Django≈Python similarity, same location, domain mismatch (python vs js/ts) with 40% penalty"
     }
   }
 ]

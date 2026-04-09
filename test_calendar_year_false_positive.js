@@ -41,7 +41,7 @@ assert('21년도~24년도 range should be null', deriveCareerStage('경력 21년
 
 // deriveCareerStageFromTitle — calendar year
 assert('title 21년도 → null', deriveCareerStageFromTitle('백엔드 21년도'), null);
-assert('title 신입-5년 → mid', deriveCareerStageFromTitle('프론트엔드(신입-5년)'), 'mid');
+assert('title 신입-5년 → junior', deriveCareerStageFromTitle('프론트엔드(신입-5년)'), 'junior');
 assert('title 12년~20년 → lead', deriveCareerStageFromTitle('개발자(12년~20년)'), 'lead');
 
 // Mixed: real experience after calendar year

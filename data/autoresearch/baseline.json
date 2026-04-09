@@ -1,48 +1,49 @@
 {
-  "timestamp": "2026-04-09T17:10:47.873Z",
+  "timestamp": "2026-04-09T23:10:55.375Z",
   "skill": "job-matching",
   "weights": {
-    "skill": 0.5,
-    "experience": 0.15,
-    "preferred": 0.1,
-    "work_type": 0.15,
-    "commute": 0.1
+    "skill": 0.35,
+    "experience": 0.25,
+    "culture": 0.15,
+    "career_stage": 0.15,
+    "location_work": 0.1
   },
   "metrics": {
-    "discrimination": 74.53,
-    "spread": 34.37,
+    "discrimination": 78.53,
+    "spread": 37.07,
     "false_positive_rate": 0,
     "coverage": 100,
-    "positive_avg": 79.2,
-    "negative_avg": 4.67,
-    "borderline_avg": 36.5
+    "positive_avg": 84.2,
+    "negative_avg": 5.67,
+    "borderline_avg": 22.5
   },
   "results": [
     {
       "id": "TC-001",
       "label": "positive",
-      "score": 82,
+      "score": 88,
       "components": {
         "skill": {
-          "score": 73,
-          "weighted": 37
+          "score": 79,
+          "weighted": 28,
+          "domain_penalty": false
         },
         "experience": {
           "score": 100,
-          "weighted": 15,
+          "weighted": 25,
           "gated": 100
         },
-        "preferred": {
-          "score": 50,
-          "weighted": 5,
-          "gated": 50
+        "culture": {
+          "score": 67,
+          "weighted": 10,
+          "gated": 67
         },
-        "work_type": {
+        "career_stage": {
           "score": 100,
           "weighted": 15,
           "gated": 100
         },
-        "commute": {
+        "location_work": {
           "score": 100,
           "weighted": 10,
           "gated": 100
@@ -50,324 +51,333 @@
       },
       "expected": {
         "min_score": 70,
-        "reason": "필수 스킬 2/3 일치, 우대 1/2 일치, 경력 충족, 재택 선호 일치"
+        "reason": "필수 스킬 2/3 일치, 우대 1/2 일치, 경력 충족, 재택 선호 일치, culture 2/3 match, mid↔4yr OK"
       }
     },
     {
       "id": "TC-002",
       "label": "positive",
-      "score": 81,
+      "score": 84,
       "components": {
         "skill": {
           "score": 85,
-          "weighted": 43
+          "weighted": 30,
+          "domain_penalty": false
         },
         "experience": {
+          "score": 100,
+          "weighted": 25,
+          "gated": 100
+        },
+        "culture": {
+          "score": 50,
+          "weighted": 8,
+          "gated": 50
+        },
+        "career_stage": {
           "score": 100,
           "weighted": 15,
           "gated": 100
         },
-        "preferred": {
-          "score": 50,
-          "weighted": 5,
-          "gated": 50
-        },
-        "work_type": {
+        "location_work": {
           "score": 70,
-          "weighted": 11,
+          "weighted": 7,
           "gated": 70
-        },
-        "commute": {
-          "score": 80,
-          "weighted": 8,
-          "gated": 80
         }
       },
       "expected": {
         "min_score": 75,
-        "reason": "필수 스킬 3/3 일치, 우대 2/2 일치, 경력 충족, 하이브리드 선호"
+        "reason": "필수 스킬 3/3 일치, 우대 1+similar, 경력 충족, 하이브리드 선호, culture 1/2"
       }
     },
     {
       "id": "TC-003",
       "label": "negative",
-      "score": 8,
+      "score": 6,
       "components": {
         "skill": {
-          "score": 8,
-          "weighted": 4
+          "score": 7,
+          "weighted": 2,
+          "domain_penalty": true
         },
         "experience": {
           "score": 70,
-          "weighted": 2,
-          "gated": 11
+          "weighted": 3,
+          "gated": 10
         },
-        "preferred": {
-          "score": 25,
+        "culture": {
+          "score": 0,
           "weighted": 0,
-          "gated": 4
+          "gated": 0
         },
-        "work_type": {
-          "score": 50,
-          "weighted": 1,
-          "gated": 8
+        "career_stage": {
+          "score": 20,
+          "weighted": 0,
+          "gated": 3
         },
-        "commute": {
-          "score": 30,
+        "location_work": {
+          "score": 44,
           "weighted": 1,
-          "gated": 5
+          "gated": 6
         }
       },
       "expected": {
         "max_score": 40,
-        "reason": "필수 스킬 0/4 일치, 경력 부족, 출근 필수, 원격 불가"
+        "reason": "필수 스킬 0/4 일치, domain mismatch (python vs js/ts), 경력 부족, 출근 필수, culture 0/2"
       }
     },
     {
       "id": "TC-004",
       "label": "negative",
-      "score": 3,
+      "score": 6,
       "components": {
         "skill": {
           "score": 0,
-          "weighted": 0
+          "weighted": 0,
+          "domain_penalty": true
         },
         "experience": {
           "score": 100,
-          "weighted": 2,
+          "weighted": 3,
           "gated": 12
         },
-        "preferred": {
-          "score": 0,
-          "weighted": 0,
-          "gated": 0
-        },
-        "work_type": {
+        "culture": {
           "score": 50,
           "weighted": 1,
           "gated": 6
         },
-        "commute": {
-          "score": 30,
-          "weighted": 0,
-          "gated": 4
+        "career_stage": {
+          "score": 100,
+          "weighted": 2,
+          "gated": 12
+        },
+        "location_work": {
+          "score": 44,
+          "weighted": 1,
+          "gated": 5
         }
       },
       "expected": {
-        "max_score": 30,
-        "reason": "스킬 전혀 불일치, 부산 근무, 출근 필수"
+        "max_score": 25,
+        "reason": "스킬 전혀 불일치 (swift vs js/ts domain), 부산 근무, 출근 필수, skill gate dampens all"
       }
     },
     {
       "id": "TC-005",
       "label": "positive",
-      "score": 94,
+      "score": 93,
       "components": {
         "skill": {
           "score": 100,
-          "weighted": 50
+          "weighted": 35,
+          "domain_penalty": false
         },
         "experience": {
+          "score": 100,
+          "weighted": 25,
+          "gated": 100
+        },
+        "culture": {
+          "score": 67,
+          "weighted": 10,
+          "gated": 67
+        },
+        "career_stage": {
           "score": 100,
           "weighted": 15,
           "gated": 100
         },
-        "preferred": {
-          "score": 100,
-          "weighted": 10,
-          "gated": 100
-        },
-        "work_type": {
-          "score": 70,
-          "weighted": 11,
-          "gated": 70
-        },
-        "commute": {
-          "score": 80,
+        "location_work": {
+          "score": 78,
           "weighted": 8,
-          "gated": 80
+          "gated": 78
         }
       },
       "expected": {
         "min_score": 85,
-        "reason": "필수 3/3, 우대 3/3, 경력 충족, 하이브리드 선호, 통근 짧음"
+        "reason": "필수 3/3, 우대 3/3, 경력 충족, 하이브리드 선호, same location cluster, culture 2/3, salary overlap"
       }
     },
     {
       "id": "TC-006",
       "label": "borderline",
-      "score": 19,
+      "score": 14,
       "components": {
         "skill": {
-          "score": 19,
-          "weighted": 10
+          "score": 17,
+          "weighted": 6,
+          "domain_penalty": true
         },
         "experience": {
           "score": 70,
-          "weighted": 3,
-          "gated": 22
+          "weighted": 5,
+          "gated": 20
         },
-        "preferred": {
-          "score": 25,
+        "culture": {
+          "score": 0,
+          "weighted": 0,
+          "gated": 0
+        },
+        "career_stage": {
+          "score": 20,
           "weighted": 1,
-          "gated": 8
+          "gated": 6
         },
-        "work_type": {
-          "score": 50,
+        "location_work": {
+          "score": 62,
           "weighted": 2,
-          "gated": 16
-        },
-        "commute": {
-          "score": 80,
-          "weighted": 3,
-          "gated": 25
+          "gated": 17
         }
       },
       "expected": {
-        "min_score": 15,
+        "min_score": 10,
         "max_score": 55,
-        "reason": "스킬 불일치, 출근 필수, 경력 약간 부족. Spring≈Spring Boot 유사도로 약간의 점수. Gate correctly dampens at skill=19 (gate≈0.32)."
+        "reason": "Domain mismatch (java vs js/ts), MySQL≈PostgreSQL similarity, Spring≈Spring Boot only for Java candidates. Gate dampens at low skill. Domain penalty 40% further reduces."
       }
     },
     {
       "id": "TC-007",
       "label": "positive",
-      "score": 69,
+      "score": 68,
       "components": {
         "skill": {
-          "score": 58,
-          "weighted": 29
+          "score": 38,
+          "weighted": 13,
+          "domain_penalty": true
         },
         "experience": {
           "score": 100,
-          "weighted": 15,
-          "gated": 100
+          "weighted": 23,
+          "gated": 91
         },
-        "preferred": {
-          "score": 0,
-          "weighted": 0,
-          "gated": 0
+        "culture": {
+          "score": 67,
+          "weighted": 9,
+          "gated": 61
         },
-        "work_type": {
+        "career_stage": {
           "score": 100,
-          "weighted": 15,
-          "gated": 100
+          "weighted": 14,
+          "gated": 91
         },
-        "commute": {
+        "location_work": {
           "score": 100,
-          "weighted": 10,
-          "gated": 100
+          "weighted": 9,
+          "gated": 91
         }
       },
       "expected": {
-        "min_score": 65,
-        "reason": "필수 2/3, 재택, 경력 충족"
+        "min_score": 60,
+        "reason": "필수 2/3 (AWS, Docker exact), 재택, 경력 충족, culture 2/3. Cross-domain: devops vs js/ts but strong infra overlap."
       }
     },
     {
       "id": "TC-008",
       "label": "positive",
-      "score": 70,
+      "score": 88,
       "components": {
         "skill": {
-          "score": 62,
-          "weighted": 31
+          "score": 73,
+          "weighted": 26,
+          "domain_penalty": false
         },
         "experience": {
+          "score": 100,
+          "weighted": 25,
+          "gated": 100
+        },
+        "culture": {
           "score": 100,
           "weighted": 15,
           "gated": 100
         },
-        "preferred": {
-          "score": 50,
-          "weighted": 5,
-          "gated": 50
+        "career_stage": {
+          "score": 100,
+          "weighted": 15,
+          "gated": 100
         },
-        "work_type": {
+        "location_work": {
           "score": 70,
-          "weighted": 11,
+          "weighted": 7,
           "gated": 70
-        },
-        "commute": {
-          "score": 80,
-          "weighted": 8,
-          "gated": 80
         }
       },
       "expected": {
         "min_score": 70,
-        "reason": "Express≈Node.js 유사도, MySQL≈PostgreSQL 유사도, TypeScript 우대 일치"
+        "reason": "Express≈Node.js similarity, MySQL≈PostgreSQL similarity, TypeScript 우대 일치, culture 2/2, salary overlap"
       }
     },
     {
       "id": "TC-009",
       "label": "negative",
-      "score": 3,
+      "score": 5,
       "components": {
         "skill": {
           "score": 0,
-          "weighted": 0
+          "weighted": 0,
+          "domain_penalty": true
         },
         "experience": {
           "score": 100,
-          "weighted": 2,
+          "weighted": 3,
           "gated": 12
         },
-        "preferred": {
+        "culture": {
           "score": 0,
           "weighted": 0,
           "gated": 0
         },
-        "work_type": {
-          "score": 50,
-          "weighted": 1,
-          "gated": 6
+        "career_stage": {
+          "score": 100,
+          "weighted": 2,
+          "gated": 12
         },
-        "commute": {
-          "score": 30,
-          "weighted": 0,
-          "gated": 4
+        "location_work": {
+          "score": 44,
+          "weighted": 1,
+          "gated": 5
         }
       },
       "expected": {
-        "max_score": 25,
-        "reason": "스킬 전혀 불일치, 대전 근무, 출근 필수"
+        "max_score": 20,
+        "reason": "Domain mismatch (java/kotlin vs js/ts), 대전 근무, 출근 필수, culture 0/2, skill gate fully dampens"
       }
     },
     {
       "id": "TC-010",
       "label": "borderline",
-      "score": 54,
+      "score": 31,
       "components": {
         "skill": {
-          "score": 38,
-          "weighted": 19
+          "score": 25,
+          "weighted": 9,
+          "domain_penalty": true
         },
         "experience": {
           "score": 100,
-          "weighted": 14,
-          "gated": 91
-        },
-        "preferred": {
-          "score": 50,
-          "weighted": 5,
+          "weighted": 12,
           "gated": 46
         },
-        "work_type": {
-          "score": 70,
-          "weighted": 10,
-          "gated": 64
+        "culture": {
+          "score": 0,
+          "weighted": 0,
+          "gated": 0
         },
-        "commute": {
-          "score": 80,
+        "career_stage": {
+          "score": 100,
           "weighted": 7,
-          "gated": 73
+          "gated": 46
+        },
+        "location_work": {
+          "score": 88,
+          "weighted": 4,
+          "gated": 41
         }
       },
       "expected": {
-        "min_score": 40,
+        "min_score": 25,
         "max_score": 65,
-        "reason": "PostgreSQL 일치, Docker 우대 일치, FastAPI≈Python 유사도, 통근 매우 짧음"
+        "reason": "PostgreSQL exact, Docker preferred exact, FastAPI≈Django≈Python similarity, same location, domain mismatch (python vs js/ts) with 40% penalty"
       }
     }
   ]

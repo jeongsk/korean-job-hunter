@@ -146,6 +146,49 @@ function resolveSkillTags(tagIds) {
   return skills;
 }
 
+// Infer culture keywords from metadata when no JD description is available.
+// Uses company name, title, work_type, and experience to make conservative inferences.
+function inferCultureFromMetadata(title, company, meta = {}) {
+  const keywords = new Set();
+  const combined = `${title} ${company}`.toLowerCase();
+
+  // Startup indicators → fast_paced + innovative
+  if (/스타트업|startup|벤처|venture|랩스|labs?\b|initial|파운데이|found/i.test(combined)) {
+    keywords.add('fast_paced');
+    keywords.add('innovative');
+    keywords.add('autonomous');
+  }
+
+  // Remote work → work_life_balance + autonomous
+  if (meta.work_type === 'remote') {
+    keywords.add('work_life_balance');
+    keywords.add('autonomous');
+  }
+
+  // Hybrid → work_life_balance (milder)
+  if (meta.work_type === 'hybrid') {
+    keywords.add('work_life_balance');
+  }
+
+  // Large company indicators → structured
+  if (/삼성|카카오|네이버|라인|쿠팡|배달의민족|토스뱅크|카카오뱅크|카카오페이|우아한형제들|넥슨|엔씨소프트|네오위즈|한국전력|kt&g|sk\s|lg\s|포스코|현대|기아|롯데|신세계/i.test(combined)) {
+    keywords.add('structured');
+    keywords.add('collaborative');
+  }
+
+  // Senior/lead titles → autonomous
+  if (/시니어|senior|리드|lead|staff|principal|책임|수석|조직장|팀장|파트장/i.test(combined)) {
+    keywords.add('autonomous');
+  }
+
+  // Newbie/junior titles → learning_focused
+  if (/신입|주니어|junior|인턴|intern/i.test(combined)) {
+    keywords.add('learning_focused');
+  }
+
+  return [...keywords];
+}
+
 function cleanCompanyName(name) {
   if (!name) return '회사명 미상';
   return name
@@ -259,7 +302,7 @@ function parsePosition(pos) {
     salary_min: null,
     salary_max: null,
     career_stage: careerStage,
-    culture_keywords: [],
+    culture_keywords: inferCultureFromMetadata(title, company, { work_type: detectWorkType(title), experience }),
     skills,
     office_address: '',    // enriched via detail page (EXP-152)
     latitude: null,
@@ -499,4 +542,4 @@ if (require.main === module) {
   main().catch(e => { console.error(e); process.exit(1); });
 }
 
-module.exports = { detectWorkType, parsePosition, cleanCompanyName };
+module.exports = { detectWorkType, parsePosition, cleanCompanyName, inferCultureFromMetadata };
