@@ -435,7 +435,9 @@ async function main() {
   }
 
   const encoded = encodeURIComponent(keyword);
-  const url = `https://www.wanted.co.kr/api/chaos/search/v1/results?keyword=${encoded}&limit=${limit}&offset=${offset}&tab=position&query=${encoded}`;
+  // Fixed EXP-182: API parameter format changed from query=keyword to query=["keyword"]
+  const queryParam = encodeURIComponent(JSON.stringify([keyword]));
+  const url = `https://www.wanted.co.kr/api/chaos/search/v1/results?query=${queryParam}&limit=${limit}&offset=${offset}&tab=position`;
 
   console.error(`[scrape-wanted-api] Searching: "${keyword}" (limit=${limit}, offset=${offset})`);
 

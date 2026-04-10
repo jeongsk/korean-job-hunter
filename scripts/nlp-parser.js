@@ -462,7 +462,7 @@ function parseKoreanQuery(input) {
     { canonical: 'pinia', patterns: [/pinia|피니아/i] },
     { canonical: 'unity', patterns: [/unity|유니티/i] },
     { canonical: 'unreal', patterns: [/unreal|언리얼/i] },
-    { canonical: 'machine learning', patterns: [/machine\s*learning|머신러닝|머신\s*러닝/i] },
+    { canonical: 'machine learning', patterns: [/machine\s*learning|머신러닝|머신\s*러닝|기계학습/i] },
     { canonical: 'rest api', patterns: [/rest\s*api|레스트\s*api/i] },
     { canonical: 'grpc', patterns: [/grpc|지알피시/i] },
     { canonical: 'rabbitmq', patterns: [/rabbitmq|래빗엠큐/i] },
@@ -508,6 +508,8 @@ function parseKoreanQuery(input) {
     { canonical: 'storybook', patterns: [/storybook|스토리북/i] },
     { canonical: 'jest', patterns: [/(?<!\w)jest(?!\w)|제스트/i] },
     { canonical: 'cypress', patterns: [/(?<!\w)cypress(?!\w)|사이프레스/i] },
+    { canonical: 'junit', patterns: [/(?<!\w)junit(?!\w)|제이유닛/i] },
+    { canonical: 'sql', patterns: [/(?<!\w)sql(?!\w)|에스큐엘/i] },
     // EXP-103: Runtimes, frameworks, ORM, monitoring, desktop/mobile
     { canonical: 'deno', patterns: [/(?<!\w)deno(?!\w)|데노/i] },
     { canonical: 'bun', patterns: [/(?<!\w)bun(?!\w)/i] },
@@ -562,9 +564,13 @@ function parseKoreanQuery(input) {
       if (p.test(text)) {
         filters.push(`j.skills LIKE '%${canonical}%'`);
         consumedWords.add(canonical);
-        // Add Korean alias to consumed words
-        const koMatch = text.match(new RegExp(p.source.includes('가-힣') ? '[가-힣]+' : ''));
-        if (koMatch && p.source.includes('가-힣')) consumedWords.add(koMatch[0]);
+        // Add full Korean match to consumed words (handles multi-word: 리액트 네이티브, 머신 러닝)
+        const fullMatch = text.match(p);
+        if (fullMatch) {
+          // Extract all Korean word runs from the match
+          const koTokens = fullMatch[0].match(/[가-힣]+/g);
+          if (koTokens) koTokens.forEach(t => consumedWords.add(t));
+        }
         break;
       }
     }
@@ -622,7 +628,7 @@ function parseKoreanQuery(input) {
     '열정', '열정적인', '이력서', '포트폴리오', '준비', '협의', '추천', '추천해줘', '알려줘', '찾아줘', '보여줘', '어떤', '없어', '뭐있어', '뭐', '있어', '해줘', '좀', '좀알려줘', '경력직', '협상', '협의',
     '채용', '공고', '구인', '모집', '지원자', '지원서', '면접', '면접관', '오퍼', '오퍼받은',
     '이번', '저번', '지금', '현재', '오늘', '내일', '이번주', '저번주', '이번달', '저번달',
-    '바이트', '마이바티스', '엠에스에이', '마이크로서비스', '오픈서치', '셀러리', '웹플럭스', '다이나모', '클라우드워치', '바이테스트',
+    '바이트', '마이바티스', '엠에스에이', '마이크로서비스', '오픈서치', '셀러리', '웹플럭스', '다이나모', '클라우드워치', '바이테스트', '네이티브', '제이에스', '기계학습', '제이유닛', '에스큐엘', '시퀄라이즈', '클라우드', '러닝',
     // EXP-169: Salary-related words that shouldn't become keyword searches
     '천만원', '만원', '근처', '근교', '인근', '신입가능', '신입 가능', '연차',
     // EXP-168: Conversational phrase noise

@@ -1,0 +1,61 @@
+{
+  "timestamp": "2026-04-10T22:08:32.304Z",
+  "test_type": "enhanced_scraping",
+  "baseline_stats": {
+    "success_rate": 71.79,
+    "field_completeness": 100,
+    "total_tests": 39,
+    "passed_tests": 28,
+    "failed_tests": 11
+  },
+  "enhanced_results": {
+    "total_tests": 4,
+    "successful_tests": 4,
+    "failed_tests": 0,
+    "jobs_collected": 0,
+    "field_completeness": 0,
+    "success_rate": 100,
+    "test_details": [
+      {
+        "keyword": "백엔드 개발자",
+        "attempts": 0,
+        "success": true,
+        "jobs_collected": 0,
+        "error": null,
+        "duration": 234,
+        "retry_attempts": 0,
+        "field_completeness": 0
+      },
+      {
+        "keyword": "프론트엔드 엔지니어",
+        "attempts": 0,
+        "success": true,
+        "jobs_collected": 0,
+        "error": null,
+        "duration": 200,
+        "retry_attempts": 0,
+        "field_completeness": 0
+      },
+      {
+        "keyword": "Node.js 개발자",
+        "attempts": 0,
+        "success": true,
+        "jobs_collected": 0,
+        "error": null,
+        "duration": 209,
+        "retry_attempts": 0,
+        "field_completeness": 0
+      },
+      {
+        "keyword": "React 개발자",
+        "attempts": 0,
+        "success": true,
+        "jobs_collected": 0,
+        "error": null,
+        "duration": 187,
+        "retry_attempts": 0,
+        "field_completeness": 0
+      }
+    ]
+  }
+}

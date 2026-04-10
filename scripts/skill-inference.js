@@ -157,7 +157,7 @@ const SKILL_MAP = {
   // AI/ML
   'tensorflow': /tensorflow|텐서플로우|텐서플로/i,
   'pytorch': /pytorch|파이토치/i,
-  'machine learning': /machine\s*learning|머신러닝|머신\s*러닝|(?<![a-z])ml(?=\s|엔지니어|개발자|모델|engineer|$)/i,
+  'machine learning': /machine\s*learning|머신러닝|머신\s*러닝|기계학습|(?<![a-z])ml(?=\s|엔지니어|개발자|모델|engineer|$)/i,
   'llm': /(?<![a-z])llm(?!\w)|large\s*language\s*model/i,
   'rag': /(?<![a-z])rag(?!\w)|검색증강생성/i,
   'langchain': /langchain|랭체인/i,
