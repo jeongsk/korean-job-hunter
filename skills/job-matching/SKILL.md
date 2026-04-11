@@ -11,8 +11,8 @@ description: "Resume-to-job matching with tiered skill similarity, skill-gated s
 
 | Component | Weight | Score Range | Description |
 |-----------|--------|-------------|-------------|
-| **Skill match** | **35%** | 0-100 | Core skill alignment with tiered matching |
-| **Experience fit** | **25%** | 0-100 | Career stage and experience level alignment |
+| **Skill match** | **40%** | 0-100 | Core skill alignment with tiered matching |
+| **Experience fit** | **20%** | 0-100 | Career stage and experience level alignment |
 | **Company culture fit** | **15%** | 0-100 | Cultural values and work environment matching |
 | **Career stage alignment** | **15%** | 0-100 | Professional development stage compatibility |
 | **Location/work/salary/employment fit** | **10%** | 0-100 | Work type, location, salary preference, and employment type alignment |

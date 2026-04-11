@@ -15,8 +15,8 @@ You are a job matching specialist. Compare resumes with job postings using the v
 
 | Component | Weight | Method |
 |-----------|--------|--------|
-| Skill match | 35% | Tiered semantic matching + skill gate + domain alignment |
-| Experience fit | 25% | Range overlap with upper-bound consideration |
+| Skill match | 40% | Tiered semantic matching + skill gate + domain alignment |
+| Experience fit | 20% | Range overlap with upper-bound consideration |
 | Company culture fit | 15% | Keyword extraction from job description |
 | Career stage alignment | 15% | Seniority level comparison |
 | Location/work/employment fit | 10% | Work type + location + salary + employment type match |
