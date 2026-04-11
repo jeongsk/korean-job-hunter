@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ============================================
 # MoAI-ADK Package Distribution .gitignore
 # ============================================
@@ -195,3 +196,6 @@ dist-ssr/
 .vercel/
 .netlify/
 .firebase/
+=======
+korean-job-hunter/
+>>>>>>> 4b07e7f (Initial commit: Korean Job Hunter project setup)

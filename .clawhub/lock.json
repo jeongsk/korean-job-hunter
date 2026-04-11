@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "self-improving": {
+      "version": "1.2.16",
+      "installedAt": 1774781227141
+    },
+    "ontology": {
+      "version": "1.0.4",
+      "installedAt": 1774781251880
+    },
+    "web-scraping": {
+      "version": "1.0.0",
+      "installedAt": 1774787239046
+    }
+  }
+}
