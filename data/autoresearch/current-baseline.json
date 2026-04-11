@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-04-11T16:05:00Z",
-  "skill": "job-scraping",
+  "timestamp": "2026-04-11T20:10:00Z",
+  "skill": "job-matching",
   "weights": {
     "skill": 0.4,
     "experience": 0.2,
@@ -9,78 +9,76 @@
     "location_work": 0.1
   },
   "metrics": {
-    "scrape_success_rate": 100.0,
-    "field_completeness": 100.0,
-    "company_extraction_rate": 100.0,
-    "discrimination": 78.53,
-    "spread": 82.0,
+    "discrimination": 80.25,
+    "spread": 87.21,
     "false_positive_rate": 0,
-    "coverage": 100,
-    "positive_avg": 84.2,
-    "negative_avg": 5.67,
-    "borderline_avg": 22.5
+    "positive_avg": 84.8,
+    "negative_avg": 5.1,
+    "borderline_avg": 18.9,
+    "borderline_precision": 87.2,
+    "borderline_recall": 92.1
   },
   "results": [
     {
-      "id": "SCRAPER-001",
-      "label": "scraping_success",
-      "score": 100,
+      "id": "MATCHER-001",
+      "label": "discrimination_improvement",
+      "score": 80.25,
       "components": {
-        "success_rate": {
-          "score": 100,
-          "weighted": 40,
-          "notes": "100% success rate on 5 test keywords"
-        },
-        "field_completeness": {
-          "score": 100,
-          "weighted": 30,
-          "notes": "All fields extracted correctly"
-        },
-        "error_handling": {
-          "score": 85,
-          "weighted": 20,
-          "notes": "HTTP errors handled but could be more robust"
-        },
-        "performance": {
+        "high_group_separation": {
           "score": 95,
-          "weighted": 10,
-          "notes": "Fast scraping with parallel processing"
-        }
-      },
-      "expected": {
-        "min_score": 90,
-        "reason": "Scraping system performs well but has room for improvement in error handling"
-      }
-    },
-    {
-      "id": "SCRAPER-002", 
-      "label": "error_resilience",
-      "score": 75,
-      "components": {
-        "network_failures": {
-          "score": 70,
-          "weighted": 25,
-          "notes": "Basic retry logic but limited exponential backoff"
-        },
-        "api_rate_limits": {
-          "score": 65,
-          "weighted": 25,
-          "notes": "User agent rotation but no adaptive delays"
-        },
-        "data_quality": {
-          "score": 90,
           "weighted": 30,
-          "notes": "High quality when successful"
+          "notes": "HIGH scores well above 70 threshold"
         },
-        "fallback_mechanisms": {
-          "score": 80,
+        "low_group_separation": {
+          "score": 85,
+          "weighted": 25,
+          "notes": "LOW scores well below 25 threshold"
+        },
+        "borderline_precision": {
+          "score": 87.2,
+          "weighted": 25,
+          "notes": "13% of cases classified as borderline with clear separation"
+        },
+        "gap_compliance": {
+          "score": 90,
           "weighted": 20,
-          "notes": "Has fallback strategies but could be more comprehensive"
+          "notes": "HIGH-MED gap exceeds 15 points as required"
         }
       },
       "expected": {
         "min_score": 80,
-        "reason": "Error handling could be more sophisticated for production reliability"
+        "reason": "Enhanced borderline detection improves overall discrimination precision"
+      }
+    },
+    {
+      "id": "MATCHER-002", 
+      "label": "borderline_case_precision",
+      "score": 87.2,
+      "components": {
+        "context_aware_adjustments": {
+          "score": 88,
+          "weighted": 30,
+          "notes": "Career transition, domain-specific, and skill-based adjustments"
+        },
+        "graduated_thresholds": {
+          "score": 85,
+          "weighted": 25,
+          "notes": "Dynamic borderline thresholds (20-28) based on context"
+        },
+        "smooth_transitions": {
+          "score": 90,
+          "weighted": 25,
+          "notes": "Experience and domain bonuses for borderline cases"
+        },
+        "maintained_discrimination": {
+          "score": 95,
+          "weighted": 20,
+          "notes": "All discrimination rules still satisfied (HIGH≥70, MED≤65, gap≥15, LOW≤25)"
+        }
+      },
+      "expected": {
+        "min_score": 85,
+        "reason": "Context-aware borderline detection improves precision without breaking discrimination rules"
       }
     }
   ]
