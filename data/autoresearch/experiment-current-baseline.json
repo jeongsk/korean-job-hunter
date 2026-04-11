@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-04-11T10:10:00Z",
+  "skill": "job-matching",
+  "weights": {
+    "skill": 0.4,
+    "experience": 0.2,
+    "culture": 0.15,
+    "career_stage": 0.15,
+    "location_work": 0.1
+  },
+  "metrics": {
+    "discrimination": 0,
+    "spread": 0,
+    "false_positive_rate": 0,
+    "coverage": 100,
+    "positive_avg": 0,
+    "negative_avg": 0,
+    "borderline_avg": 0
+  },
+  "results": []
+}
