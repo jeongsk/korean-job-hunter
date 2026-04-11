@@ -184,12 +184,163 @@ sqlite3 data/jobs.db "UPDATE jobs SET skills = 'React,TypeScript,AWS,...' WHERE 
 - Stop on 429 or 403
 - Exponential backoff: 3s → 6s → 12s
 
-## Error Handling
+## Enhanced Error Handling System
 
-- **403**: Close browser, retry with different User-Agent
-- **Empty results**: Try fallback selectors from SKILL.md
-- **Timeout**: Increase sleep time
-- Always screenshot on error: `agent-browser screenshot --annotate error.png`
+### Error Classification & Response Matrix
+
+| Error Type | Code | Response Strategy | Max Retries | Adaptive Logic |
+|------------|------|-------------------|-------------|----------------|
+| **Network Timeout** | 408, 504 | Exponential backoff + UA rotation | 4 | Delay: 2s → 4s → 8s → 16s + jitter |
+| **Rate Limiting** | 429 | Progressive backoff + source skip | 3 | Delay: 5s → 15s → 30s |
+| **Access Denied** | 403 | UA rotation + mobile fallback | 3 | Switch to mobile UA after 2 failures |
+| **Service Unavailable** | 503 | Circuit breaker activation | 2 | Skip source for 5 minutes |
+| **Parsing Failure** | N/A | Alternative parsing strategy | 2 | Try different selectors + content cleanup |
+| **Empty Results** | N/A | Fallback selectors + broad search | 2 | Remove location filters, expand keyword |
+
+### Advanced Retry Logic with Circuit Breaker
+
+```bash
+# Circuit Breaker State Management
+CIRCUIT_BREAKERS=(
+  [wanted]=0
+  [jobkorea]=0  
+  [linkedin]=0
+)
+
+# Adaptive retry function
+adaptive_retry() {
+  local source="$1"
+  local attempt="$2"
+  local error_code="$3"
+  
+  # Check circuit breaker status
+  if [[ ${CIRCUIT_BREAKERS[$source]} -eq 1 ]]; then
+    echo "🔌 Circuit breaker active for $source - skipping"
+    return 1
+  fi
+  
+  case $error_code in
+    429) # Rate limiting
+      if [[ $attempt -ge 3 ]]; then
+        echo "🚦 Rate limit exceeded - activating circuit breaker for $source"
+        CIRCUIT_BREAKERS[$source]=1
+        sleep 300 # 5 minute cooldown
+        return 1
+      fi
+      delay=$((5 * attempt))
+      echo "🚦 Rate limited - waiting ${delay}s"
+      sleep $delay
+      ;;
+      
+    503) # Service unavailable
+      if [[ $attempt -ge 2 ]]; then
+        echo "🏥 Service unavailable - circuit breaker activated for $source"
+        CIRCUIT_BREAKERS[$source]=1
+        sleep 300
+        return 1
+      fi
+      delay=$((10 * attempt))
+      echo "🏥 Service down - waiting ${delay}s"
+      sleep $delay
+      ;;
+      
+    403) # Access denied
+      if [[ $attempt -ge 2 ]]; then
+        echo "🔐 Access denied - switching to mobile UA for $source"
+        # Switch to mobile user agent
+        MOBILE_UA="Mozilla/5.0 (iPhone; CPU iPhone OS 15_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6 Mobile/15E148 Safari/604.1"
+        export USER_AGENT="$MOBILE_UA"
+      fi
+      ;;
+  esac
+  
+  return 0
+}
+
+# Exponential backoff with jitter
+exponential_backoff_with_jitter() {
+  local base_delay="$1"
+  local attempt="$2"
+  local jitter=$((RANDOM % 1000))
+  local delay=$((base_delay * (2 ** (attempt - 1)) + jitter))
+  local max_delay=30000
+  
+  delay=$((delay < max_delay ? delay : max_delay))
+  echo "⏰ Waiting ${delay}ms (attempt $attempt)"
+  sleep $((delay / 1000))
+}
+```
+
+### Graceful Degradation Strategy
+
+```bash
+# Data quality prioritization
+graceful_degradation() {
+  local raw_data="$1"
+  local source="$2"
+  local attempt="$3"
+  
+  # Priority: Basic info > Partial extraction > Skip
+  if [[ -n "$raw_data" ]]; then
+    # Extract minimal required fields (title, company, url)
+    local minimal_data=$(echo "$raw_data" | jq -c '{
+      id: (.id // empty),
+      title: (.title // empty),
+      company: (.company // empty),
+      url: (.url // empty),
+      source: "'$source'"
+    }')
+    
+    if [[ -n "$minimal_data" ]]; then
+      echo "📝 Partial data extracted - saving minimal record"
+      echo "$minimal_data" >> "${source}_partial.json"
+      return 0
+    fi
+  fi
+  
+  # Fallback: Save error metadata for later analysis
+  local error_record=$(echo '{
+    timestamp: "'$(date -Iseconds)'",
+    source: "'$source'",
+    attempt: '$attempt',
+    error: "Extraction failed",
+    data_size: '"${#raw_data}"'
+  }' | jq -c '.')
+  
+  echo "$error_record" >> "${source}_errors.json"
+  return 1
+}
+```
+
+### Enhanced Monitoring & Adaptive Response
+
+```bash
+# Real-time performance monitoring
+performance_monitoring() {
+  local source="$1"
+  local start_time="$2"
+  local success="$3"
+  
+  local duration=$((SECONDS - start_time))
+  local timestamp=$(date -Iseconds)
+  
+  # Update performance metrics
+  local metrics_file="data/autoresearch/scraping-performance.json"
+  local metrics=$(cat "$metrics_file" 2>/dev/null || echo '{}')
+  
+  echo "$metrics" | jq --arg source "$source" \
+    --arg timestamp "$timestamp" \
+    --arg duration "$duration" \
+    --arg success "$success" \
+    '.[$source] += {timestamp: $timestamp, duration: ($duration | tonumber), success: ($success == "true")}' > "$metrics_file"
+  
+  # Adaptive timeout adjustment
+  local avg_duration=$(echo "$metrics" | jq ".[\"$source\"] | map(.duration) | add / length" 2>/dev/null || echo "5")
+  local new_timeout=$(echo "$avg_duration * 1.5" | bc 2>/dev/null || echo "7.5")
+  
+  echo "📊 Average response time for $source: ${avg_duration}s (adjusted timeout: ${new_timeout}s)"
+}
+```
 
 ## Post-Processing Pipeline (EXP-053)
 

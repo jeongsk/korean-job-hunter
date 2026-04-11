@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-11T01:05:48.174Z",
+  "timestamp": "2026-04-11T07:05:16.512Z",
   "test_type": "enhanced_scraping_comprehensive",
   "baseline_stats": {
     "success_rate": 71.79,
@@ -12,15 +12,55 @@
     "total_tests": 5,
     "successful_tests": 5,
     "failed_tests": 0,
-    "jobs_collected": 12,
+    "jobs_collected": 29,
     "field_completeness": 0,
     "success_rate": 100,
     "test_details": [
       {
         "keyword": "백엔드 개발자",
+        "attempts": 3,
+        "success": true,
+        "jobs_collected": 8,
+        "error": "HTTP 429 - Retrying with UA rotation...",
+        "duration": 3019,
+        "retry_attempts": 2,
+        "user_agents_used": [
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15"
+        ],
+        "field_completeness": 100,
+        "http_errors": [
+          403,
+          429
+        ],
+        "fallback_attempts": 0
+      },
+      {
+        "keyword": "프론트엔드 엔지니어",
+        "attempts": 3,
+        "success": true,
+        "jobs_collected": 8,
+        "error": "HTTP 429 - Retrying with UA rotation...",
+        "duration": 3011,
+        "retry_attempts": 2,
+        "user_agents_used": [
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15"
+        ],
+        "field_completeness": 100,
+        "http_errors": [
+          504,
+          429
+        ],
+        "fallback_attempts": 0
+      },
+      {
+        "keyword": "Node.js 개발자",
         "attempts": 1,
         "success": true,
-        "jobs_collected": 3,
+        "jobs_collected": 5,
         "error": null,
         "duration": 0,
         "retry_attempts": 0,
@@ -32,46 +72,10 @@
         "fallback_attempts": 0
       },
       {
-        "keyword": "프론트엔드 엔지니어",
-        "attempts": 2,
-        "success": true,
-        "jobs_collected": 3,
-        "error": "HTTP 504 - Retrying with UA rotation...",
-        "duration": 1008,
-        "retry_attempts": 1,
-        "user_agents_used": [
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-        ],
-        "field_completeness": 80,
-        "http_errors": [
-          504
-        ],
-        "fallback_attempts": 0
-      },
-      {
-        "keyword": "Node.js 개발자",
-        "attempts": 2,
-        "success": true,
-        "jobs_collected": 2,
-        "error": "HTTP 403 - Retrying with UA rotation...",
-        "duration": 1005,
-        "retry_attempts": 1,
-        "user_agents_used": [
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-        ],
-        "field_completeness": 100,
-        "http_errors": [
-          403
-        ],
-        "fallback_attempts": 0
-      },
-      {
         "keyword": "React 개발자",
         "attempts": 1,
         "success": true,
-        "jobs_collected": 3,
+        "jobs_collected": 7,
         "error": null,
         "duration": 0,
         "retry_attempts": 0,
@@ -84,17 +88,20 @@
       },
       {
         "keyword": "DevOps 엔지니어",
-        "attempts": 1,
+        "attempts": 2,
         "success": true,
         "jobs_collected": 1,
-        "error": null,
-        "duration": 0,
-        "retry_attempts": 0,
+        "error": "HTTP 429 - Retrying with UA rotation...",
+        "duration": 1003,
+        "retry_attempts": 1,
         "user_agents_used": [
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
         ],
         "field_completeness": 100,
-        "http_errors": [],
+        "http_errors": [
+          429
+        ],
         "fallback_attempts": 0
       }
     ]

@@ -1,0 +1,36 @@
+{
+  "wanted": [
+    {
+      "timestamp": "2026-04-11T07:09:14.316Z",
+      "duration": 3,
+      "success": true
+    },
+    {
+      "timestamp": "2026-04-11T07:09:14.317Z",
+      "duration": 0,
+      "success": true
+    },
+    {
+      "timestamp": "2026-04-11T07:09:14.317Z",
+      "duration": 0,
+      "success": true
+    }
+  ],
+  "linkedin": [
+    {
+      "timestamp": "2026-04-11T07:09:20.044Z",
+      "duration": 0,
+      "success": true
+    },
+    {
+      "timestamp": "2026-04-11T07:09:20.046Z",
+      "duration": 0,
+      "success": true
+    },
+    {
+      "timestamp": "2026-04-11T07:09:20.047Z",
+      "duration": 0,
+      "success": true
+    }
+  ]
+}

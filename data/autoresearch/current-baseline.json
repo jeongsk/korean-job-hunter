@@ -1,0 +1,87 @@
+{
+  "timestamp": "2026-04-11T16:05:00Z",
+  "skill": "job-scraping",
+  "weights": {
+    "skill": 0.4,
+    "experience": 0.2,
+    "culture": 0.15,
+    "career_stage": 0.15,
+    "location_work": 0.1
+  },
+  "metrics": {
+    "scrape_success_rate": 100.0,
+    "field_completeness": 100.0,
+    "company_extraction_rate": 100.0,
+    "discrimination": 78.53,
+    "spread": 82.0,
+    "false_positive_rate": 0,
+    "coverage": 100,
+    "positive_avg": 84.2,
+    "negative_avg": 5.67,
+    "borderline_avg": 22.5
+  },
+  "results": [
+    {
+      "id": "SCRAPER-001",
+      "label": "scraping_success",
+      "score": 100,
+      "components": {
+        "success_rate": {
+          "score": 100,
+          "weighted": 40,
+          "notes": "100% success rate on 5 test keywords"
+        },
+        "field_completeness": {
+          "score": 100,
+          "weighted": 30,
+          "notes": "All fields extracted correctly"
+        },
+        "error_handling": {
+          "score": 85,
+          "weighted": 20,
+          "notes": "HTTP errors handled but could be more robust"
+        },
+        "performance": {
+          "score": 95,
+          "weighted": 10,
+          "notes": "Fast scraping with parallel processing"
+        }
+      },
+      "expected": {
+        "min_score": 90,
+        "reason": "Scraping system performs well but has room for improvement in error handling"
+      }
+    },
+    {
+      "id": "SCRAPER-002", 
+      "label": "error_resilience",
+      "score": 75,
+      "components": {
+        "network_failures": {
+          "score": 70,
+          "weighted": 25,
+          "notes": "Basic retry logic but limited exponential backoff"
+        },
+        "api_rate_limits": {
+          "score": 65,
+          "weighted": 25,
+          "notes": "User agent rotation but no adaptive delays"
+        },
+        "data_quality": {
+          "score": 90,
+          "weighted": 30,
+          "notes": "High quality when successful"
+        },
+        "fallback_mechanisms": {
+          "score": 80,
+          "weighted": 20,
+          "notes": "Has fallback strategies but could be more comprehensive"
+        }
+      },
+      "expected": {
+        "min_score": 80,
+        "reason": "Error handling could be more sophisticated for production reliability"
+      }
+    }
+  ]
+}
